@@ -4,6 +4,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const TopBar = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
 
   const scrollToFooter = (e: React.MouseEvent) => {
     e.preventDefault();
