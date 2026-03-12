@@ -66,7 +66,7 @@ const CartSheet = () => {
                 <span>Total</span>
                 <span>₹{cartTotal.toLocaleString("en-IN")}</span>
               </div>
-              <Button className="w-full">Proceed to Checkout</Button>
+              <Button className="w-full" onClick={() => navigate("/checkout")}>Proceed to Checkout</Button>
               <Button variant="outline" className="w-full" onClick={clearCart}>Clear Cart</Button>
             </div>
           </>
