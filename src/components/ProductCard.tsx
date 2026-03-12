@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
@@ -12,7 +12,7 @@ interface ProductCardProps {
   compact?: boolean;
 }
 
-const ProductCard = memo(({ product, compact = false }: ProductCardProps) => {
+const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, compact = false }, ref) => {
   const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
@@ -158,7 +158,7 @@ const ProductCard = memo(({ product, compact = false }: ProductCardProps) => {
       )}
     </article>
   );
-});
+}));
 
 ProductCard.displayName = "ProductCard";
 
