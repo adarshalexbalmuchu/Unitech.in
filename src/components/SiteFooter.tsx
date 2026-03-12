@@ -12,7 +12,7 @@ const SiteFooter = () => (
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-[2fr_repeat(3,1fr)] gap-6 lg:gap-12 mb-8 md:mb-12">
         <div className="col-span-2 sm:col-span-2 lg:col-span-1">
           <a href="/" className="block mb-3 md:mb-4">
-            <img src="/unitech-logo.png" alt="Unitech India" className="h-8 md:h-9 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}unitech-logo.png`} alt="Unitech India" className="h-8 md:h-9 w-auto" />
           </a>
           <p className="text-xs md:text-sm text-muted-foreground mt-3 md:mt-4 max-w-[250px]">
             Manufacturing premium audio equipment and electronics since 1999. Trusted by professionals across India.

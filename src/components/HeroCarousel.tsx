@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const banners = [
-  { id: 1, src: "/banners/banner1.jpg" },
+  { id: 1, src: `${import.meta.env.BASE_URL}banners/banner1.jpg` },
 ];
 
 const HeroCarousel = () => {
