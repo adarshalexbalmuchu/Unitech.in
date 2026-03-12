@@ -22,7 +22,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename="/Unitech.in">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
