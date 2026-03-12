@@ -9,6 +9,7 @@ import { useProducts, type Product } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
