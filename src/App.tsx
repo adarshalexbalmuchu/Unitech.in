@@ -12,6 +12,9 @@ import AdminProducts from "./pages/AdminProducts.tsx";
 import AdminProductForm from "./pages/AdminProductForm.tsx";
 import Login from "./pages/Login.tsx";
 import SignUp from "./pages/SignUp.tsx";
+import Wishlist from "./pages/Wishlist.tsx";
+import Compare from "./pages/Compare.tsx";
+import Account from "./pages/Account.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/products/:category" element={<ProductListing />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
             <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />

@@ -9,6 +9,7 @@ import { useProducts, type Product } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -72,15 +73,28 @@ const ProductDetail = () => {
     for (let i = 0; i < qty; i++) {
       addToCart(product.id, { name: product.name, price: product.price ?? 0, image_url: product.image_url });
     }
+    toast.success(`Added ${qty} item${qty > 1 ? "s" : ""} to cart`, { description: product.name });
   };
 
   const handleWishlist = () => {
+    const wasWishlisted = wishlisted;
     toggleWishlist(product.id, {
       name: product.name,
       price: product.price,
       original_price: product.original_price,
       image_url: product.image_url,
     });
+    toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", { description: product.name });
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: product.name, url }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
   };
 
   const specEntries = Object.entries(product.specs || {}).filter(
@@ -252,7 +266,7 @@ const ProductDetail = () => {
                   <Heart className={`w-5 h-5 ${wishlisted ? "fill-current" : ""}`} />
                 </button>
 
-                <button className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
+                <button onClick={handleShare} className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
