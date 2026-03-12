@@ -2,7 +2,7 @@ import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
