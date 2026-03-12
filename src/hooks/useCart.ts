@@ -52,7 +52,7 @@ export const useCart = create<CartStore>()(
                 id: crypto.randomUUID(),
                 product_id: productId,
                 quantity: 1,
-                product: product || { name: "Product", price: 0, image_url: "/placeholder.svg" },
+                product: product || { name: "Product", price: 0, image_url: `${import.meta.env.BASE_URL}placeholder.svg` },
               },
             ],
           });
