@@ -266,7 +266,7 @@ const ProductDetail = () => {
                   <Heart className={`w-5 h-5 ${wishlisted ? "fill-current" : ""}`} />
                 </button>
 
-                <button className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
+                <button onClick={handleShare} className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
