@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
 import ProductListing from "./pages/ProductListing.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
+import AdminProducts from "./pages/AdminProducts.tsx";
+import AdminProductForm from "./pages/AdminProductForm.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/products/:category" element={<ProductListing />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/new" element={<AdminProductForm />} />
+            <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
