@@ -6,7 +6,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts, type Product } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { toast } from "sonner";
