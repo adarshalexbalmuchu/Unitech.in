@@ -128,7 +128,7 @@ const ProductDetail = () => {
                   -{discount}%
                 </span>
               )}
-              {images[activeImg] && images[activeImg] !== "/placeholder.svg" ? (
+              {!isPlaceholderImage(images[activeImg]) ? (
                 <img src={images[activeImg]} alt={product.name} className="w-full h-full object-contain p-4 md:p-6" />
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground/30">

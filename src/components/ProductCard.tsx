@@ -96,7 +96,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
       {/* ── Image ── */}
       <div className="w-full aspect-square bg-surface rounded-md overflow-hidden flex justify-center items-center">
-        {product.image_url && product.image_url !== "/placeholder.svg" ? (
+        {!isPlaceholderImage(product.image_url) ? (
           <img
             src={product.image_url}
             alt={product.name}

@@ -253,13 +253,13 @@ const AdminProductForm = () => {
                       <Upload className="h-4 w-4 mr-2" />
                       {uploading ? "Uploading…" : "Upload Image"}
                     </Button>
-                    {form.image_url && form.image_url !== "/placeholder.svg" && (
+                    {form.image_url && !form.image_url.includes("placeholder") && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="ml-2 text-destructive"
-                        onClick={() => set("image_url", "/placeholder.svg")}
+                        onClick={() => set("image_url", "")}
                       >
                         <X className="h-4 w-4 mr-1" /> Remove
                       </Button>
