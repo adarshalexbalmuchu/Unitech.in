@@ -2,7 +2,7 @@ import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
@@ -96,7 +96,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
       {/* ── Image ── */}
       <div className="w-full aspect-square bg-surface rounded-md overflow-hidden flex justify-center items-center">
-        {product.image_url && product.image_url !== "/placeholder.svg" ? (
+        {!isPlaceholderImage(product.image_url) ? (
           <img
             src={product.image_url}
             alt={product.name}

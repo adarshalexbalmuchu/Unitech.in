@@ -9,6 +9,10 @@ import {
   Plug,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+/** Check if an image URL is a placeholder (should show fallback icon instead) */
+export const isPlaceholderImage = (url?: string | null): boolean =>
+  !url || url === "/placeholder.svg" || url.endsWith("/placeholder.svg");
+
 
 export const SITE_NAME = "Unitech India";
 export const SITE_TAGLINE = "Expand Your Life";

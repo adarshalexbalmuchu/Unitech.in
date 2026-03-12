@@ -35,7 +35,7 @@ const uploadFile = async (file: File): Promise<string> => {
 
 const emptyProduct: Omit<Product, "id" | "created_at" | "updated_at"> = {
   name: "", slug: "", description: "", category: "", brand: "Unitech", model_number: "",
-  price: null, original_price: null, image_url: "/placeholder.svg", images: [],
+  price: null, original_price: null, image_url: "", images: [],
   collections: [], is_featured: false, is_active: true, stock: 0, sku: "",
   rating: 0, reviews_count: 0, specs: {}, sale_start: null, sale_end: null,
 };
@@ -230,7 +230,7 @@ const AdminProductForm = () => {
                 <Label>Primary Image</Label>
                 <div className="flex items-center gap-4">
                   <div className="h-20 w-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                    {form.image_url && form.image_url !== "/placeholder.svg" ? (
+                    {form.image_url && !form.image_url.includes("placeholder") ? (
                       <img src={form.image_url} alt="Primary" className="h-full w-full object-cover" />
                     ) : (
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
@@ -253,13 +253,13 @@ const AdminProductForm = () => {
                       <Upload className="h-4 w-4 mr-2" />
                       {uploading ? "Uploading…" : "Upload Image"}
                     </Button>
-                    {form.image_url && form.image_url !== "/placeholder.svg" && (
+                    {form.image_url && !form.image_url.includes("placeholder") && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="ml-2 text-destructive"
-                        onClick={() => set("image_url", "/placeholder.svg")}
+                        onClick={() => set("image_url", "")}
                       >
                         <X className="h-4 w-4 mr-1" /> Remove
                       </Button>

@@ -6,7 +6,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts, type Product } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { toast } from "sonner";
@@ -128,7 +128,7 @@ const ProductDetail = () => {
                   -{discount}%
                 </span>
               )}
-              {images[activeImg] && images[activeImg] !== "/placeholder.svg" ? (
+              {!isPlaceholderImage(images[activeImg]) ? (
                 <img src={images[activeImg]} alt={product.name} className="w-full h-full object-contain p-4 md:p-6" />
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
