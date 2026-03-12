@@ -19,8 +19,8 @@ const HeroCarousel = () => {
   }, [current, goTo]);
 
   return (
-    <section className="max-w-[1280px] mx-auto px-6 py-6">
-      <div className="relative rounded-xl overflow-hidden" style={{ height: "clamp(320px, 45vw, 460px)" }}>
+    <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-4 md:py-6">
+      <div className="relative rounded-xl overflow-hidden" style={{ height: "clamp(180px, 45vw, 460px)" }}>
         <div
           className="flex h-full transition-transform duration-700 ease-in-out will-change-transform"
           style={{ transform: `translateX(-${current * 100}%)` }}
@@ -36,9 +36,8 @@ const HeroCarousel = () => {
           ))}
         </div>
 
-        {/* Dot indicators */}
         {banners.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
             {banners.map((_, i) => (
               <button
                 key={i}
@@ -46,8 +45,8 @@ const HeroCarousel = () => {
                 aria-label={`Go to banner ${i + 1}`}
                 className={`rounded-full transition-all duration-300 ${
                   i === current
-                    ? "w-8 h-2.5 bg-background"
-                    : "w-2.5 h-2.5 bg-white/40 hover:bg-white/70"
+                    ? "w-6 md:w-8 h-2 md:h-2.5 bg-background"
+                    : "w-2 md:w-2.5 h-2 md:h-2.5 bg-white/40 hover:bg-white/70"
                 }`}
               />
             ))}

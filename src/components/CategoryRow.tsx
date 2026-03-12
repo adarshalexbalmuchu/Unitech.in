@@ -2,21 +2,21 @@ import { Link } from "react-router-dom";
 import { CATEGORIES } from "@/lib/constants";
 
 const CategoryRow = () => (
-  <section className="max-w-[1280px] mx-auto px-6 pt-4 pb-8">
-    <div className="flex gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2">
+  <section className="max-w-[1280px] mx-auto px-4 md:px-6 pt-2 md:pt-4 pb-6 md:pb-8">
+    <div className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-2">
       {CATEGORIES.map((cat) => {
         const Icon = cat.icon;
         return (
           <Link
             key={cat.slug}
             to={`/products/${cat.slug}`}
-            className="flex-shrink-0 flex flex-col items-center gap-3 cursor-pointer group snap-start"
-            style={{ minWidth: 80 }}
+            className="flex-shrink-0 flex flex-col items-center gap-2 md:gap-3 cursor-pointer group snap-start"
+            style={{ minWidth: 68 }}
           >
-            <div className="w-16 h-16 bg-surface rounded-2xl flex justify-center items-center transition-all duration-300 group-hover:bg-primary/10 group-hover:-translate-y-1">
-              <Icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-surface rounded-xl md:rounded-2xl flex justify-center items-center transition-all duration-300 group-hover:bg-primary/10 group-hover:-translate-y-1">
+              <Icon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
             </div>
-            <span className="text-xs font-semibold text-center">{cat.label}</span>
+            <span className="text-[10px] md:text-xs font-semibold text-center leading-tight">{cat.label}</span>
           </Link>
         );
       })}
