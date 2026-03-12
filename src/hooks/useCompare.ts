@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { ProductSpecs } from "@/hooks/useProducts";
 
 interface CompareProduct {
   id: string;
@@ -10,7 +11,7 @@ interface CompareProduct {
   category: string;
   brand: string | null;
   description: string | null;
-  discount_percent: number;
+  specs: ProductSpecs;
 }
 
 interface CompareStore {
