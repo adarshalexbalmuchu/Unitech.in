@@ -48,7 +48,7 @@ export const useWishlist = create<WishlistStore>()(
                   name: "Product",
                   price: 0,
                   original_price: 0,
-                  image_url: "/placeholder.svg",
+                  image_url: `${import.meta.env.BASE_URL}placeholder.svg`,
                 },
               },
             ],
