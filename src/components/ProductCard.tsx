@@ -29,11 +29,15 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const wasWishlisted = wishlisted;
     toggleWishlist(product.id, {
       name: product.name,
       price: product.price,
       original_price: product.original_price,
       image_url: product.image_url,
+    });
+    toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", {
+      description: product.name,
     });
   };
 
@@ -43,6 +47,9 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       name: product.name,
       price: product.price ?? 0,
       image_url: product.image_url,
+    });
+    toast.success("Added to cart", {
+      description: product.name,
     });
   };
 
