@@ -1,10 +1,31 @@
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const productLinks = [
+  { label: "Tower Speakers", to: "/products/tower-speakers" },
+  { label: "Home Theatre", to: "/products/home-theatre-systems" },
+  { label: "Car Audio", to: "/products/car-audio" },
+  { label: "DTH Receivers", to: "/products/dth-receivers" },
+];
+
+const supportLinks = [
+  { label: "Warranty Info", to: "/warranty" },
+  { label: "Contact Us", to: "/contact" },
+  { label: "Shipping & Delivery", to: "/shipping" },
+  { label: "Returns & Refunds", to: "/returns" },
+];
+
+const guideLinks = [
+  { label: "Help Center", to: "/help" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Privacy Policy", to: "/privacy" },
+  { label: "Terms of Service", to: "/terms" },
+];
+
 const columns = [
-  { title: "Products", links: ["Tower Speakers", "Home Theatre", "Car Audio", "DTH Receivers"] },
-  { title: "Support", links: ["Warranty Info", "Contact Us", "Shipping & Delivery", "Returns & Refunds"] },
-  { title: "Guide & Help", links: ["Help Center", "FAQ", "Privacy Policy", "Terms of Service"] },
+  { title: "Products", links: productLinks },
+  { title: "Support", links: supportLinks },
+  { title: "Guide & Help", links: guideLinks },
 ];
 
 const SiteFooter = () => (
@@ -19,16 +40,16 @@ const SiteFooter = () => (
             Manufacturing premium audio equipment and electronics since 1999. Trusted by professionals across India.
           </p>
           <div className="flex gap-3 mt-4 md:mt-5">
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground vm-transition">
+            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground vm-transition">
+            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground vm-transition">
+            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Twitter className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground vm-transition">
+            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Youtube className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
           </div>
@@ -52,8 +73,10 @@ const SiteFooter = () => (
             <h5 className="font-bold text-sm md:text-base mb-3 md:mb-5">{col.title}</h5>
             <ul className="flex flex-col gap-2 md:gap-3">
               {col.links.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-xs md:text-sm text-muted-foreground hover:text-primary vm-transition">{link}</a>
+                <li key={link.label}>
+                  <Link to={link.to} className="text-xs md:text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -61,7 +84,7 @@ const SiteFooter = () => (
         ))}
       </div>
       <div className="text-center pt-6 md:pt-8 border-t border-border text-xs md:text-sm text-muted-foreground">
-        © 2024 Unitech India. All rights reserved. Expand Your Life.
+        © {new Date().getFullYear()} Unitech India. All rights reserved. Expand Your Life.
       </div>
     </div>
   </footer>
