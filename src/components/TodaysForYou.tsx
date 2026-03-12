@@ -31,13 +31,13 @@ const TodaysForYou = () => {
   }, [active, hotSelling, newArrivals, topRated, allProducts]);
 
   return (
-    <section className="max-w-[1280px] mx-auto px-6 py-16">
-      <div className="flex border-b border-border mb-8 overflow-x-auto scrollbar-none">
+    <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-10 md:py-16">
+      <div className="flex border-b border-border mb-6 md:mb-8 overflow-x-auto scrollbar-none">
         {tabs.map((tab, i) => (
           <button
             key={tab.label}
             onClick={() => setActive(i)}
-            className={`px-8 py-4 text-base font-semibold whitespace-nowrap relative transition-colors ${
+            className={`px-4 md:px-8 py-3 md:py-4 text-sm md:text-base font-semibold whitespace-nowrap relative transition-colors ${
               i === active ? "text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -49,7 +49,7 @@ const TodaysForYou = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {displayProducts.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}

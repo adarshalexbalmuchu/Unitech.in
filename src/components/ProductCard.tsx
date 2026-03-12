@@ -52,7 +52,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
     <article
       onClick={handleNavigate}
       className={`group bg-card rounded-lg flex flex-col relative cursor-pointer outline outline-1 outline-border -outline-offset-1 hover:outline-primary/30 transition-all duration-300 hover:shadow-[var(--vm-shadow-hover)] ${
-        compact ? "w-[200px] md:w-[220px] min-w-[200px] flex-shrink-0 snap-start p-3 gap-2.5" : "p-3 gap-3"
+        compact ? "w-[160px] sm:w-[200px] md:w-[220px] min-w-[160px] flex-shrink-0 snap-start p-2.5 sm:p-3 gap-2" : "p-2.5 sm:p-3 gap-2 sm:gap-3"
       }`}
     >
       {/* ── Badges ── */}
@@ -113,7 +113,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       )}
 
       {/* ── Name ── */}
-      <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-xs" : "text-sm"}`}>
+      <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm"}`}>
         {product.name}
       </h3>
 
@@ -136,7 +136,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
       {/* ── Pricing ── */}
       <div className="flex items-baseline gap-2 tabular-nums mt-auto">
-        <span className={`font-extrabold text-primary ${compact ? "text-base" : "text-lg"}`}>
+        <span className={`font-extrabold text-primary ${compact ? "text-sm sm:text-base" : "text-base sm:text-lg"}`}>
           {formatPrice(product.price)}
         </span>
         {product.original_price && product.original_price > (product.price ?? 0) && (
