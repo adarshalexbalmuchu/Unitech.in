@@ -1,4 +1,6 @@
-import { Search, ShoppingCart, Bell } from "lucide-react";
+import { Search } from "lucide-react";
+import CartSheet from "@/components/CartSheet";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const StickyHeader = () => (
   <header className="sticky top-0 z-50 bg-background shadow-[0_1px_2px_rgba(0,0,0,0.06)] py-3">
@@ -24,13 +26,9 @@ const StickyHeader = () => (
           <Search className="w-4 h-4" strokeWidth={1.5} />
         </button>
       </div>
-      <div className="flex gap-3 shrink-0">
-        <button className="p-2 rounded-full hover:bg-surface vm-transition" aria-label="Cart">
-          <ShoppingCart className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
-        </button>
-        <button className="p-2 rounded-full hover:bg-surface vm-transition" aria-label="Notifications">
-          <Bell className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
-        </button>
+      <div className="flex gap-1 shrink-0">
+        <CartSheet />
+        <NotificationDropdown />
       </div>
     </div>
   </header>
