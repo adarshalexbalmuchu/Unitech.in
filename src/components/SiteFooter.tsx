@@ -1,4 +1,5 @@
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const columns = [
   { title: "Products", links: ["Tower Speakers", "Home Theatre", "Car Audio", "DTH Receivers"] },
