@@ -1,12 +1,18 @@
 import { useState } from "react";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Heart, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import SearchModal from "@/components/SearchModal";
 import { CATEGORIES } from "@/lib/constants";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuth } from "@/contexts/AuthContext";
 
 const StickyHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { wishlistItems } = useWishlist();
+  const { user } = useAuth();
 
   return (
     <>
@@ -26,45 +32,43 @@ const StickyHeader = () => {
           </Link>
 
           {/* Desktop search */}
-          <div className="hidden md:flex flex-1 bg-surface rounded-lg overflow-hidden border border-transparent focus-within:border-primary focus-within:bg-background vm-transition">
-            <select className="px-4 py-3 bg-transparent border-r border-border text-vm-muted text-sm outline-none">
-              <option>All Categories</option>
-              <option>Tower Speakers</option>
-              <option>Home Theatre</option>
-              <option>Car Audio</option>
-              <option>DTH Receivers</option>
-              <option>Amplifiers</option>
-            </select>
-            <input
-              type="text"
-              className="flex-1 px-4 py-3 bg-transparent outline-none text-sm placeholder:text-vm-muted"
-              placeholder="Search for speakers, amplifiers, audio..."
-            />
-            <button className="px-4 text-vm-muted hover:text-primary vm-transition">
-              <Search className="w-4 h-4" strokeWidth={1.5} />
-            </button>
+          <div
+            onClick={() => setSearchOpen(true)}
+            className="hidden md:flex flex-1 bg-surface rounded-lg overflow-hidden border border-transparent hover:border-primary/30 cursor-pointer transition-colors items-center px-4 py-3 gap-3"
+          >
+            <Search className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-sm text-muted-foreground">Search for speakers, amplifiers, audio...</span>
           </div>
 
-          {/* Mobile search icon */}
-          <div className="flex-1 md:hidden">
-            <div className="flex bg-surface rounded-lg overflow-hidden border border-transparent focus-within:border-primary">
-              <input
-                type="text"
-                className="flex-1 px-3 py-2 bg-transparent outline-none text-sm placeholder:text-vm-muted min-w-0"
-                placeholder="Search..."
-              />
-              <button className="px-3 text-vm-muted hover:text-primary">
-                <Search className="w-4 h-4" strokeWidth={1.5} />
-              </button>
+          {/* Mobile search */}
+          <div className="flex-1 md:hidden" onClick={() => setSearchOpen(true)}>
+            <div className="flex bg-surface rounded-lg overflow-hidden border border-transparent items-center px-3 py-2 gap-2 cursor-pointer">
+              <Search className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+              <span className="text-sm text-muted-foreground">Search...</span>
             </div>
           </div>
 
           <div className="flex gap-0.5 shrink-0">
+            {/* Wishlist */}
+            <Link to="/wishlist" className="p-2 rounded-full hover:bg-surface transition-colors relative" aria-label="Wishlist">
+              <Heart className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center">
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Link>
             <CartSheet />
-            <NotificationDropdown />
+            {/* Account */}
+            <Link to={user ? "/account" : "/login"} className="p-2 rounded-full hover:bg-surface transition-colors" aria-label="Account">
+              <User className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
+            </Link>
           </div>
         </div>
       </header>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Mobile navigation drawer */}
       {mobileMenuOpen && (
@@ -89,6 +93,12 @@ const StickyHeader = () => {
               })}
             </div>
             <div className="border-t border-border p-4 space-y-1">
+              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground">
+                Wishlist ({wishlistItems.length})
+              </Link>
+              <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground">
+                My Account
+              </Link>
               <a
                 href="#footer"
                 onClick={(e) => {
