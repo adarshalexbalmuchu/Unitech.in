@@ -36,6 +36,7 @@ const App = () => (
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
             <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
