@@ -21,8 +21,12 @@ const TopBar = () => {
         <div className="flex gap-3 items-center ml-auto">
           {user ? (
             <>
-              <Link to="/admin/products" className="hover:text-primary vm-transition">Admin Panel</Link>
-              <span>|</span>
+              {isAdmin && (
+                <>
+                  <Link to="/admin/products" className="hover:text-primary vm-transition">Admin Panel</Link>
+                  <span>|</span>
+                </>
+              )}
               <span className="text-muted-foreground">{user.email}</span>
               <span>|</span>
               <button onClick={signOut} className="hover:text-primary vm-transition">Logout</button>
