@@ -12,7 +12,7 @@ interface ProductCardProps {
   compact?: boolean;
 }
 
-const ProductCard = memo(({ product, compact = false }: ProductCardProps) => {
+const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, compact = false }, ref) => {
   const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addToCart } = useCart();
