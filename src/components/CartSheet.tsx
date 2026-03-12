@@ -34,7 +34,13 @@ const CartSheet = () => {
             <div className="flex-1 overflow-y-auto space-y-4 py-4">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex gap-3 items-start">
-                  <img src={item.product.image_url} alt={item.product.name} className="w-16 h-16 rounded-lg object-cover bg-surface" />
+                  {!isPlaceholderImage(item.product.image_url) ? (
+                    <img src={item.product.image_url} alt={item.product.name} className="w-16 h-16 rounded-lg object-cover bg-surface" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-surface flex items-center justify-center">
+                      <ShoppingCart className="w-6 h-6 text-muted-foreground/30" strokeWidth={1} />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.product.name}</p>
                     <p className="text-sm text-primary font-semibold">₹{item.product.price.toLocaleString("en-IN")}</p>
