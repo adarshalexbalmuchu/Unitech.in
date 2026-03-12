@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import { formatPrice } from "@/lib/constants";
 
 const flashProducts = [
-  { name: "Pro Wireless Noise Cancelling Headphones", discount: 40, price: 149, old: 249, rating: 4.9, sold: "12k+", progress: 85 },
-  { name: "Ultra HD Smart Watch Series 8", discount: 25, price: 299, old: 399, rating: 4.7, sold: "8k+", progress: 40 },
-  { name: "Mechanical Gaming Keyboard RGB", discount: 15, price: 85, old: 100, rating: 4.8, sold: "5k+", progress: 95 },
-  { name: "Portable SSD 1TB USB-C", discount: 50, price: 59, old: 118, rating: 4.9, sold: "20k+", progress: 60 },
-  { name: "Smartphone Gimbal Stabilizer 3-Axis", discount: 30, price: 99, old: 142, rating: 4.6, sold: "3k+", progress: 20 },
+  { name: "5.1 Tower Speaker System – 1200W", discount: 40, price: 14999, old: 24999, rating: 4.9, sold: "12k+", progress: 85 },
+  { name: "Home Theatre System – Dolby Atmos", discount: 25, price: 18999, old: 27999, rating: 4.7, sold: "8k+", progress: 40 },
+  { name: "Car Stereo – Bluetooth 5.0", discount: 30, price: 4999, old: 6999, rating: 4.8, sold: "5k+", progress: 95 },
+  { name: "DTH Set Top Box – HD Ready", discount: 50, price: 1499, old: 2999, rating: 4.9, sold: "20k+", progress: 60 },
+  { name: "Audio Amplifier – 500W RMS", discount: 35, price: 7799, old: 11999, rating: 4.6, sold: "3k+", progress: 20 },
 ];
 
 const FlashSale = () => {
@@ -43,14 +44,14 @@ const FlashSale = () => {
               <span className="absolute top-5 left-5 bg-destructive text-destructive-foreground text-[0.625rem] font-extrabold px-2 py-1 rounded uppercase">
                 -{p.discount}%
               </span>
-              <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">📷</div>
+              <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">🔊</div>
               <h3 className="text-sm font-medium leading-snug line-clamp-2">{p.name}</h3>
               <div className="flex items-center gap-2 text-xs text-vm-muted">
                 <span className="text-yellow-400">★</span> {p.rating} • {p.sold} Sold
               </div>
               <div className="flex items-baseline gap-2 tabular-nums mt-auto">
-                <span className="text-lg font-extrabold text-primary">${p.price}</span>
-                <span className="text-xs line-through text-muted-foreground">${p.old}</span>
+                <span className="text-lg font-extrabold text-primary">{formatPrice(p.price)}</span>
+                <span className="text-xs line-through text-muted-foreground">{formatPrice(p.old)}</span>
               </div>
               <div>
                 <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden">
