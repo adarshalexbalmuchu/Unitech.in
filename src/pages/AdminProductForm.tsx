@@ -35,7 +35,7 @@ const uploadFile = async (file: File): Promise<string> => {
 
 const emptyProduct: Omit<Product, "id" | "created_at" | "updated_at"> = {
   name: "", slug: "", description: "", category: "", brand: "Unitech", model_number: "",
-  price: null, original_price: null, image_url: "/placeholder.svg", images: [],
+  price: null, original_price: null, image_url: "", images: [],
   collections: [], is_featured: false, is_active: true, stock: 0, sku: "",
   rating: 0, reviews_count: 0, specs: {}, sale_start: null, sale_end: null,
 };
