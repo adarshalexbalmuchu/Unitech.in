@@ -113,7 +113,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       )}
 
       {/* ── Name ── */}
-      <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-xs" : "text-sm"}`}>
+      <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm"}`}>
         {product.name}
       </h3>
 
