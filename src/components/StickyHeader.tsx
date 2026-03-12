@@ -21,9 +21,9 @@ const StickyHeader = () => {
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <a href="/" className="shrink-0">
+          <Link to="/" className="shrink-0">
             <img src={`${import.meta.env.BASE_URL}unitech-logo.png`} alt="Unitech India" className="h-7 sm:h-8 md:h-9 w-auto" />
-          </a>
+          </Link>
 
           {/* Desktop search */}
           <div className="hidden md:flex flex-1 bg-surface rounded-lg overflow-hidden border border-transparent focus-within:border-primary focus-within:bg-background vm-transition">
