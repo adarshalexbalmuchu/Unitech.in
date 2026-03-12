@@ -15,6 +15,7 @@ import SignUp from "./pages/SignUp.tsx";
 import Wishlist from "./pages/Wishlist.tsx";
 import Compare from "./pages/Compare.tsx";
 import Account from "./pages/Account.tsx";
+import Checkout from "./pages/Checkout.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
