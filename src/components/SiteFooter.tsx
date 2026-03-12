@@ -40,16 +40,16 @@ const SiteFooter = () => (
             Manufacturing premium audio equipment and electronics since 1999. Trusted by professionals across India.
           </p>
           <div className="flex gap-3 mt-4 md:mt-5">
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+            <a href="https://www.facebook.com/Unitechindia.net/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+            <a href="https://www.instagram.com/unitechindiaofficial/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+            <a href="https://x.com/UNITECH_INDIA" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Twitter className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
-            <a href="#" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
+            <a href="https://youtube.com/@unitechindia8273?si=nW4NphKv4yiEtmn4" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-9 md:h-9 bg-surface hover:bg-primary rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary-foreground transition-colors">
               <Youtube className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
             </a>
           </div>
