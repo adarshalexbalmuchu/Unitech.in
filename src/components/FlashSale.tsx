@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Speaker } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 
 const flashProducts = [
@@ -44,10 +45,12 @@ const FlashSale = () => {
               <span className="absolute top-5 left-5 bg-destructive text-destructive-foreground text-[0.625rem] font-extrabold px-2 py-1 rounded uppercase">
                 -{p.discount}%
               </span>
-              <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">🔊</div>
+              <div className="w-full aspect-square bg-surface rounded flex justify-center items-center">
+                <Speaker className="w-10 h-10 text-muted-foreground/40" strokeWidth={1} />
+              </div>
               <h3 className="text-sm font-medium leading-snug line-clamp-2">{p.name}</h3>
-              <div className="flex items-center gap-2 text-xs text-vm-muted">
-                <span className="text-yellow-400">★</span> {p.rating} • {p.sold} Sold
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-amber-500">★</span> {p.rating} • {p.sold} Sold
               </div>
               <div className="flex items-baseline gap-2 tabular-nums mt-auto">
                 <span className="text-lg font-extrabold text-primary">{formatPrice(p.price)}</span>
