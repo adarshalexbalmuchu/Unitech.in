@@ -1,15 +1,18 @@
 import { useState } from "react";
+import { formatPrice } from "@/lib/constants";
 
-const tabs = ["Best Seller", "New Arrivals", "Special Discount", "Official Store"];
+const tabs = ["Best Seller", "New Arrivals", "Special Discount", "Top Rated"];
 
-const products = Array.from({ length: 8 }, (_, i) => ({
-  id: i + 1,
-  name: `Premium Tech Gadget Model ${i + 1} - High Performance`,
-  rating: (4 + Math.random() * 0.9).toFixed(1),
-  sold: `${Math.floor(Math.random() * 10 + 1)}k+`,
-  price: Math.floor(Math.random() * 500 + 50),
-  oldPrice: i % 2 === 0 ? Math.floor(Math.random() * 200 + 600) : null,
-}));
+const products = [
+  { id: 1, name: "5.1 Tower Speaker System – Deep Bass", rating: 4.8, sold: "12k+", price: 24999, oldPrice: 34999 },
+  { id: 2, name: "Home Theatre Dolby Atmos Surround", rating: 4.7, sold: "8k+", price: 18999, oldPrice: 27999 },
+  { id: 3, name: "Car Stereo System – Bluetooth 5.0", rating: 4.6, sold: "5k+", price: 4999, oldPrice: 6999 },
+  { id: 4, name: "DTH Set Top Box – Free-to-Air HD", rating: 4.5, sold: "20k+", price: 1999, oldPrice: 2999 },
+  { id: 5, name: "Audio Amplifier 500W – Pro Grade", rating: 4.9, sold: "3k+", price: 7999, oldPrice: 11999 },
+  { id: 6, name: "Portable Bluetooth Speaker 20hr", rating: 4.4, sold: "15k+", price: 2499, oldPrice: 3999 },
+  { id: 7, name: "Multimedia 2.1 Desktop Speakers", rating: 4.3, sold: "7k+", price: 3499, oldPrice: 4999 },
+  { id: 8, name: "Karaoke System – Wireless Mic Set", rating: 4.6, sold: "4k+", price: 5999, oldPrice: 8999 },
+];
 
 const TodaysForYou = () => {
   const [active, setActive] = useState(0);
@@ -42,14 +45,14 @@ const TodaysForYou = () => {
             <button className="absolute top-5 right-5 bg-background w-8 h-8 rounded-full flex justify-center items-center shadow-md text-base z-10 vm-transition hover:text-destructive hover:scale-110">
               ♡
             </button>
-            <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">📷</div>
+            <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">🔊</div>
             <h3 className="text-sm font-medium leading-snug line-clamp-2">{p.name}</h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="text-yellow-400">★</span> {p.rating} • {p.sold} Sold
             </div>
             <div className="flex items-baseline gap-2 tabular-nums mt-auto">
-              <span className="text-lg font-extrabold text-primary">${p.price}</span>
-              {p.oldPrice && <span className="text-xs line-through text-muted-foreground">${p.oldPrice}</span>}
+              <span className="text-lg font-extrabold text-primary">{formatPrice(p.price)}</span>
+              {p.oldPrice && <span className="text-xs line-through text-muted-foreground">{formatPrice(p.oldPrice)}</span>}
             </div>
           </article>
         ))}

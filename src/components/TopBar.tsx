@@ -3,8 +3,8 @@ const TopBar = () => (
     <div className="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
       <a href="#" className="hover:text-primary vm-transition">📱 Download App</a>
       <div className="hidden md:flex gap-6">
-        <a href="#" className="hover:text-primary vm-transition">About VoltMart</a>
-        <a href="#" className="hover:text-primary vm-transition">VoltMart Care</a>
+        <a href="#" className="hover:text-primary vm-transition">About Unitech</a>
+        <a href="#" className="hover:text-primary vm-transition">Customer Care</a>
         <a href="#" className="hover:text-primary vm-transition">Promo</a>
       </div>
       <div className="flex gap-3 items-center">
