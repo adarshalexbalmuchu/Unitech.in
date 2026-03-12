@@ -52,7 +52,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
     <article
       onClick={handleNavigate}
       className={`group bg-card rounded-lg flex flex-col relative cursor-pointer outline outline-1 outline-border -outline-offset-1 hover:outline-primary/30 transition-all duration-300 hover:shadow-[var(--vm-shadow-hover)] ${
-        compact ? "w-[200px] md:w-[220px] min-w-[200px] flex-shrink-0 snap-start p-3 gap-2.5" : "p-3 gap-3"
+        compact ? "w-[160px] sm:w-[200px] md:w-[220px] min-w-[160px] flex-shrink-0 snap-start p-2.5 sm:p-3 gap-2" : "p-2.5 sm:p-3 gap-2 sm:gap-3"
       }`}
     >
       {/* ── Badges ── */}
