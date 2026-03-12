@@ -158,7 +158,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       )}
     </article>
   );
-});
+}));
 
 ProductCard.displayName = "ProductCard";
 
