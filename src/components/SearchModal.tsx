@@ -19,7 +19,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3">
             <div className="flex-1 flex items-center gap-3 bg-muted rounded-lg px-4 py-3">
-              <Search className="w-5 h-5 text-muted-foreground" />
+              <Search className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
               <input
                 type="text"
                 value={query}
@@ -33,7 +33,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
               onClick={onClose}
               className="p-2 hover:bg-muted rounded-full transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -43,14 +43,18 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                 Popular Categories
               </p>
               <div className="flex flex-wrap gap-2">
-                {CATEGORIES.slice(0, -1).map((cat) => (
-                  <button
-                    key={cat.slug}
-                    className="px-3 py-1.5 bg-muted rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    {cat.icon} {cat.label}
-                  </button>
-                ))}
+                {CATEGORIES.slice(0, -1).map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <button
+                      key={cat.slug}
+                      className="px-3 py-1.5 bg-muted rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors flex items-center gap-1.5"
+                    >
+                      <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      {cat.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

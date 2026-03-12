@@ -1,11 +1,12 @@
-const stores = [
-  { icon: "🔊", name: "Unitech Audio", tagline: "Premium Speakers", prices: [24999, 7999, 3499] },
-  { icon: "🎬", name: "Unitech Theatre", tagline: "Home Cinema Systems", prices: [18999, 12999, 5999] },
-  { icon: "🚗", name: "Unitech Auto", tagline: "Car Audio Solutions", prices: [4999, 3499, 1999] },
-  { icon: "📡", name: "Unitech Digital", tagline: "DTH & Set Top Box", prices: [1999, 1499, 999] },
-];
+import { Speaker, Home, Car, Satellite } from "lucide-react";
+import { formatPrice } from "@/lib/constants";
 
-const formatPrice = (price: number) => `₹${price.toLocaleString("en-IN")}`;
+const stores = [
+  { Icon: Speaker, name: "Unitech Audio", tagline: "Premium Speakers", prices: [24999, 7999, 3499] },
+  { Icon: Home, name: "Unitech Theatre", tagline: "Home Cinema Systems", prices: [18999, 12999, 5999] },
+  { Icon: Car, name: "Unitech Auto", tagline: "Car Audio Solutions", prices: [4999, 3499, 1999] },
+  { Icon: Satellite, name: "Unitech Digital", tagline: "DTH & Set Top Box", prices: [1999, 1499, 999] },
+];
 
 const BestSellingStores = () => (
   <section className="max-w-[1280px] mx-auto px-6 py-12 pb-20">
@@ -24,7 +25,9 @@ const BestSellingStores = () => (
             className="bg-card rounded-lg p-4 vm-shadow outline outline-1 outline-border -outline-offset-1 vm-transition vm-card-hover cursor-pointer"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-surface rounded-full flex justify-center items-center text-xl">{store.icon}</div>
+              <div className="w-12 h-12 bg-surface rounded-full flex justify-center items-center">
+                <store.Icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
+              </div>
               <div>
                 <h4 className="font-bold">{store.name}</h4>
                 <p className="text-xs text-muted-foreground">{store.tagline}</p>
@@ -33,7 +36,9 @@ const BestSellingStores = () => (
             <div className="grid grid-cols-3 gap-2">
               {store.prices.map((price, i) => (
                 <div key={i} className="flex flex-col gap-1">
-                  <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-base">🔊</div>
+                  <div className="w-full aspect-square bg-surface rounded flex justify-center items-center">
+                    <Speaker className="w-6 h-6 text-muted-foreground/30" strokeWidth={1} />
+                  </div>
                   <span className="text-xs font-bold text-center tabular-nums">{formatPrice(price)}</span>
                 </div>
               ))}

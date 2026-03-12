@@ -1,9 +1,9 @@
-import { Search } from "lucide-react";
+import { Search, ShoppingCart, Bell } from "lucide-react";
 
 const StickyHeader = () => (
   <header className="sticky top-0 z-50 bg-background shadow-[0_1px_2px_rgba(0,0,0,0.06)] py-3">
     <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-4 md:gap-8">
-      <a href="#" className="shrink-0">
+      <a href="/" className="shrink-0">
         <img src="/unitech-logo.png" alt="Unitech India" className="h-8 sm:h-9 w-auto" />
       </a>
       <div className="flex-1 flex bg-surface rounded-lg overflow-hidden border border-transparent focus-within:border-primary focus-within:bg-background vm-transition">
@@ -21,12 +21,16 @@ const StickyHeader = () => (
           placeholder="Search for speakers, amplifiers, audio..."
         />
         <button className="px-4 text-vm-muted hover:text-primary vm-transition">
-          <Search className="w-4 h-4" />
+          <Search className="w-4 h-4" strokeWidth={1.5} />
         </button>
       </div>
-      <div className="flex gap-5 text-xl shrink-0">
-        <button className="hover:text-primary vm-transition hover:scale-105" aria-label="Cart">🛒</button>
-        <button className="hover:text-primary vm-transition hover:scale-105" aria-label="Notifications">🔔</button>
+      <div className="flex gap-3 shrink-0">
+        <button className="p-2 rounded-full hover:bg-surface vm-transition" aria-label="Cart">
+          <ShoppingCart className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
+        </button>
+        <button className="p-2 rounded-full hover:bg-surface vm-transition" aria-label="Notifications">
+          <Bell className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
+        </button>
       </div>
     </div>
   </header>

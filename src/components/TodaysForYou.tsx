@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Heart, Speaker } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 
 const tabs = ["Best Seller", "New Arrivals", "Special Discount", "Top Rated"];
@@ -42,13 +43,15 @@ const TodaysForYou = () => {
             key={p.id}
             className="bg-card rounded-lg vm-shadow p-3 flex flex-col gap-3 vm-transition vm-card-hover relative cursor-pointer outline outline-1 outline-border -outline-offset-1 hover:outline-transparent"
           >
-            <button className="absolute top-5 right-5 bg-background w-8 h-8 rounded-full flex justify-center items-center shadow-md text-base z-10 vm-transition hover:text-destructive hover:scale-110">
-              ♡
+            <button className="absolute top-5 right-5 bg-background w-8 h-8 rounded-full flex justify-center items-center shadow-md z-10 vm-transition hover:text-destructive hover:scale-110">
+              <Heart className="w-4 h-4" strokeWidth={1.5} />
             </button>
-            <div className="w-full aspect-square bg-surface rounded flex justify-center items-center text-3xl text-vm-muted">🔊</div>
+            <div className="w-full aspect-square bg-surface rounded flex justify-center items-center">
+              <Speaker className="w-10 h-10 text-muted-foreground/40" strokeWidth={1} />
+            </div>
             <h3 className="text-sm font-medium leading-snug line-clamp-2">{p.name}</h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="text-yellow-400">★</span> {p.rating} • {p.sold} Sold
+              <span className="text-amber-500">★</span> {p.rating} • {p.sold} Sold
             </div>
             <div className="flex items-baseline gap-2 tabular-nums mt-auto">
               <span className="text-lg font-extrabold text-primary">{formatPrice(p.price)}</span>

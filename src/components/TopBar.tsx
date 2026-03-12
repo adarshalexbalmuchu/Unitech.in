@@ -1,7 +1,12 @@
+import { Download } from "lucide-react";
+
 const TopBar = () => (
   <div className="bg-surface text-vm-muted text-xs font-medium py-2">
     <div className="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
-      <a href="#" className="hover:text-primary vm-transition">📱 Download App</a>
+      <a href="#" className="hover:text-primary vm-transition flex items-center gap-1.5">
+        <Download className="w-3 h-3" strokeWidth={1.5} />
+        Download App
+      </a>
       <div className="hidden md:flex gap-6">
         <a href="#" className="hover:text-primary vm-transition">About Unitech</a>
         <a href="#" className="hover:text-primary vm-transition">Customer Care</a>
