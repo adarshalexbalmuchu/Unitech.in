@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
