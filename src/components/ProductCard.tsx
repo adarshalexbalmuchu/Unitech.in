@@ -136,7 +136,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
       {/* ── Pricing ── */}
       <div className="flex items-baseline gap-2 tabular-nums mt-auto">
-        <span className={`font-extrabold text-primary ${compact ? "text-base" : "text-lg"}`}>
+        <span className={`font-extrabold text-primary ${compact ? "text-sm sm:text-base" : "text-base sm:text-lg"}`}>
           {formatPrice(product.price)}
         </span>
         {product.original_price && product.original_price > (product.price ?? 0) && (
