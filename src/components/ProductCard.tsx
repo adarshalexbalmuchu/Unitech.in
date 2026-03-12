@@ -5,6 +5,7 @@ import type { Product } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
