@@ -1,8 +1,8 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useNavigate } from "react-router-dom";
 import { isPlaceholderImage } from "@/lib/constants";
 
 const CartSheet = () => {
