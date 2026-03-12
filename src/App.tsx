@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import AdminGuard from "@/components/AdminGuard";
 import Index from "./pages/Index.tsx";
 import ProductListing from "./pages/ProductListing.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
@@ -28,9 +29,9 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/products/:category" element={<ProductListing />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/products/new" element={<AdminProductForm />} />
-            <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
+            <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
+            <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
+            <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
