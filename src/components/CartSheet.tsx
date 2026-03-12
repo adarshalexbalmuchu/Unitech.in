@@ -7,6 +7,7 @@ import { isPlaceholderImage } from "@/lib/constants";
 
 const CartSheet = () => {
   const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
+  const navigate = useNavigate();
 
   return (
     <Sheet>
