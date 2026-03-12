@@ -16,6 +16,14 @@ import Wishlist from "./pages/Wishlist.tsx";
 import Compare from "./pages/Compare.tsx";
 import Account from "./pages/Account.tsx";
 import Checkout from "./pages/Checkout.tsx";
+import Warranty from "./pages/Warranty.tsx";
+import Contact from "./pages/Contact.tsx";
+import Shipping from "./pages/Shipping.tsx";
+import Returns from "./pages/Returns.tsx";
+import FAQ from "./pages/FAQ.tsx";
+import Privacy from "./pages/Privacy.tsx";
+import Terms from "./pages/Terms.tsx";
+import HelpCenter from "./pages/HelpCenter.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -37,6 +45,14 @@ const App = () => (
             <Route path="/compare" element={<Compare />} />
             <Route path="/account" element={<Account />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/warranty" element={<Warranty />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/help" element={<HelpCenter />} />
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
             <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
