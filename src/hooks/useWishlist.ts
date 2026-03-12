@@ -6,10 +6,9 @@ interface WishlistItem {
   product_id: string;
   product: {
     name: string;
-    price: number;
-    original_price: number;
+    price: number | null;
+    original_price: number | null;
     image_url: string;
-    discount_percent: number;
   };
 }
 
@@ -50,7 +49,6 @@ export const useWishlist = create<WishlistStore>()(
                   price: 0,
                   original_price: 0,
                   image_url: "/placeholder.svg",
-                  discount_percent: 0,
                 },
               },
             ],
