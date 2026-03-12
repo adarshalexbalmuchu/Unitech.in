@@ -20,17 +20,17 @@ const HeroCarousel = () => {
 
   return (
     <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-4 md:py-6">
-      <div className="relative rounded-xl overflow-hidden" style={{ height: "clamp(180px, 45vw, 460px)" }}>
+      <div className="relative rounded-xl overflow-hidden bg-muted">
         <div
-          className="flex h-full transition-transform duration-700 ease-in-out will-change-transform"
+          className="flex transition-transform duration-700 ease-in-out will-change-transform"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
           {banners.map((banner) => (
-            <div key={banner.id} className="relative w-full h-full flex-shrink-0">
+            <div key={banner.id} className="relative w-full flex-shrink-0">
               <img
                 src={banner.src}
                 alt={`Unitech Banner ${banner.id}`}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-auto block"
               />
             </div>
           ))}
