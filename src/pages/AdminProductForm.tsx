@@ -230,7 +230,7 @@ const AdminProductForm = () => {
                 <Label>Primary Image</Label>
                 <div className="flex items-center gap-4">
                   <div className="h-20 w-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                    {form.image_url && form.image_url !== "/placeholder.svg" ? (
+                    {form.image_url && !form.image_url.includes("placeholder") ? (
                       <img src={form.image_url} alt="Primary" className="h-full w-full object-cover" />
                     ) : (
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
