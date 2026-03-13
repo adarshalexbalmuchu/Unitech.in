@@ -18,10 +18,10 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     env:
-      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://gzdudhvkohbuubgmhthe.supabase.co' }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_RQ27EjDx4ccbKnRe8NCpKQ_3XbarF0t' }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      VITE_HIDE_DEMO_PRODUCTS: ${{ secrets.VITE_HIDE_DEMO_PRODUCTS }}
+      VITE_HIDE_DEMO_PRODUCTS: ${{ secrets.VITE_HIDE_DEMO_PRODUCTS || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,10 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: quality
     env:
-      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://gzdudhvkohbuubgmhthe.supabase.co' }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_RQ27EjDx4ccbKnRe8NCpKQ_3XbarF0t' }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      VITE_HIDE_DEMO_PRODUCTS: ${{ secrets.VITE_HIDE_DEMO_PRODUCTS }}
+      VITE_HIDE_DEMO_PRODUCTS: ${{ secrets.VITE_HIDE_DEMO_PRODUCTS || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
