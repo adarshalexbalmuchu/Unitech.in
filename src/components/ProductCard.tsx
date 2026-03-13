@@ -23,6 +23,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
   const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
   const isFlashSale = product.collections.includes("flash-sale");
   const isHotSelling = product.collections.includes("hot-selling");
+  const isNewArrival = product.collections.includes("new-arrivals");
   const lowStock = product.stock > 0 && product.stock <= 10;
   const fallbackImage = getCategoryFallbackImage(product.category);
   const productImage = resolvePrimaryProductImage(product.image_url, product.category);
@@ -77,7 +78,12 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
             <Zap className="w-2.5 h-2.5" /> FLASH
           </span>
         )}
-        {isHotSelling && !isFlashSale && (
+        {isNewArrival && !isFlashSale && (
+          <span className="bg-emerald-600 text-white text-[0.6rem] font-bold px-1.5 py-0.5 rounded">
+            NEW
+          </span>
+        )}
+        {isHotSelling && !isFlashSale && !isNewArrival && (
           <span className="bg-primary text-primary-foreground text-[0.6rem] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
             <TrendingUp className="w-2.5 h-2.5" /> HOT
           </span>
