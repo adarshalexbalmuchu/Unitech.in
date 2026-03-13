@@ -306,24 +306,15 @@ const ProductDetail = () => {
         </nav>
 
         {/* Main content */}
-        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-5 lg:gap-8 xl:gap-10 items-start">
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5 lg:gap-7 xl:gap-10 items-start">
           {/* Left — Image gallery */}
-          <div className="space-y-3 md:space-y-4">
-            <div className="relative">
-              {discount > 0 && (
-                <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-20 shadow-sm">
-                  -{discount}%
-                </span>
-              )}
-              <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
-            </div>
-
-            {product.description && (
-              <div className="hidden lg:block rounded-lg border border-border bg-surface/50 p-3 md:p-4">
-                <h3 className="text-sm font-semibold mb-2">Description</h3>
-                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
-              </div>
+          <div className="relative xl:sticky xl:top-24 self-start">
+            {discount > 0 && (
+              <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-20 shadow-sm">
+                -{discount}%
+              </span>
             )}
+            <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
           </div>
 
           {/* Right — Product info */}
@@ -388,25 +379,55 @@ const ProductDetail = () => {
               <p className="text-[11px] md:text-xs text-muted-foreground">Inclusive of all taxes. Shipping calculated at checkout.</p>
             </div>
 
-            {/* Quantity + CTA — directly below price */}
+            {/* Stock */}
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-destructive"}`} />
+              <span className={`text-sm font-medium ${inStock ? "text-green-600" : "text-destructive"}`}>
+                {inStock ? (product.stock <= 10 ? `Only ${product.stock} left in stock` : "In Stock") : "Out of Stock"}
+              </span>
+            </div>
+
+            {/* Description */}
+            {product.description && (
+              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+            )}
+
+            {displayHighlights.length > 0 && (
+              <div className="space-y-2.5 rounded-lg border border-border bg-surface/60 p-3 md:p-4">
+                <h3 className="text-sm font-semibold">Key Highlights</h3>
+                <div className="flex flex-wrap gap-2">
+                  {displayHighlights.map((highlight, idx) => (
+                    <span
+                      key={`${highlight}-${idx}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] md:text-xs text-foreground/95"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity + CTA — stacked on mobile */}
             <div className="rounded-xl border border-border bg-card p-3 md:p-4 space-y-3">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="flex items-center border border-border rounded-lg bg-surface self-start shadow-sm">
-                  <button
-                    onClick={() => setQty((q) => Math.max(1, q - 1))}
-                    className="px-3 py-2.5 hover:bg-muted transition-colors rounded-l-lg"
-                    disabled={qty <= 1}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="px-4 py-2.5 text-sm font-bold tabular-nums min-w-[44px] text-center border-x border-border">{qty}</span>
-                  <button
-                    onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
-                    className="px-3 py-2.5 hover:bg-muted transition-colors rounded-r-lg"
-                    disabled={qty >= product.stock}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="px-3 py-2.5 hover:bg-muted transition-colors rounded-l-lg"
+                  disabled={qty <= 1}
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="px-4 py-2.5 text-sm font-bold tabular-nums min-w-[44px] text-center border-x border-border">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
+                  className="px-3 py-2.5 hover:bg-muted transition-colors rounded-r-lg"
+                  disabled={qty >= product.stock}
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
                 </div>
 
                 <button
@@ -435,39 +456,6 @@ const ProductDetail = () => {
                 </div>
               </div>
             </div>
-
-            {/* Stock */}
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-destructive"}`} />
-              <span className={`text-sm font-medium ${inStock ? "text-green-600" : "text-destructive"}`}>
-                {inStock ? (product.stock <= 10 ? `Only ${product.stock} left in stock` : "In Stock") : "Out of Stock"}
-              </span>
-            </div>
-
-            {product.description && (
-              <div className="lg:hidden rounded-lg border border-border bg-surface/50 p-3 md:p-4">
-                <h3 className="text-sm font-semibold mb-2">Description</h3>
-                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
-              </div>
-            )}
-
-            {displayHighlights.length > 0 && (
-              <div className="space-y-2.5 rounded-lg border border-border bg-surface/60 p-3 md:p-4">
-                <h3 className="text-sm font-semibold">Key Highlights</h3>
-                <div className="flex flex-wrap gap-2">
-                  {displayHighlights.map((highlight, idx) => (
-                    <span
-                      key={`${highlight}-${idx}`
-                      }
-                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] md:text-xs text-foreground/95"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      {highlight}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Trust badges */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 pt-4 border-t border-border">
@@ -506,7 +494,7 @@ const ProductDetail = () => {
           <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Specifications</h2>
 
           {specEntries.length > 0 ? (
-            <div className="bg-card rounded-xl border border-border overflow-x-auto vm-shadow">
+            <div className="bg-card rounded-xl border border-border overflow-hidden vm-shadow">
               <table className="w-full text-sm min-w-[400px]">
                 <tbody>
                   {specEntries.map(([key, value], i) => (

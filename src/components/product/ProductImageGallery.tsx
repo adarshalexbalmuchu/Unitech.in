@@ -141,11 +141,11 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
   return (
     <>
       {/* ── Gallery ── */}
-      <div className="flex gap-2.5 md:gap-3.5">
+      <div className="flex gap-2 md:gap-3">
 
         {/* Vertical thumbnail strip — desktop only */}
         {safeImages.length > 1 && (
-          <div className="hidden md:flex flex-col gap-2 w-16 lg:w-[74px] shrink-0">
+          <div className="hidden md:flex flex-col gap-1.5 w-16 lg:w-[74px] shrink-0">
             {safeImages.map((img, i) => (
               <button
                 key={i}
@@ -182,7 +182,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
         {/* Main image */}
         <div className="flex-1 min-w-0">
           <div
-            className="relative aspect-[4/3] sm:aspect-[5/4] lg:aspect-[6/5] bg-card rounded-xl vm-shadow overflow-hidden cursor-zoom-in group select-none border border-border/80"
+            className="relative aspect-square bg-card rounded-xl vm-shadow overflow-hidden cursor-zoom-in group select-none border border-border/80"
             onMouseEnter={() => setZooming(true)}
             onMouseLeave={() => { setZooming(false); setZoomOrigin({ x: 50, y: 50 }); }}
             onMouseMove={handleMouseMove}
@@ -204,7 +204,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               decoding="async"
               sizes="(max-width: 768px) 100vw, 60vw"
               draggable={false}
-              className={`w-full h-full object-contain p-1.5 md:p-2.5 will-change-transform ${
+              className={`w-full h-full object-contain p-1 md:p-1.5 will-change-transform ${
                 loadedImages.has(activeIdx) ? "opacity-100" : "opacity-0"
               }`}
               style={{
