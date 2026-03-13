@@ -35,13 +35,24 @@ const BestSellingStores = () => {
     <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-10 md:py-12 pb-16 md:pb-20">
       <h2 className="text-xl md:text-2xl font-extrabold mb-5 md:mb-6">Best Selling Categories</h2>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 md:gap-6">
-        <div className="bg-gradient-to-br from-primary/5 to-primary/15 rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center vm-shadow outline outline-1 outline-border -outline-offset-1">
+        <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-primary/15 rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center vm-shadow outline outline-1 outline-border -outline-offset-1 group">
+          <div className="pointer-events-none absolute inset-0 opacity-70">
+            <div className="absolute -top-14 -left-14 w-44 h-44 rounded-full bg-primary/15 blur-2xl" />
+            <div className="absolute -bottom-16 -right-10 w-48 h-48 rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/0.12),transparent_35%),radial-gradient(circle_at_80%_75%,hsl(var(--primary)/0.10),transparent_40%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.05)_50%,transparent_100%)]" />
+          </div>
+
+          <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 vm-transition bg-[linear-gradient(115deg,transparent_35%,hsl(var(--primary)/0.14)_50%,transparent_65%)]" />
+
+          <div className="relative z-10 flex flex-col justify-center items-center text-center">
           <img src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`} alt="Unitech India" className="h-10 md:h-12 mb-3 md:mb-4" />
           <h3 className="text-lg md:text-xl font-extrabold text-primary mb-1 md:mb-2">Unitech India</h3>
           <p className="text-xs md:text-sm text-primary/70 font-medium">Live catalog picks from {products.length} active products</p>
           <p className="mt-2 text-[11px] md:text-xs text-muted-foreground max-w-[26ch]">
             Real products are now pulled into this section category-by-category instead of using placeholder cards.
           </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">

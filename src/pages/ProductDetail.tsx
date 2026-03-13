@@ -61,6 +61,32 @@ const normalizeFaqs = (value: unknown): Array<{ question: string; answer: string
     .filter((item): item is { question: string; answer: string } => Boolean(item));
 };
 
+const toDescriptionParagraphs = (description: string): string[] => {
+  const cleaned = description.trim();
+  if (!cleaned) return [];
+
+  if (/\n\s*\n/.test(cleaned)) {
+    return cleaned
+      .split(/\n\s*\n/g)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
+
+  const sentences = cleaned
+    .split(/(?<=[.!?])\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (sentences.length <= 2) return [cleaned];
+
+  const paragraphs: string[] = [];
+  for (let index = 0; index < sentences.length; index += 2) {
+    paragraphs.push(sentences.slice(index, index + 2).join(" "));
+  }
+
+  return paragraphs;
+};
+
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: allProducts = [], isLoading } = useProducts();
@@ -248,6 +274,7 @@ const ProductDetail = () => {
   const perfectForItems = normalizeStringList(product.perfect_for);
   const faqItems = normalizeFaqs(product.faqs);
   const shortTagline = (product.short_tagline || "").trim();
+  const descriptionParagraphs = toDescriptionParagraphs(product.description || "");
 
   const totalCount = product.reviews_count + reviews.length;
   const baseTotal = product.rating * product.reviews_count;
@@ -388,8 +415,14 @@ const ProductDetail = () => {
             </div>
 
             {/* Description */}
-            {product.description && (
-              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+            {descriptionParagraphs.length > 0 && (
+              <div className="space-y-2">
+                {descriptionParagraphs.map((paragraph, idx) => (
+                  <p key={`${paragraph.slice(0, 32)}-${idx}`} className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             )}
 
             {displayHighlights.length > 0 && (
