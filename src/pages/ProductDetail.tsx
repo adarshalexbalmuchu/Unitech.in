@@ -22,6 +22,17 @@ type ProductReview = {
   created_at: string;
 };
 
+const formatSpecValue = (value: unknown) => {
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  return String(value);
+};
+
+const formatSpecLabel = (key: string) =>
+  key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (match) => match.toUpperCase());
+
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: allProducts = [], isLoading } = useProducts();
@@ -138,7 +149,11 @@ const ProductDetail = () => {
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      try { await navigator.share({ title: product.name, url }); } catch {}
+      try {
+        await navigator.share({ title: product.name, url });
+      } catch {
+        return;
+      }
     } else {
       await navigator.clipboard.writeText(url);
       toast.success("Link copied to clipboard!");
@@ -149,13 +164,45 @@ const ProductDetail = () => {
     ([, v]) => v !== null && v !== undefined && v !== ""
   );
 
-  const displayedRating = useMemo(() => {
-    const totalCount = product.reviews_count + reviews.length;
-    if (totalCount <= 0) return 0;
-    const baseTotal = product.rating * product.reviews_count;
-    const newTotal = reviews.reduce((sum, item) => sum + item.rating, 0);
-    return Math.round(((baseTotal + newTotal) / totalCount) * 10) / 10;
-  }, [product.rating, product.reviews_count, reviews]);
+  const keyHighlights = (() => {
+    const priorityKeys = [
+      "power_output",
+      "rms_power",
+      "peak_power",
+      "speaker_size",
+      "frequency_response",
+      "impedance",
+      "connectivity",
+      "bluetooth",
+      "battery_life",
+      "warranty",
+    ];
+
+    const picked: string[] = [];
+    const used = new Set<string>();
+
+    priorityKeys.forEach((key) => {
+      const found = specEntries.find(([specKey]) => specKey.toLowerCase() === key);
+      if (found && picked.length < 5) {
+        const [specKey, specValue] = found;
+        picked.push(`${formatSpecLabel(specKey)}: ${formatSpecValue(specValue)}`);
+        used.add(specKey);
+      }
+    });
+
+    specEntries.forEach(([specKey, specValue]) => {
+      if (picked.length >= 5 || used.has(specKey)) return;
+      picked.push(`${formatSpecLabel(specKey)}: ${formatSpecValue(specValue)}`);
+      used.add(specKey);
+    });
+
+    return picked.slice(0, 5);
+  })();
+
+  const totalCount = product.reviews_count + reviews.length;
+  const baseTotal = product.rating * product.reviews_count;
+  const newTotal = reviews.reduce((sum, item) => sum + item.rating, 0);
+  const displayedRating = totalCount > 0 ? Math.round(((baseTotal + newTotal) / totalCount) * 10) / 10 : 0;
 
   const displayedReviewsCount = product.reviews_count + reviews.length;
 
@@ -298,6 +345,22 @@ const ProductDetail = () => {
               <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
             )}
 
+            {keyHighlights.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Key Highlights</h3>
+                <div className="flex flex-wrap gap-2">
+                  {keyHighlights.map((highlight, idx) => (
+                    <span
+                      key={`${highlight}-${idx}`}
+                      className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] md:text-xs text-foreground/90"
+                    >
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quantity + CTA — stacked on mobile */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <div className="flex items-center border border-border rounded-lg self-start">
@@ -363,27 +426,54 @@ const ProductDetail = () => {
         </div>
 
         {/* Specs table */}
-        {specEntries.length > 0 && (
-          <section className="mt-10 md:mt-14">
-            <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Specifications</h2>
+        <section className="mt-10 md:mt-14">
+          <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Specifications</h2>
+
+          {specEntries.length > 0 ? (
             <div className="bg-card rounded-lg border border-border overflow-x-auto">
               <table className="w-full text-sm min-w-[400px]">
                 <tbody>
                   {specEntries.map(([key, value], i) => (
                     <tr key={key} className={i % 2 === 0 ? "bg-muted/30" : ""}>
-                      <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground capitalize whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
-                        {key.replace(/_/g, " ")}
+                      <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
+                        {formatSpecLabel(key)}
                       </td>
                       <td className="px-4 md:px-5 py-2.5 md:py-3 text-xs md:text-sm">
-                        {Array.isArray(value) ? value.join(", ") : typeof value === "boolean" ? (value ? "Yes" : "No") : String(value)}
+                        {formatSpecValue(value)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="bg-card rounded-lg border border-border p-4 md:p-5 space-y-3">
+              <p className="text-sm md:text-base font-semibold text-foreground">Specifications coming soon</p>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                We are updating technical details for this product. You can still use the key product information below.
+              </p>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
+                <div className="rounded-md bg-surface px-3 py-2">
+                  <p className="text-[11px] md:text-xs text-muted-foreground">Category</p>
+                  <p className="text-xs md:text-sm font-semibold">{catLabel}</p>
+                </div>
+                {product.brand && (
+                  <div className="rounded-md bg-surface px-3 py-2">
+                    <p className="text-[11px] md:text-xs text-muted-foreground">Brand</p>
+                    <p className="text-xs md:text-sm font-semibold">{product.brand}</p>
+                  </div>
+                )}
+                {product.model_number && (
+                  <div className="rounded-md bg-surface px-3 py-2">
+                    <p className="text-[11px] md:text-xs text-muted-foreground">Model Number</p>
+                    <p className="text-xs md:text-sm font-semibold">{product.model_number}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="mt-10 md:mt-14">
           <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Ratings & Reviews</h2>
