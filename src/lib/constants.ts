@@ -10,8 +10,21 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 /** Check if an image URL is a placeholder (should show fallback icon instead) */
-export const isPlaceholderImage = (url?: string | null): boolean =>
-  !url?.trim() || url.includes("/placeholder.svg");
+const LEGACY_PLACEHOLDER_FILENAMES = [
+  "tower-speaker.jpg",
+  "home-theatre.jpg",
+  "dth.jpg",
+  "car-audio.jpg",
+  "power-accessory.jpg",
+];
+
+export const isPlaceholderImage = (url?: string | null): boolean => {
+  const normalized = (url || "").trim().toLowerCase();
+  if (!normalized) return true;
+  if (normalized.includes("/placeholder.svg")) return true;
+  if (normalized.includes("images/placeholders/")) return true;
+  return LEGACY_PLACEHOLDER_FILENAMES.some((file) => normalized.endsWith(`/${file}`) || normalized === file);
+};
 
 
 export const SITE_NAME = "Unitech India";

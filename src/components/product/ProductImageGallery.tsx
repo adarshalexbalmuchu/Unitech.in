@@ -165,6 +165,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                     src={img}
                     alt={`${alt} ${i + 1}`}
                     loading="lazy"
+                    decoding="async"
+                    sizes="72px"
                     className={`w-full h-full object-contain p-1 vm-transition ${
                       loadedImages.has(i) ? "opacity-100" : "opacity-0"
                     }`}
@@ -199,6 +201,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               src={currentImage}
               alt={alt}
               loading="lazy"
+              decoding="async"
+              sizes="(max-width: 768px) 100vw, 60vw"
               draggable={false}
               className={`w-full h-full object-contain p-4 md:p-6 will-change-transform ${
                 loadedImages.has(activeIdx) ? "opacity-100" : "opacity-0"
@@ -247,7 +251,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                       : "border-border hover:border-muted-foreground"
                   }`}
                 >
-                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-1" onError={handleImageError} />
+                  <img src={img} alt="" loading="lazy" decoding="async" sizes="56px" className="w-full h-full object-contain p-1" onError={handleImageError} />
                 </button>
               ))}
             </div>
@@ -298,6 +302,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
             <img
               src={currentImage}
               alt={alt}
+              decoding="async"
+              sizes="90vw"
               className="max-w-[90vw] max-h-[85vh] object-contain select-none"
               style={{
                 transform: `scale(${fsZoom})`,
@@ -331,7 +337,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                     i === activeIdx ? "border-white" : "border-white/20 hover:border-white/50"
                   }`}
                 >
-                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" onError={handleImageError} />
+                  <img src={img} alt="" loading="lazy" decoding="async" sizes="48px" className="w-full h-full object-contain p-0.5" onError={handleImageError} />
                 </button>
               ))}
             </div>
