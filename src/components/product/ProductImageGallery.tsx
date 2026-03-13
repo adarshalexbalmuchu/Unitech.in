@@ -4,9 +4,10 @@ import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 export type ProductImageGalleryProps = {
   images: string[];
   alt: string;
+  fallbackImage?: string;
 };
 
-const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
+const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGalleryProps) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
@@ -27,6 +28,13 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
 
   const safeImages = images.length > 0 ? images : [];
   const currentImage = safeImages[activeIdx];
+  const safeFallback = fallbackImage || safeImages[0] || "";
+
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    if (safeFallback && event.currentTarget.src !== safeFallback) {
+      event.currentTarget.src = safeFallback;
+    }
+  };
 
   const prev = useCallback(() => {
     setActiveIdx((i) => (i > 0 ? i - 1 : safeImages.length - 1));
@@ -161,6 +169,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
                       loadedImages.has(i) ? "opacity-100" : "opacity-0"
                     }`}
                     onLoad={() => handleImageLoad(i)}
+                    onError={handleImageError}
                   />
                 </div>
               </button>
@@ -202,6 +211,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
                 transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
               }}
               onLoad={() => handleImageLoad(activeIdx)}
+              onError={handleImageError}
             />
 
             {/* Zoom hint icon */}
@@ -237,7 +247,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
                       : "border-border hover:border-muted-foreground"
                   }`}
                 >
-                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-1" />
+                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-1" onError={handleImageError} />
                 </button>
               ))}
             </div>
@@ -295,6 +305,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
                 cursor: fsZoom > 1 ? "grab" : "default",
               }}
               draggable={false}
+              onError={handleImageError}
             />
           </div>
 
@@ -320,7 +331,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
                     i === activeIdx ? "border-white" : "border-white/20 hover:border-white/50"
                   }`}
                 >
-                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" />
+                  <img src={img} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" onError={handleImageError} />
                 </button>
               ))}
             </div>

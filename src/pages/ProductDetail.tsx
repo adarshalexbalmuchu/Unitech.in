@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus } from "lucide-react";
 import ProductImageGallery from "@/components/product/ProductImageGallery";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,6 +33,33 @@ const formatSpecLabel = (key: string) =>
   key
     .replace(/_/g, " ")
     .replace(/\b\w/g, (match) => match.toUpperCase());
+
+const normalizeStringList = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter((item): item is string => Boolean(item));
+};
+
+const normalizeFaqs = (value: unknown): Array<{ question: string; answer: string }> => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const maybeFaq = item as { question?: unknown; answer?: unknown; q?: unknown; a?: unknown };
+      const question =
+        (typeof maybeFaq.question === "string" && maybeFaq.question.trim()) ||
+        (typeof maybeFaq.q === "string" && maybeFaq.q.trim()) ||
+        "";
+      const answer =
+        (typeof maybeFaq.answer === "string" && maybeFaq.answer.trim()) ||
+        (typeof maybeFaq.a === "string" && maybeFaq.a.trim()) ||
+        "";
+      if (!question || !answer) return null;
+      return { question, answer };
+    })
+    .filter((item): item is { question: string; answer: string } => Boolean(item));
+};
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -85,6 +113,21 @@ const ProductDetail = () => {
     setReviewerName((prev) => (prev.trim().length ? prev : defaultName));
   }, [user]);
 
+  useEffect(() => {
+    if (!product) return;
+    const meta = document.querySelector('meta[name="description"]');
+    if (!meta) return;
+
+    const previous = meta.getAttribute("content") || "";
+    if (product.seo_meta_description?.trim()) {
+      meta.setAttribute("content", product.seo_meta_description.trim());
+    }
+
+    return () => {
+      meta.setAttribute("content", previous);
+    };
+  }, [product]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -126,7 +169,8 @@ const ProductDetail = () => {
   const catLabel = catMeta?.label ?? product.category;
   const wishlisted = isInWishlist(product.id);
   const inStock = product.stock > 0;
-  const images = [product.image_url, ...(product.images || [])].filter(Boolean);
+  const fallbackImage = getCategoryFallbackImage(product.category);
+  const images = resolveProductGalleryImages(product.images, product.image_url, product.category);
 
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) {
@@ -164,7 +208,7 @@ const ProductDetail = () => {
     ([, v]) => v !== null && v !== undefined && v !== ""
   );
 
-  const keyHighlights = (() => {
+  const specHighlights = (() => {
     const priorityKeys = [
       "power_output",
       "rms_power",
@@ -198,6 +242,12 @@ const ProductDetail = () => {
 
     return picked.slice(0, 5);
   })();
+
+  const structuredHighlights = normalizeStringList(product.highlights).slice(0, 5);
+  const displayHighlights = structuredHighlights.length > 0 ? structuredHighlights : specHighlights;
+  const perfectForItems = normalizeStringList(product.perfect_for);
+  const faqItems = normalizeFaqs(product.faqs);
+  const shortTagline = (product.short_tagline || "").trim();
 
   const totalCount = product.reviews_count + reviews.length;
   const baseTotal = product.rating * product.reviews_count;
@@ -264,14 +314,7 @@ const ProductDetail = () => {
                 -{discount}%
               </span>
             )}
-            {!isPlaceholderImage(images[0]) ? (
-              <ProductImageGallery images={images} alt={product.name} />
-            ) : (
-              <div className="aspect-square bg-surface rounded-xl vm-shadow flex flex-col items-center justify-center gap-2 text-muted-foreground/30">
-                <ShoppingCart className="w-12 h-12 md:w-16 md:h-16" strokeWidth={0.8} />
-                <span className="text-xs font-medium uppercase tracking-wider">{catLabel}</span>
-              </div>
-            )}
+            <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
           </div>
 
           {/* Right — Product info */}
@@ -291,6 +334,10 @@ const ProductDetail = () => {
 
             {/* Name */}
             <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold leading-tight">{product.name}</h1>
+
+            {shortTagline && (
+              <p className="text-sm md:text-base text-muted-foreground font-medium">{shortTagline}</p>
+            )}
 
             {/* Model */}
             {product.model_number && (
@@ -345,11 +392,11 @@ const ProductDetail = () => {
               <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
             )}
 
-            {keyHighlights.length > 0 && (
+            {displayHighlights.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold">Key Highlights</h3>
                 <div className="flex flex-wrap gap-2">
-                  {keyHighlights.map((highlight, idx) => (
+                  {displayHighlights.map((highlight, idx) => (
                     <span
                       key={`${highlight}-${idx}`}
                       className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] md:text-xs text-foreground/90"
@@ -422,6 +469,20 @@ const ProductDetail = () => {
                 <span>Exchange Offer</span>
               </div>
             </div>
+
+            {perfectForItems.length > 0 && (
+              <section className="pt-2">
+                <h3 className="text-sm font-semibold mb-2">Perfect For</h3>
+                <ul className="space-y-1.5 text-xs md:text-sm text-muted-foreground">
+                  {perfectForItems.map((item, idx) => (
+                    <li key={`${item}-${idx}`} className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         </div>
 
@@ -474,6 +535,24 @@ const ProductDetail = () => {
             </div>
           )}
         </section>
+
+        {faqItems.length > 0 && (
+          <section className="mt-10 md:mt-14">
+            <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">FAQs</h2>
+            <div className="bg-card rounded-lg border border-border px-4 md:px-5">
+              <Accordion type="single" collapsible>
+                {faqItems.map((faq, idx) => (
+                  <AccordionItem key={`${faq.question}-${idx}`} value={`faq-${idx}`}>
+                    <AccordionTrigger className="text-left text-sm md:text-base">{faq.question}</AccordionTrigger>
+                    <AccordionContent className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </section>
+        )}
 
         <section className="mt-10 md:mt-14">
           <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Ratings & Reviews</h2>

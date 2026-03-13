@@ -2,7 +2,7 @@ import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES, isPlaceholderImage } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolvePrimaryProductImage } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
   const isFlashSale = product.collections.includes("flash-sale");
   const isHotSelling = product.collections.includes("hot-selling");
   const lowStock = product.stock > 0 && product.stock <= 10;
+  const fallbackImage = getCategoryFallbackImage(product.category);
+  const productImage = resolvePrimaryProductImage(product.image_url, product.category);
 
   const handleNavigate = () => navigate(`/product/${product.slug}`);
 
@@ -96,21 +98,17 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
       {/* ── Image ── */}
       <div className="w-full aspect-square bg-surface rounded-md overflow-hidden flex justify-center items-center">
-        {!isPlaceholderImage(product.image_url) ? (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex flex-col items-center gap-1 text-muted-foreground/30">
-            <ShoppingCart className="w-8 h-8" strokeWidth={1} />
-            <span className="text-[0.6rem] font-medium uppercase tracking-wider">
-              {categoryLabel}
-            </span>
-          </div>
-        )}
+        <img
+          src={productImage}
+          alt={product.name}
+          className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(event) => {
+            if (event.currentTarget.src !== fallbackImage) {
+              event.currentTarget.src = fallbackImage;
+            }
+          }}
+        />
       </div>
 
       {/* ── Category tag ── */}
