@@ -84,7 +84,7 @@ const SiteFooter = () => (
         ))}
       </div>
       <div className="text-center pt-6 md:pt-8 border-t border-border text-xs md:text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Unitech India. All rights reserved. Expand Your Life.
+        © {new Date().getFullYear()} Unitech India. All rights reserved. Unitech hai jahan, Music hai vahan.
       </div>
     </div>
   </footer>
