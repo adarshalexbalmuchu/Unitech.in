@@ -28,7 +28,7 @@ const StickyHeader = () => {
           </button>
 
           <Link to="/" className="shrink-0">
-            <img src={`${import.meta.env.BASE_URL}unitech-logo.png`} alt="Unitech India" className="h-7 sm:h-8 md:h-9 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`} alt="Unitech India" className="h-7 sm:h-8 md:h-9 w-auto" />
           </Link>
 
           {/* Desktop search */}

@@ -36,7 +36,7 @@ const BestSellingStores = () => {
       <h2 className="text-xl md:text-2xl font-extrabold mb-5 md:mb-6">Best Selling Categories</h2>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 md:gap-6">
         <div className="bg-gradient-to-br from-primary/5 to-primary/15 rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center vm-shadow outline outline-1 outline-border -outline-offset-1">
-          <img src={`${import.meta.env.BASE_URL}unitech-logo.png`} alt="Unitech India" className="h-10 md:h-12 mb-3 md:mb-4" />
+          <img src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`} alt="Unitech India" className="h-10 md:h-12 mb-3 md:mb-4" />
           <h3 className="text-lg md:text-xl font-extrabold text-primary mb-1 md:mb-2">Unitech India</h3>
           <p className="text-xs md:text-sm text-primary/70 font-medium">Live catalog picks from {products.length} active products</p>
           <p className="mt-2 text-[11px] md:text-xs text-muted-foreground max-w-[26ch]">

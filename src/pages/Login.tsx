@@ -32,7 +32,7 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link to="/" className="inline-block mb-4">
-            <img src={`${import.meta.env.BASE_URL}unitech-logo.png`} alt="Unitech India" className="h-9 mx-auto" />
+            <img src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`} alt="Unitech India" className="h-9 mx-auto" />
           </Link>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Sign in to your Unitech account</CardDescription>
