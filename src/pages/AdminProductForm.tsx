@@ -21,6 +21,11 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").repla
 
 const BUCKET = "product-images";
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) return error.message;
+  return "Unknown error";
+};
+
 const uploadFile = async (file: File): Promise<string> => {
   const ext = file.name.split(".").pop();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -92,8 +97,8 @@ const AdminProductForm = () => {
       const url = await uploadFile(file);
       set("image_url", url);
       toast({ title: "Image uploaded" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      toast({ title: "Upload failed", description: getErrorMessage(err), variant: "destructive" });
     } finally {
       setUploading(false);
       if (primaryInputRef.current) primaryInputRef.current.value = "";
@@ -112,8 +117,8 @@ const AdminProductForm = () => {
       }
       setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
       toast({ title: `${urls.length} image(s) uploaded` });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      toast({ title: "Upload failed", description: getErrorMessage(err), variant: "destructive" });
     } finally {
       setUploadingAdditional(false);
       if (additionalInputRef.current) additionalInputRef.current.value = "";

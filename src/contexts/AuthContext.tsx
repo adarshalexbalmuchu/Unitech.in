@@ -2,12 +2,14 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+type AuthActionError = { message: string } | null;
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthActionError }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: AuthActionError }>;
   signOut: () => Promise<void>;
 }
 
@@ -28,12 +30,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !supabase) {
       setLoading(false);
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -50,23 +52,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) return { error: { message: "Backend not configured" } };
+    if (!isSupabaseConfigured || !supabase) return { error: { message: "Backend not configured" } };
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    return { error: error ? { message: error.message } : null };
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    if (!isSupabaseConfigured) return { error: { message: "Backend not configured" } };
+    if (!isSupabaseConfigured || !supabase) return { error: { message: "Backend not configured" } };
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } },
     });
-    return { error };
+    return { error: error ? { message: error.message } : null };
   };
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured || !supabase) return;
     await supabase.auth.signOut();
   };
 

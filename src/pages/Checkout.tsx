@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, ShoppingCart, CreditCard, Truck, MapPin, Minus, Plus, Trash2 } from "lucide-react";
 import TopBar from "@/components/TopBar";
@@ -18,17 +18,71 @@ import { toast } from "sonner";
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, cb: (response: unknown) => void) => void;
+    };
   }
 }
+
+type ShippingForm = {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+};
+
+type RazorpaySuccessResponse = {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpayFailureResponse = {
+  error?: { description?: string };
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return "Something went wrong during checkout.";
+};
+
+const normalizeShipping = (shipping: ShippingForm) => ({
+  name: shipping.name.trim(),
+  email: shipping.email.trim().toLowerCase(),
+  phone: shipping.phone.replace(/\s+/g, "").trim(),
+  address: shipping.address.trim(),
+  city: shipping.city.trim(),
+  state: shipping.state.trim(),
+  pincode: shipping.pincode.trim().toUpperCase(),
+});
+
+const getCheckoutFingerprint = (cartItems: Array<{ product_id: string; quantity: number }>, shipping: ShippingForm) => {
+  const normalizedItems = [...cartItems]
+    .map((item) => ({ productId: item.product_id, quantity: item.quantity }))
+    .sort((left, right) => left.productId.localeCompare(right.productId));
+
+  return JSON.stringify({
+    items: normalizedItems,
+    shipping: normalizeShipping(shipping),
+  });
+};
 
 const Checkout = () => {
   const { cartItems, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const checkoutAttemptRef = useRef<{ fingerprint: string; key: string } | null>(null);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ShippingForm>({
     name: user?.user_metadata?.full_name || "",
     email: user?.email || "",
     phone: "",
@@ -38,9 +92,16 @@ const Checkout = () => {
     pincode: "",
   });
 
-  const set = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+  const set = (key: keyof ShippingForm, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const isFormValid = form.name && form.email && form.phone && form.address && form.city && form.state && form.pincode;
+  const isFormValid =
+    form.name.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
+    /^[0-9+\-\s()]{8,20}$/.test(form.phone) &&
+    form.address.trim().length >= 5 &&
+    form.city.trim().length >= 2 &&
+    form.state.trim().length >= 2 &&
+    /^[0-9A-Za-z -]{4,10}$/.test(form.pincode);
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -57,8 +118,24 @@ const Checkout = () => {
   };
 
   const handlePayment = async () => {
+    if (!user) {
+      toast.error("Please log in to continue");
+      navigate("/login");
+      return;
+    }
+
+    if (!supabase) {
+      toast.error("Checkout is not configured right now");
+      return;
+    }
+
+    if (!cartItems.length) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
     if (!isFormValid) {
-      toast.error("Please fill all required fields");
+      toast.error("Please fill valid shipping details");
       return;
     }
 
@@ -73,50 +150,87 @@ const Checkout = () => {
         return;
       }
 
-      // Create order via edge function
+      const checkoutFingerprint = getCheckoutFingerprint(cartItems, form);
+      const existingAttempt = checkoutAttemptRef.current;
+      const idempotencyKey = existingAttempt && existingAttempt.fingerprint === checkoutFingerprint
+        ? existingAttempt.key
+        : crypto.randomUUID();
+
+      checkoutAttemptRef.current = {
+        fingerprint: checkoutFingerprint,
+        key: idempotencyKey,
+      };
+
+      const normalizedShipping = normalizeShipping(form);
+      const payload = {
+        idempotencyKey,
+        items: cartItems.map((item) => ({
+          productId: item.product_id,
+          quantity: item.quantity,
+        })),
+        shipping: normalizedShipping,
+      };
+
       const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
-        body: {
-          amount: cartTotal,
-          currency: "INR",
-          receipt: `order_${Date.now()}`,
-          notes: {
-            customer_name: form.name,
-            customer_email: form.email,
-            items_count: cartCount,
-          },
-        },
+        body: payload,
       });
 
-      if (error || !data?.order_id) {
+      if (error || !data?.orderId || !data?.razorpayOrderId || !data?.keyId) {
         throw new Error(error?.message || data?.error || "Failed to create order");
       }
 
-      // Open Razorpay checkout
       const options = {
-        key: data.key_id,
-        amount: data.amount,
+        key: data.keyId,
+        amount: data.amountPaise,
         currency: data.currency,
         name: "Unitech India",
         description: `Order of ${cartCount} item${cartCount > 1 ? "s" : ""}`,
-        order_id: data.order_id,
+        order_id: data.razorpayOrderId,
         prefill: {
           name: form.name,
           email: form.email,
           contact: form.phone,
         },
         notes: {
-          address: `${form.address}, ${form.city}, ${form.state} - ${form.pincode}`,
+          shipping_address: `${form.address}, ${form.city}, ${form.state} - ${form.pincode}`,
+          app_order_id: data.orderId,
         },
         theme: {
           color: "#E63946",
         },
-        handler: function (response: any) {
-          // Payment successful
-          toast.success("Payment successful! 🎉", {
-            description: `Payment ID: ${response.razorpay_payment_id}`,
-          });
-          clearCart();
-          navigate("/");
+        handler: async function (response: RazorpaySuccessResponse) {
+          try {
+            const verifyResult = await supabase.functions.invoke("verify-razorpay-payment", {
+              body: {
+                orderId: data.orderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              },
+            });
+
+            if (verifyResult.error || verifyResult.data?.status !== "paid") {
+              throw new Error(
+                verifyResult.error?.message ||
+                verifyResult.data?.error ||
+                "Payment verification failed",
+              );
+            }
+
+            clearCart();
+            checkoutAttemptRef.current = null;
+            toast.success("Payment verified successfully! 🎉", {
+              description: `Payment ID: ${response.razorpay_payment_id}`,
+            });
+            navigate("/");
+          } catch (verifyError: unknown) {
+            console.error("Payment verification error:", verifyError);
+            toast.error("Payment received but verification failed", {
+              description: getErrorMessage(verifyError) || "Please contact support if amount was deducted.",
+            });
+          } finally {
+            setLoading(false);
+          }
         },
         modal: {
           ondismiss: function () {
@@ -126,17 +240,18 @@ const Checkout = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response: any) {
+      const rzp = new window.Razorpay(options as Record<string, unknown>);
+      rzp.on("payment.failed", function (response: unknown) {
+        const failureResponse = response as RazorpayFailureResponse;
         toast.error("Payment failed", {
-          description: response.error.description,
+          description: failureResponse?.error?.description || "Please try again.",
         });
         setLoading(false);
       });
       rzp.open();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Payment error:", err);
-      toast.error("Payment error", { description: err.message });
+      toast.error("Payment error", { description: getErrorMessage(err) });
       setLoading(false);
     }
   };
@@ -272,7 +387,7 @@ const Checkout = () => {
                   <span>Total</span>
                   <span className="text-primary">{formatPrice(cartTotal)}</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground">Inclusive of all taxes</p>
+                <p className="text-[11px] text-muted-foreground">Final payable amount is verified securely at checkout</p>
                 <Button
                   className="w-full mt-3 gap-2 text-base py-6"
                   onClick={handlePayment}

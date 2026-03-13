@@ -1,0 +1,181 @@
+// @ts-expect-error: Deno runtime URL import
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-expect-error: Deno runtime URL import
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+declare const Deno: {
+  env: {
+    get: (key: string) => string | undefined;
+  };
+};
+
+const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "")
+  .split(",")
+  .map((origin: string) => origin.trim())
+  .filter(Boolean);
+
+function buildCorsHeaders(origin: string | null) {
+  const allowedOrigin =
+    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0] || "";
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    Vary: "Origin",
+  };
+}
+
+function jsonResponse(body: unknown, status: number, corsHeaders: Record<string, string>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+async function hmacSha256Hex(secret: string, message: string) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = buildCorsHeaders(origin);
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405, corsHeaders);
+  }
+
+  try {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET")!;
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY || !RAZORPAY_KEY_SECRET) {
+      throw new Error("Missing required environment variables");
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return jsonResponse({ error: "Missing Authorization header" }, 401, corsHeaders);
+    }
+
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const {
+      data: { user },
+      error: userError,
+    } = await userClient.auth.getUser();
+
+    if (userError || !user) {
+      return jsonResponse({ error: "Unauthorized" }, 401, corsHeaders);
+    }
+
+    const serviceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const body = await req.json();
+    const orderId = String(body.orderId || "");
+    const razorpayOrderId = String(body.razorpayOrderId || "");
+    const razorpayPaymentId = String(body.razorpayPaymentId || "");
+    const razorpaySignature = String(body.razorpaySignature || "");
+
+    if (!orderId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      return jsonResponse({ error: "Missing verification payload" }, 400, corsHeaders);
+    }
+
+    const { data: order, error: orderError } = await serviceClient
+      .from("orders")
+      .select("id, user_id, status, razorpay_order_id")
+      .eq("id", orderId)
+      .single();
+
+    if (orderError || !order) {
+      return jsonResponse({ error: "Order not found" }, 404, corsHeaders);
+    }
+
+    if (order.user_id !== user.id) {
+      return jsonResponse({ error: "Forbidden" }, 403, corsHeaders);
+    }
+
+    if (order.status === "paid") {
+      return jsonResponse({ status: "paid", orderId: order.id, replayed: true }, 200, corsHeaders);
+    }
+
+    if (order.status !== "payment_initiated") {
+      return jsonResponse({ error: `Invalid order state: ${order.status}` }, 409, corsHeaders);
+    }
+
+    if (order.razorpay_order_id !== razorpayOrderId) {
+      return jsonResponse({ error: "Razorpay order mismatch" }, 400, corsHeaders);
+    }
+
+    const expectedSignature = await hmacSha256Hex(
+      RAZORPAY_KEY_SECRET,
+      `${razorpayOrderId}|${razorpayPaymentId}`,
+    );
+
+    if (expectedSignature !== razorpaySignature) {
+      await serviceClient
+        .from("orders")
+        .update({
+          status: "failed",
+          razorpay_payment_id: razorpayPaymentId,
+          razorpay_signature: razorpaySignature,
+        })
+        .eq("id", order.id);
+
+      return jsonResponse({ status: "failed", reasonCode: "signature_mismatch" }, 400, corsHeaders);
+    }
+
+    const { error: updateError } = await serviceClient
+      .from("orders")
+      .update({
+        status: "paid",
+        razorpay_payment_id: razorpayPaymentId,
+        razorpay_signature: razorpaySignature,
+      })
+      .eq("id", order.id)
+      .eq("status", "payment_initiated");
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    return jsonResponse(
+      {
+        status: "paid",
+        orderId: order.id,
+        razorpayPaymentId,
+      },
+      200,
+      corsHeaders,
+    );
+  } catch (error) {
+    console.error("verify-razorpay-payment error:", error);
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+      corsHeaders,
+    );
+  }
+});
