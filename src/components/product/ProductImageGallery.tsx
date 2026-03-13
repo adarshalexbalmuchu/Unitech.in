@@ -141,23 +141,23 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
   return (
     <>
       {/* ── Gallery ── */}
-      <div className="flex gap-3 md:gap-4">
+      <div className="flex gap-2.5 md:gap-3.5">
 
         {/* Vertical thumbnail strip — desktop only */}
         {safeImages.length > 1 && (
-          <div className="hidden md:flex flex-col gap-2 w-16 lg:w-[72px] shrink-0">
+          <div className="hidden md:flex flex-col gap-2 w-16 lg:w-[74px] shrink-0">
             {safeImages.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIdx(i)}
                 aria-label={`View image ${i + 1}`}
-                className={`w-full aspect-square rounded-md overflow-hidden border-2 vm-transition flex-shrink-0 ${
+                className={`w-full aspect-square rounded-md overflow-hidden border vm-transition flex-shrink-0 bg-card ${
                   i === activeIdx
-                    ? "border-primary ring-1 ring-primary/30"
+                    ? "border-primary ring-2 ring-primary/20"
                     : "border-border hover:border-muted-foreground"
                 }`}
               >
-                <div className="relative w-full h-full bg-surface">
+                <div className="relative w-full h-full bg-surface/70">
                   {!loadedImages.has(i) && (
                     <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 to-muted/30" />
                   )}
@@ -167,7 +167,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                     loading="lazy"
                     decoding="async"
                     sizes="72px"
-                    className={`w-full h-full object-contain p-1 vm-transition ${
+                    className={`w-full h-full object-contain p-0.5 vm-transition ${
                       loadedImages.has(i) ? "opacity-100" : "opacity-0"
                     }`}
                     onLoad={() => handleImageLoad(i)}
@@ -182,7 +182,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
         {/* Main image */}
         <div className="flex-1 min-w-0">
           <div
-            className="relative aspect-square bg-surface rounded-xl vm-shadow overflow-hidden cursor-zoom-in group select-none"
+            className="relative aspect-[4/3] sm:aspect-[5/4] lg:aspect-[6/5] bg-card rounded-xl vm-shadow overflow-hidden cursor-zoom-in group select-none border border-border/80"
             onMouseEnter={() => setZooming(true)}
             onMouseLeave={() => { setZooming(false); setZoomOrigin({ x: 50, y: 50 }); }}
             onMouseMove={handleMouseMove}
@@ -204,7 +204,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               decoding="async"
               sizes="(max-width: 768px) 100vw, 60vw"
               draggable={false}
-              className={`w-full h-full object-contain p-4 md:p-6 will-change-transform ${
+              className={`w-full h-full object-contain p-1.5 md:p-2.5 will-change-transform ${
                 loadedImages.has(activeIdx) ? "opacity-100" : "opacity-0"
               }`}
               style={{
@@ -245,9 +245,9 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                 <button
                   key={i}
                   onClick={() => setActiveIdx(i)}
-                  className={`w-14 h-14 rounded-md overflow-hidden border-2 flex-shrink-0 vm-transition ${
+                  className={`w-14 h-14 rounded-md overflow-hidden border flex-shrink-0 vm-transition bg-card ${
                     i === activeIdx
-                      ? "border-primary ring-1 ring-primary/30"
+                      ? "border-primary ring-2 ring-primary/20"
                       : "border-border hover:border-muted-foreground"
                   }`}
                 >

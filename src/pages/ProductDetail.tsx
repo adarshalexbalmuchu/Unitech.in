@@ -306,19 +306,28 @@ const ProductDetail = () => {
         </nav>
 
         {/* Main content */}
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-5 lg:gap-8 xl:gap-10 items-start">
           {/* Left — Image gallery */}
-          <div className="relative">
-            {discount > 0 && (
-              <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-10">
-                -{discount}%
-              </span>
+          <div className="space-y-3 md:space-y-4">
+            <div className="relative">
+              {discount > 0 && (
+                <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-20 shadow-sm">
+                  -{discount}%
+                </span>
+              )}
+              <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
+            </div>
+
+            {product.description && (
+              <div className="hidden lg:block rounded-lg border border-border bg-surface/50 p-3 md:p-4">
+                <h3 className="text-sm font-semibold mb-2">Description</h3>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+              </div>
             )}
-            <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
           </div>
 
           {/* Right — Product info */}
-          <div className="space-y-4 md:space-y-5">
+          <div className="space-y-4 md:space-y-5 lg:space-y-6">
             {/* Category + Brand */}
             <div className="flex items-center gap-2">
               <Link
@@ -379,6 +388,54 @@ const ProductDetail = () => {
               <p className="text-[11px] md:text-xs text-muted-foreground">Inclusive of all taxes. Shipping calculated at checkout.</p>
             </div>
 
+            {/* Quantity + CTA — directly below price */}
+            <div className="rounded-xl border border-border bg-card p-3 md:p-4 space-y-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex items-center border border-border rounded-lg bg-surface self-start shadow-sm">
+                  <button
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    className="px-3 py-2.5 hover:bg-muted transition-colors rounded-l-lg"
+                    disabled={qty <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-2.5 text-sm font-bold tabular-nums min-w-[44px] text-center border-x border-border">{qty}</span>
+                  <button
+                    onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
+                    className="px-3 py-2.5 hover:bg-muted transition-colors rounded-r-lg"
+                    disabled={qty >= product.stock}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!inStock}
+                  className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Add to Cart
+                </button>
+
+                <div className="flex gap-2 self-start sm:self-auto">
+                  <button
+                    onClick={handleWishlist}
+                    className={`p-3 rounded-lg border transition-colors ${
+                      wishlisted ? "bg-destructive/10 border-destructive/30 text-destructive" : "border-border hover:bg-muted"
+                    }`}
+                    aria-label="Toggle wishlist"
+                  >
+                    <Heart className={`w-5 h-5 ${wishlisted ? "fill-current" : ""}`} />
+                  </button>
+
+                  <button onClick={handleShare} className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Stock */}
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-destructive"}`} />
@@ -387,72 +444,30 @@ const ProductDetail = () => {
               </span>
             </div>
 
-            {/* Description */}
             {product.description && (
-              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+              <div className="lg:hidden rounded-lg border border-border bg-surface/50 p-3 md:p-4">
+                <h3 className="text-sm font-semibold mb-2">Description</h3>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+              </div>
             )}
 
             {displayHighlights.length > 0 && (
-              <div className="space-y-2">
+              <div className="space-y-2.5 rounded-lg border border-border bg-surface/60 p-3 md:p-4">
                 <h3 className="text-sm font-semibold">Key Highlights</h3>
                 <div className="flex flex-wrap gap-2">
                   {displayHighlights.map((highlight, idx) => (
                     <span
-                      key={`${highlight}-${idx}`}
-                      className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] md:text-xs text-foreground/90"
+                      key={`${highlight}-${idx}`
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] md:text-xs text-foreground/95"
                     >
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                       {highlight}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Quantity + CTA — stacked on mobile */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-              <div className="flex items-center border border-border rounded-lg self-start">
-                <button
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="px-3 py-2.5 hover:bg-muted transition-colors"
-                  disabled={qty <= 1}
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="px-4 py-2.5 text-sm font-semibold tabular-nums min-w-[40px] text-center">{qty}</span>
-                <button
-                  onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
-                  className="px-3 py-2.5 hover:bg-muted transition-colors"
-                  disabled={qty >= product.stock}
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              <button
-                onClick={handleAddToCart}
-                disabled={!inStock}
-                className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Add to Cart
-              </button>
-
-              <div className="flex gap-2 self-start sm:self-auto">
-                <button
-                  onClick={handleWishlist}
-                  className={`p-3 rounded-lg border transition-colors ${
-                    wishlisted ? "bg-destructive/10 border-destructive/30 text-destructive" : "border-border hover:bg-muted"
-                  }`}
-                  aria-label="Toggle wishlist"
-                >
-                  <Heart className={`w-5 h-5 ${wishlisted ? "fill-current" : ""}`} />
-                </button>
-
-                <button onClick={handleShare} className="p-3 rounded-lg border border-border hover:bg-muted transition-colors" aria-label="Share">
-                  <Share2 className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
 
             {/* Trust badges */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 pt-4 border-t border-border">
@@ -491,11 +506,11 @@ const ProductDetail = () => {
           <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Specifications</h2>
 
           {specEntries.length > 0 ? (
-            <div className="bg-card rounded-lg border border-border overflow-x-auto">
+            <div className="bg-card rounded-xl border border-border overflow-x-auto vm-shadow">
               <table className="w-full text-sm min-w-[400px]">
                 <tbody>
                   {specEntries.map(([key, value], i) => (
-                    <tr key={key} className={i % 2 === 0 ? "bg-muted/30" : ""}>
+                    <tr key={key} className={`${i % 2 === 0 ? "bg-muted/25" : ""} border-b border-border/70 last:border-b-0`}>
                       <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
                         {formatSpecLabel(key)}
                       </td>
