@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus } from "lucide-react";
+import ProductImageGallery from "@/components/product/ProductImageGallery";
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -17,7 +18,6 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [qty, setQty] = useState(1);
-  const [activeImg, setActiveImg] = useState(0);
 
   const product = useMemo(() => allProducts.find((p) => p.slug === slug), [allProducts, slug]);
 
@@ -121,36 +121,18 @@ const ProductDetail = () => {
         {/* Main content */}
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
           {/* Left — Image gallery */}
-          <div className="space-y-3">
-            <div className="aspect-square bg-surface rounded-lg overflow-hidden flex items-center justify-center relative">
-              {discount > 0 && (
-                <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-10">
-                  -{discount}%
-                </span>
-              )}
-              {!isPlaceholderImage(images[activeImg]) ? (
-                <img src={images[activeImg]} alt={product.name} className="w-full h-full object-contain p-4 md:p-6" />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
-                  <ShoppingCart className="w-12 h-12 md:w-16 md:h-16" strokeWidth={0.8} />
-                  <span className="text-xs font-medium uppercase tracking-wider">{catLabel}</span>
-                </div>
-              )}
-            </div>
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto scrollbar-none">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImg(i)}
-                    className={`w-14 h-14 md:w-16 md:h-16 rounded-md overflow-hidden border-2 flex-shrink-0 transition-colors ${
-                      i === activeImg ? "border-primary" : "border-border hover:border-muted-foreground"
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-contain p-1" />
-                  </button>
-                ))}
+          <div className="relative">
+            {discount > 0 && (
+              <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-10">
+                -{discount}%
+              </span>
+            )}
+            {!isPlaceholderImage(images[0]) ? (
+              <ProductImageGallery images={images} alt={product.name} />
+            ) : (
+              <div className="aspect-square bg-surface rounded-xl vm-shadow flex flex-col items-center justify-center gap-2 text-muted-foreground/30">
+                <ShoppingCart className="w-12 h-12 md:w-16 md:h-16" strokeWidth={0.8} />
+                <span className="text-xs font-medium uppercase tracking-wider">{catLabel}</span>
               </div>
             )}
           </div>
