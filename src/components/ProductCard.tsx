@@ -5,7 +5,6 @@ import type { Product } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolvePrimaryProductImage } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
-import { BorderBeam } from "@/components/ui/border-beam";
 import { toast } from "sonner";
 
 interface ProductCardProps {
@@ -67,16 +66,6 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
         compact ? "w-[160px] sm:w-[200px] md:w-[220px] min-w-[160px] flex-shrink-0 snap-start p-2.5 sm:p-3 gap-2" : "p-2.5 sm:p-3 gap-2 sm:gap-3"
       }`}
     >
-      <BorderBeam
-        size={140}
-        duration={18}
-        borderWidth={1}
-        anchor={60}
-        colorFrom="hsl(var(--primary))"
-        colorTo="hsl(var(--ring))"
-        className="opacity-35"
-      />
-
       {/* ── Badges ── */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
         {discount > 0 && (

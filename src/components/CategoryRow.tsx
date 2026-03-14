@@ -3,7 +3,7 @@ import { CATEGORIES } from "@/lib/constants";
 
 const CategoryRow = () => (
   <section className="max-w-[1280px] mx-auto px-4 md:px-6 pt-2 md:pt-4 pb-6 md:pb-8">
-    <div className="flex justify-center items-start gap-4 md:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-2">
+    <div className="flex justify-start md:justify-center items-start gap-4 md:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-2">
       {CATEGORIES.map((cat) => {
         const Icon = cat.icon;
         return (

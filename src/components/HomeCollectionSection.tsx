@@ -45,12 +45,7 @@ const HomeCollectionSection = ({
         ? "text-foreground"
         : "";
 
-  const cardFrameClass =
-    variant === "featured"
-      ? "rounded-xl bg-background/90 ring-1 ring-border/70 p-0.5"
-      : variant === "new-arrivals"
-        ? "rounded-xl bg-background ring-1 ring-border/50 p-0.5"
-        : "";
+  const cardFrameClass = "";
 
   return (
     <section className={`max-w-[1280px] mx-auto px-4 md:px-6 py-10 md:py-14 ${className}`}>
