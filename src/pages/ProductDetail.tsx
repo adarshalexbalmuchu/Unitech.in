@@ -89,7 +89,7 @@ const toDescriptionParagraphs = (description: string): string[] => {
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { data: allProducts = [], isLoading } = useProducts();
+  const { data: allProducts = [], isLoading, isError, error, refetch } = useProducts();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { user } = useAuth();
@@ -154,6 +154,11 @@ const ProductDetail = () => {
     };
   }, [product]);
 
+  const getErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message) return err.message;
+    return "Unable to load product details.";
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -169,6 +174,26 @@ const ProductDetail = () => {
               <div className="h-20 bg-muted rounded" />
             </div>
           </div>
+        </div>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <StickyHeader />
+        <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-20 text-center space-y-3">
+          <h1 className="text-2xl font-bold text-destructive">Unable to load product</h1>
+          <p className="text-sm text-muted-foreground">{getErrorMessage(error)}</p>
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center justify-center rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Retry
+          </button>
         </div>
         <SiteFooter />
       </div>
@@ -528,20 +553,22 @@ const ProductDetail = () => {
 
           {specEntries.length > 0 ? (
             <div className="bg-card rounded-xl border border-border overflow-hidden vm-shadow">
-              <table className="w-full text-sm min-w-[400px]">
-                <tbody>
-                  {specEntries.map(([key, value], i) => (
-                    <tr key={key} className={`${i % 2 === 0 ? "bg-muted/25" : ""} border-b border-border/70 last:border-b-0`}>
-                      <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
-                        {formatSpecLabel(key)}
-                      </td>
-                      <td className="px-4 md:px-5 py-2.5 md:py-3 text-xs md:text-sm">
-                        {formatSpecValue(value)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm min-w-[320px]">
+                  <tbody>
+                    {specEntries.map(([key, value], i) => (
+                      <tr key={key} className={`${i % 2 === 0 ? "bg-muted/25" : ""} border-b border-border/70 last:border-b-0`}>
+                        <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
+                          {formatSpecLabel(key)}
+                        </td>
+                        <td className="px-4 md:px-5 py-2.5 md:py-3 text-xs md:text-sm">
+                          {formatSpecValue(value)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
             <div className="bg-card rounded-lg border border-border p-4 md:p-5 space-y-3">

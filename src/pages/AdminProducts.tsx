@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Search, Pencil, Trash2, Eye, EyeOff, Star, StarOff } from "lucide-react";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,13 +23,20 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const AdminProducts = () => {
-  const { data: products = [], isLoading } = useAdminProducts();
+  const { data: products = [], isLoading, isError, error, refetch } = useAdminProducts();
   const deleteMutation = useDeleteProduct();
   const toggleMutation = useToggleProductField();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
+
+  const getErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message) return err.message;
+    return "Unexpected error";
+  };
 
   const filtered = useMemo(() => {
     let items = products;
@@ -47,14 +54,32 @@ const AdminProducts = () => {
   }, [products, search, categoryFilter]);
 
   const handleToggle = (id: string, field: "is_active" | "is_featured", value: boolean) => {
+    setPendingToggleId(id);
     toggleMutation.mutate({ id, field, value }, {
       onSuccess: () => toast({ title: `Product ${field === "is_active" ? (value ? "activated" : "deactivated") : (value ? "featured" : "unfeatured")}` }),
+      onError: (mutationError) => {
+        toast({
+          title: "Failed to update product",
+          description: getErrorMessage(mutationError),
+          variant: "destructive",
+        });
+      },
+      onSettled: () => setPendingToggleId(null),
     });
   };
 
   const handleDelete = (id: string) => {
+    setPendingDeleteId(id);
     deleteMutation.mutate(id, {
       onSuccess: () => toast({ title: "Product deleted" }),
+      onError: (mutationError) => {
+        toast({
+          title: "Failed to delete product",
+          description: getErrorMessage(mutationError),
+          variant: "destructive",
+        });
+      },
+      onSettled: () => setPendingDeleteId(null),
     });
   };
 
@@ -93,10 +118,31 @@ const AdminProducts = () => {
         {/* Table */}
         {isLoading ? (
           <p className="text-muted-foreground py-12 text-center">Loading products…</p>
+        ) : isError ? (
+          <div className="py-12 text-center space-y-3">
+            <p className="text-sm text-destructive">Failed to load products: {getErrorMessage(error)}</p>
+            <Button variant="outline" onClick={() => refetch()}>Retry</Button>
+          </div>
         ) : filtered.length === 0 ? (
-          <p className="text-muted-foreground py-12 text-center">No products found.</p>
+          <div className="py-12 text-center space-y-3">
+            <p className="text-muted-foreground">
+              {products.length === 0
+                ? "No products available yet. Add your first product to start the catalog."
+                : "No products match your current search/filter."}
+            </p>
+            {products.length === 0 ? (
+              <Button asChild>
+                <Link to="/admin/products/new">Add Product</Link>
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => { setSearch(""); setCategoryFilter("all"); }}>
+                Clear Filters
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -131,14 +177,27 @@ const AdminProducts = () => {
                       <span className={p.stock <= 5 ? "text-destructive font-medium" : "text-foreground"}>{p.stock}</span>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Switch checked={p.is_active} onCheckedChange={(v) => handleToggle(p.id, "is_active", v)} />
+                      <Switch
+                        checked={p.is_active}
+                        disabled={toggleMutation.isPending && pendingToggleId === p.id}
+                        onCheckedChange={(v) => handleToggle(p.id, "is_active", v)}
+                      />
                     </TableCell>
                     <TableCell className="text-center">
-                      <Switch checked={p.is_featured} onCheckedChange={(v) => handleToggle(p.id, "is_featured", v)} />
+                      <Switch
+                        checked={p.is_featured}
+                        disabled={toggleMutation.isPending && pendingToggleId === p.id}
+                        onCheckedChange={(v) => handleToggle(p.id, "is_featured", v)}
+                      />
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={Boolean(pendingDeleteId)}
+                          onClick={() => navigate(`/admin/products/${p.id}/edit`)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
@@ -154,7 +213,13 @@ const AdminProducts = () => {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(p.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={deleteMutation.isPending && pendingDeleteId === p.id}
+                              >
+                                {deleteMutation.isPending && pendingDeleteId === p.id ? "Deleting…" : "Delete"}
+                              </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -164,6 +229,7 @@ const AdminProducts = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
         )}
       </div>

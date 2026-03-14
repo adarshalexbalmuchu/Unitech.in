@@ -5,6 +5,7 @@ import type { Product } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolvePrimaryProductImage } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
+import { BorderBeam } from "@/components/ui/border-beam";
 import { toast } from "sonner";
 
 interface ProductCardProps {
@@ -66,6 +67,16 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
         compact ? "w-[160px] sm:w-[200px] md:w-[220px] min-w-[160px] flex-shrink-0 snap-start p-2.5 sm:p-3 gap-2" : "p-2.5 sm:p-3 gap-2 sm:gap-3"
       }`}
     >
+      <BorderBeam
+        size={140}
+        duration={18}
+        borderWidth={1}
+        anchor={60}
+        colorFrom="hsl(var(--primary))"
+        colorTo="hsl(var(--ring))"
+        className="opacity-35"
+      />
+
       {/* ── Badges ── */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
         {discount > 0 && (
@@ -93,7 +104,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       {/* ── Wishlist button ── */}
       <button
         onClick={handleWishlist}
-        className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm w-8 h-8 rounded-full flex justify-center items-center shadow-sm transition-all hover:scale-110"
+        className="absolute top-3 right-3 z-10 bg-background/80 backdrop-blur-sm w-9 h-9 rounded-full flex justify-center items-center shadow-sm transition-all hover:scale-110"
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
       >
         <Heart
@@ -164,7 +175,7 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
       {!compact && (
         <button
           onClick={handleAddToCart}
-          className="w-full py-2 rounded-md text-xs font-semibold bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 flex items-center justify-center gap-1.5"
+          className="w-full min-h-10 py-2 rounded-md text-xs font-semibold bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 flex items-center justify-center gap-1.5"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           Add to Cart

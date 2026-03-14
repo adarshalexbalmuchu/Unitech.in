@@ -23,6 +23,24 @@ interface CartStore {
   clearCart: () => void;
 }
 
+const MAX_CART_ITEM_QUANTITY = 99;
+
+const normalizePrice = (value: unknown): number => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+  return Math.max(0, value);
+};
+
+const normalizeQuantity = (value: number): number => {
+  if (!Number.isFinite(value)) return 1;
+  return Math.max(1, Math.min(MAX_CART_ITEM_QUANTITY, Math.floor(value)));
+};
+
+const normalizeProductPayload = (product?: { name: string; price: number; image_url: string }) => ({
+  name: (product?.name || "Product").trim() || "Product",
+  price: normalizePrice(product?.price),
+  image_url: (product?.image_url || "").trim(),
+});
+
 export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -36,12 +54,17 @@ export const useCart = create<CartStore>()(
       },
 
       addToCart: (productId, product) => {
+        const normalizedProductId = productId?.trim();
+        if (!normalizedProductId) return;
+
         const items = get().cartItems;
-        const existing = items.find((i) => i.product_id === productId);
+        const existing = items.find((i) => i.product_id === normalizedProductId);
         if (existing) {
           set({
             cartItems: items.map((i) =>
-              i.product_id === productId ? { ...i, quantity: i.quantity + 1 } : i
+              i.product_id === normalizedProductId
+                ? { ...i, quantity: normalizeQuantity(i.quantity + 1) }
+                : i
             ),
           });
         } else {
@@ -50,9 +73,9 @@ export const useCart = create<CartStore>()(
               ...items,
               {
                 id: crypto.randomUUID(),
-                product_id: productId,
+                product_id: normalizedProductId,
                 quantity: 1,
-                product: product || { name: "Product", price: 0, image_url: "" },
+                product: normalizeProductPayload(product),
               },
             ],
           });
@@ -60,17 +83,22 @@ export const useCart = create<CartStore>()(
       },
 
       removeFromCart: (itemId) => {
+        if (!itemId) return;
         set({ cartItems: get().cartItems.filter((i) => i.id !== itemId) });
       },
 
       updateQuantity: (itemId, quantity) => {
+        if (!itemId) return;
         if (quantity <= 0) {
           get().removeFromCart(itemId);
           return;
         }
+
+        const safeQuantity = normalizeQuantity(quantity);
+
         set({
           cartItems: get().cartItems.map((i) =>
-            i.id === itemId ? { ...i, quantity } : i
+            i.id === itemId ? { ...i, quantity: safeQuantity } : i
           ),
         });
       },

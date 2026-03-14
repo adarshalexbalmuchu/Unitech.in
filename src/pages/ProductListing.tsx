@@ -27,7 +27,13 @@ const PRICE_RANGES = [
 
 const ProductListing = () => {
   const { category } = useParams<{ category: string }>();
-  const { data: products = [], isLoading } = useProducts(category === "all" ? undefined : category);
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useProducts(category === "all" ? undefined : category);
 
   const [sort, setSort] = useState<SortKey>("rating");
   const [priceRange, setPriceRange] = useState<number | null>(null);
@@ -59,6 +65,11 @@ const ProductListing = () => {
   }, [products, sort, priceRange, showFeatured]);
 
   const activeFilterCount = (priceRange !== null ? 1 : 0) + (showFeatured ? 1 : 0);
+
+  const getErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message) return err.message;
+    return "Unable to load products.";
+  };
 
   const FilterContent = () => (
     <div className="space-y-6">
@@ -235,6 +246,17 @@ const ProductListing = () => {
                     <div className="h-3 bg-muted rounded w-1/2" />
                   </div>
                 ))}
+              </div>
+            ) : isError ? (
+              <div className="text-center py-16 md:py-20 space-y-3">
+                <p className="text-lg font-semibold text-destructive">Could not load products</p>
+                <p className="text-sm text-muted-foreground">{getErrorMessage(error)}</p>
+                <button
+                  onClick={() => refetch()}
+                  className="inline-flex items-center justify-center rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Retry
+                </button>
               </div>
             ) : filtered.length === 0 ? (
               <div className="text-center py-16 md:py-20">

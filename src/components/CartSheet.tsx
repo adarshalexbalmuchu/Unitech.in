@@ -12,7 +12,7 @@ const CartSheet = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="p-2 rounded-full hover:bg-surface vm-transition relative" aria-label="Cart">
+        <button className="h-10 w-10 rounded-full hover:bg-surface vm-transition relative inline-flex items-center justify-center" aria-label="Cart">
           <ShoppingCart className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
           {cartCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px]">
@@ -46,14 +46,14 @@ const CartSheet = () => {
                     <p className="text-sm font-medium truncate">{item.product.name}</p>
                     <p className="text-sm text-primary font-semibold">₹{item.product.price.toLocaleString("en-IN")}</p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 rounded hover:bg-surface">
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-surface" aria-label="Decrease quantity">
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 rounded hover:bg-surface">
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-surface" aria-label="Increase quantity">
                         <Plus className="w-3 h-3" />
                       </button>
-                      <button onClick={() => removeFromCart(item.id)} className="p-1 rounded hover:bg-destructive/10 text-destructive ml-auto">
+                      <button onClick={() => removeFromCart(item.id)} className="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive ml-auto" aria-label="Remove item">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>

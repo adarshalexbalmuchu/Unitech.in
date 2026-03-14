@@ -13,9 +13,18 @@ const Index = () => (
     <StickyHeader />
     <HeroCarousel />
     <CategoryRow />
-    <HomeCollectionSection title="Featured Products" collection="featured" className="pb-0 md:pb-0" />
-    <HomeCollectionSection title="Hot Selling Products" collection="hot-selling" className="pt-8 md:pt-10 pb-0 md:pb-0" />
-    <HomeCollectionSection title="New Arrivals" collection="new-arrivals" className="pt-8 md:pt-10" />
+    <HomeCollectionSection
+      title="Featured"
+      collection={["featured", "hot-selling"]}
+      className="pb-0 md:pb-0"
+      variant="featured"
+    />
+    <HomeCollectionSection
+      title="New Arrivals"
+      collection="new-arrivals"
+      className="pt-8 md:pt-10"
+      variant="new-arrivals"
+    />
     <BestSellingStores />
     <FooterBanner />
     <SiteFooter />

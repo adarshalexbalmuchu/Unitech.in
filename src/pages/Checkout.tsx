@@ -314,7 +314,7 @@ const Checkout = () => {
                   <Label htmlFor="address">Address *</Label>
                   <Textarea id="address" value={form.address} onChange={(e) => set("address", e.target.value)} required placeholder="House no., Street, Landmark..." rows={2} />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="city">City *</Label>
                     <Input id="city" value={form.city} onChange={(e) => set("city", e.target.value)} required placeholder="City" />
@@ -348,14 +348,14 @@ const Checkout = () => {
                       <p className="text-sm font-medium truncate">{item.product.name}</p>
                       <p className="text-sm text-primary font-semibold">{formatPrice(item.product.price)}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-0.5 rounded hover:bg-muted">
+                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-muted" aria-label="Decrease quantity">
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="text-xs font-medium w-5 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5 rounded hover:bg-muted">
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-muted" aria-label="Increase quantity">
                           <Plus className="w-3 h-3" />
                         </button>
-                        <button onClick={() => removeFromCart(item.id)} className="ml-auto p-1 rounded hover:bg-destructive/10 text-destructive">
+                        <button onClick={() => removeFromCart(item.id)} className="ml-auto h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive" aria-label="Remove item">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>

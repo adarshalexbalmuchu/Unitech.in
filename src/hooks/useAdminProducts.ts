@@ -3,6 +3,36 @@ import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import seedProducts from "@/data/seedProducts";
 import type { Product } from "@/hooks/useProducts";
 
+const normalizeProductForWrite = (product: Product): Product => ({
+  ...product,
+  name: (product.name || "").trim(),
+  slug: (product.slug || "").trim(),
+  description: product.description ?? "",
+  category: (product.category || "").trim(),
+  brand: product.brand ?? "",
+  model_number: product.model_number ?? "",
+  price: typeof product.price === "number" && Number.isFinite(product.price) ? Math.max(0, product.price) : null,
+  original_price:
+    typeof product.original_price === "number" && Number.isFinite(product.original_price)
+      ? Math.max(0, product.original_price)
+      : null,
+  image_url: (product.image_url || "").trim(),
+  images: Array.isArray(product.images)
+    ? product.images.filter((img): img is string => typeof img === "string" && img.trim().length > 0)
+    : [],
+  collections: Array.isArray(product.collections)
+    ? product.collections.filter((collection): collection is string => typeof collection === "string")
+    : [],
+  stock: Math.max(0, Math.floor(product.stock || 0)),
+  sku: product.sku ?? "",
+  rating: typeof product.rating === "number" && Number.isFinite(product.rating) ? product.rating : 0,
+  reviews_count:
+    typeof product.reviews_count === "number" && Number.isFinite(product.reviews_count)
+      ? Math.max(0, Math.floor(product.reviews_count))
+      : 0,
+  specs: product.specs && typeof product.specs === "object" ? product.specs : {},
+});
+
 /* ── Local store (pre-Supabase fallback) ───────────── */
 
 let localProducts: Product[] = [...seedProducts];
@@ -29,15 +59,19 @@ export const useCreateProduct = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (product: Product) => {
+      const payload = normalizeProductForWrite(product);
       if (!isSupabaseConfigured) {
-        setLocal([product, ...getLocal()]);
-        return product;
+        setLocal([payload, ...getLocal()]);
+        return payload;
       }
-      const { data, error } = await supabase.from("products").insert(product).select().single();
+      const { data, error } = await supabase.from("products").insert(payload).select().single();
       if (error) throw error;
       return data as Product;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-products"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
   });
 };
 
@@ -45,11 +79,12 @@ export const useUpdateProduct = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (product: Product) => {
+      const payload = normalizeProductForWrite(product);
       if (!isSupabaseConfigured) {
-        setLocal(getLocal().map((p) => (p.id === product.id ? product : p)));
-        return product;
+        setLocal(getLocal().map((p) => (p.id === payload.id ? payload : p)));
+        return payload;
       }
-      const { data, error } = await supabase.from("products").update(product).eq("id", product.id).select().single();
+      const { data, error } = await supabase.from("products").update(payload).eq("id", payload.id).select().single();
       if (error) throw error;
       return data as Product;
     },
@@ -71,7 +106,10 @@ export const useDeleteProduct = () => {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-products"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-products"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
   });
 };
 

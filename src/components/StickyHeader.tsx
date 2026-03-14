@@ -21,7 +21,7 @@ const StickyHeader = () => {
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
-            className="md:hidden p-1.5 -ml-1 text-muted-foreground hover:text-foreground"
+            className="md:hidden h-10 w-10 -ml-1 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-surface"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -50,7 +50,7 @@ const StickyHeader = () => {
 
           <div className="flex gap-0.5 shrink-0">
             {/* Wishlist */}
-            <Link to="/wishlist" className="p-2 rounded-full hover:bg-surface transition-colors relative" aria-label="Wishlist">
+            <Link to="/wishlist" className="h-10 w-10 rounded-full hover:bg-surface transition-colors relative inline-flex items-center justify-center" aria-label="Wishlist">
               <Heart className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
               {wishlistItems.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center">
@@ -60,7 +60,7 @@ const StickyHeader = () => {
             </Link>
             <CartSheet />
             {/* Account */}
-            <Link to={user ? "/account" : "/login"} className="p-2 rounded-full hover:bg-surface transition-colors" aria-label="Account">
+            <Link to={user ? "/account" : "/login"} className="h-10 w-10 rounded-full hover:bg-surface transition-colors inline-flex items-center justify-center" aria-label="Account">
               <User className="w-5 h-5 text-muted-foreground hover:text-primary" strokeWidth={1.5} />
             </Link>
           </div>
@@ -72,9 +72,9 @@ const StickyHeader = () => {
 
       {/* Mobile navigation drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[52px] z-40">
+        <div className="md:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileMenuOpen(false)} />
-          <nav className="relative bg-background w-64 h-full shadow-xl overflow-y-auto">
+          <nav className="relative bg-background w-64 max-w-[85vw] h-full shadow-xl overflow-y-auto pt-[56px]">
             <div className="p-4 space-y-1">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-3">Categories</p>
               {CATEGORIES.map((cat) => {
