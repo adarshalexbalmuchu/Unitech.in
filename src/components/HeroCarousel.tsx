@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useProducts } from "@/hooks/useProducts";
+import { resolvePrimaryProductImage } from "@/lib/constants";
 
 /* ── Animated audio spectrum bars ── */
 const BAR_HEIGHTS = [
@@ -51,7 +53,14 @@ const TICKER_ITEMS = [
 ];
 
 /* ── Hero Section ── */
-const HeroCarousel = () => (
+const HeroCarousel = () => {
+  const { data: products = [] } = useProducts();
+  const hero = products.find((p) => p.name.toLowerCase().includes("8787")) || null;
+  const heroImg = hero ? resolvePrimaryProductImage(hero.image_url, hero.category) : "";
+  const heroPrice = hero?.price ? `₹${hero.price.toLocaleString("en-IN")}` : "";
+  const heroOriginal = hero?.original_price ? `₹${hero.original_price.toLocaleString("en-IN")}` : "";
+
+  return (
   <section className="hero-section relative w-full overflow-hidden" style={{ background: BG }}>
     {/* Grid overlay */}
     <div
@@ -137,37 +146,49 @@ const HeroCarousel = () => (
       <div className="flex flex-col gap-3">
 
         {/* Featured product card */}
-        <div
-          className="rounded-[10px] p-5 md:p-6 flex flex-col gap-4"
+        <Link
+          to={hero ? `/product/${hero.slug}` : "/products/home-theatre-systems"}
+          className="rounded-[10px] p-5 md:p-6 flex flex-col gap-4 hover:border-white/20 transition-colors"
           style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
         >
-          {/* Product image placeholder */}
+          {/* Product image */}
           <div className="w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", height: 260 }}>
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
-              <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
-              <rect x="10" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
-              <rect x="56" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
-              <rect x="24" y="62" width="32" height="6" rx="3" fill="rgba(255,255,255,0.05)" />
-            </svg>
+            {hero ? (
+              <img src={heroImg} alt={hero.name} className="w-full h-full object-contain" />
+            ) : (
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
+                <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
+                <rect x="10" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
+                <rect x="56" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
+                <rect x="24" y="62" width="32" height="6" rx="3" fill="rgba(255,255,255,0.05)" />
+              </svg>
+            )}
           </div>
 
           {/* Product info */}
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-white text-sm font-bold">Unitech Pro Tower 9.1</h3>
+            <h3 className="text-white text-sm font-bold">{hero?.name || "8787 Home Theatre"}</h3>
             <p className="text-[12px]" style={{ color: "rgba(255,255,255,0.35)" }}>
-              250W RMS · Dolby Atmos · Bluetooth 5.3
+              {hero?.model_number || "Home Theatre System"} · {hero?.brand || "Unitech"}
             </p>
-            <span className="text-base font-bold mt-1" style={{ color: RED }}>₹24,999</span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-base font-bold" style={{ color: RED }}>{heroPrice || "₹24,999"}</span>
+              {heroOriginal && heroOriginal !== heroPrice && (
+                <span className="text-xs line-through" style={{ color: "rgba(255,255,255,0.25)" }}>{heroOriginal}</span>
+              )}
+            </div>
           </div>
 
           {/* Badges */}
           <div className="flex gap-2">
-            <span
-              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
-              style={{ color: RED, background: `${RED}12` }}
-            >
-              Bestseller
-            </span>
+            {hero?.is_featured && (
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
+                style={{ color: RED, background: `${RED}12` }}
+              >
+                Bestseller
+              </span>
+            )}
             <span
               className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
               style={{ color: RED, background: `${RED}12` }}
@@ -175,7 +196,7 @@ const HeroCarousel = () => (
               Free Shipping
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Mini category cards */}
         <div className="grid grid-cols-2 gap-3">
@@ -240,6 +261,7 @@ const HeroCarousel = () => (
       }
     `}</style>
   </section>
-);
+  );
+};
 
 export default HeroCarousel;
