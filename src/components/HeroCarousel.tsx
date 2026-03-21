@@ -200,13 +200,20 @@ const HeroCarousel = () => {
 
         {/* Mini category cards */}
         <div className="grid grid-cols-2 gap-3">
-          {[
-            { name: "Amplifiers", price: "From ₹4,999" },
-            { name: "Home Theatre", price: "From ₹12,999" },
-          ].map((cat) => (
-            <div
+          {([
+            { name: "Amplifiers", slug: "audio-amplifiers", link: "/products/audio-amplifiers" },
+            { name: "Home Theatre", slug: "home-theatre-systems", link: "/products/home-theatre-systems" },
+          ] as const).map((cat) => {
+            const catProducts = products.filter((p) => p.category === cat.slug && p.price);
+            const minPrice = catProducts.length
+              ? Math.min(...catProducts.map((p) => p.price!))
+              : null;
+            const priceLabel = minPrice ? `From ₹${minPrice.toLocaleString("en-IN")}` : "";
+            return (
+            <Link
               key={cat.name}
-              className="rounded-[10px] p-4 flex flex-col gap-3"
+              to={cat.link}
+              className="rounded-[10px] p-4 flex flex-col gap-3 hover:border-white/20 transition-colors"
               style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
             >
               {/* Red equalizer bars */}
@@ -221,10 +228,13 @@ const HeroCarousel = () => {
               </div>
               <div>
                 <p className="text-white text-xs font-semibold">{cat.name}</p>
-                <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{cat.price}</p>
+                {priceLabel && (
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{priceLabel}</p>
+                )}
               </div>
-            </div>
-          ))}
+            </Link>
+            );
+          })}
         </div>
       </div>
     </div>
