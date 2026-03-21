@@ -30,8 +30,9 @@ const HomeCollectionSection = ({
     refetch,
   } = useProductsByCollection(collection);
 
-  const hasMore = products.length > limit;
-  const displayProducts = expanded ? products : products.slice(0, limit);
+  const filteredProducts = products.filter((p) => p.category !== "power-accessories");
+  const hasMore = filteredProducts.length > limit;
+  const displayProducts = expanded ? filteredProducts : filteredProducts.slice(0, limit);
 
   const getErrorMessage = (err: unknown) => {
     if (err instanceof Error && err.message) return err.message;
@@ -48,7 +49,7 @@ const HomeCollectionSection = ({
             className="w-8 h-[3px] rounded-full mb-3"
             style={{ background: "hsl(357 100% 45%)" }}
           />
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground tracking-[-0.03em]">
+          <h2 className="text-[24px] md:text-[28px] font-extrabold text-foreground tracking-[-0.03em]">
             {title}
           </h2>
           {variant === "featured" && (
@@ -76,7 +77,7 @@ const HomeCollectionSection = ({
 
       {/* ── Content ── */}
       {isLoading ? (
-        <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
+        <div className="rounded-2xl p-3 md:p-4">
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <ProductCardSkeleton key={`${collection}-skeleton-${i}`} />
@@ -95,22 +96,29 @@ const HomeCollectionSection = ({
         </div>
       ) : displayProducts.length > 0 ? (
         <>
-          <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
               {displayProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-          </div>
 
           {/* See more */}
           {hasMore && (
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setExpanded((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors duration-200"
+                style={{
+                  padding: "12px 32px",
+                  border: "1.5px solid #111",
+                  borderRadius: 6,
+                  background: "transparent",
+                  color: "#111",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#111"; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#111"; }}
               >
-                {expanded ? "Show Less" : `See ${products.length - limit} More`}
+                {expanded ? "Show Less" : `See ${filteredProducts.length - limit} More`}
                 {!expanded && <ArrowRight className="w-4 h-4" />}
               </button>
             </div>

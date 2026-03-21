@@ -54,19 +54,42 @@ const ProductCard = memo(
       toast.success("Added to cart", { description: product.name });
     };
 
+    /* Badge logic: max 2 badges, discount is always primary */
+    const badges: { label: string; bg: string; color: string; icon?: typeof Zap; secondary?: boolean }[] = [];
+    if (discount > 0) badges.push({ label: `-${discount}%`, bg: "#e8251a", color: "#fff" });
+    if (isFlashSale) badges.push({ label: "Flash", bg: "#e8a020", color: "#fff", icon: Zap });
+    else if (isNewArrival && discount === 0) badges.push({ label: "New", bg: "#e8a020", color: "#1a1a1a" });
+    else if (isHotSelling) badges.push({ label: "Hot", bg: "rgba(0,0,0,0.65)", color: "#fff", icon: TrendingUp, secondary: true });
+
     return (
       <article
         ref={ref as React.Ref<HTMLElement>}
         onClick={handleNavigate}
-        className={`group bg-white rounded-2xl overflow-hidden cursor-pointer flex flex-col
-          shadow-[0_2px_8px_rgba(0,0,0,0.07)]
-          hover:shadow-[0_16px_40px_rgba(0,0,0,0.13)]
-          hover:-translate-y-1
-          transition-all duration-300 ease-out
-          ${compact ? "w-[148px] sm:w-[184px] min-w-[148px] flex-shrink-0 snap-start" : ""}`}
+        className={`product-card group bg-white overflow-hidden cursor-pointer flex flex-col
+          transition-all duration-200 ease-out
+          ${compact ? "w-[148px] sm:w-[184px] min-w-[148px] flex-shrink-0 snap-start rounded-xl" : ""}`}
+        style={compact ? undefined : {
+          borderRadius: 12,
+          border: "1px solid rgba(0,0,0,0.07)",
+        }}
+        onMouseEnter={(e) => {
+          if (!compact) {
+            e.currentTarget.style.border = "1px solid rgba(232,37,26,0.2)";
+            e.currentTarget.style.transform = "translateY(-2px)";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!compact) {
+            e.currentTarget.style.border = "1px solid rgba(0,0,0,0.07)";
+            e.currentTarget.style.transform = "translateY(0)";
+          }
+        }}
       >
         {/* ── Image ── */}
-        <div className="relative w-full aspect-square bg-[#F5F5F5] overflow-hidden">
+        <div
+          className="relative w-full overflow-hidden"
+          style={compact ? { aspectRatio: "1", background: "#f8f8f8" } : { height: 220, background: "#f8f8f8", borderRadius: "10px 10px 0 0" }}
+        >
           <img
             src={productImage}
             alt={product.name}
@@ -78,96 +101,114 @@ const ProductCard = memo(
             }}
           />
 
-          {/* ── Badges ── */}
+          {/* ── Badges — max 2, discount always first ── */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
-            {discount > 0 && (
-              <span className="rounded-full bg-primary text-white text-[9px] font-bold px-2 py-0.5">
-                -{discount}%
-              </span>
-            )}
-            {isFlashSale && (
-              <span className="rounded-full bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
-                <Zap className="w-2 h-2" /> Flash
-              </span>
-            )}
-            {isNewArrival && !isFlashSale && (
-              <span className="rounded-full bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5">
-                New
-              </span>
-            )}
-            {isHotSelling && !isFlashSale && !isNewArrival && (
-              <span className="rounded-full bg-[#111] text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
-                <TrendingUp className="w-2 h-2" /> Hot
-              </span>
-            )}
+            {badges.slice(0, 2).map((b) => {
+              const Icon = b.icon;
+              return (
+                <span
+                  key={b.label}
+                  className="rounded-full px-2 py-0.5 flex items-center gap-0.5"
+                  style={{
+                    background: b.bg,
+                    color: b.color,
+                    fontSize: b.secondary ? 10 : 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  {Icon && <Icon className="w-2 h-2" />}
+                  {b.label}
+                </span>
+              );
+            })}
           </div>
 
-          {/* ── Wishlist — always visible, subtle ── */}
+          {/* ── Wishlist ── */}
           <button
             onClick={handleWishlist}
             className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200
               ${wishlisted
-                ? "bg-primary shadow-sm"
-                : "bg-white/70 backdrop-blur-sm shadow-sm hover:bg-white"
+                ? "bg-[#e8251a]"
+                : "bg-white/80 backdrop-blur-sm hover:bg-white"
               }`}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart
-              className={`w-3 h-3 ${wishlisted ? "fill-white text-white" : "text-foreground/50"}`}
+              className={`w-3 h-3 ${wishlisted ? "fill-white text-white" : "text-black/40"}`}
               strokeWidth={2}
             />
           </button>
-
-          {/* ── Add to cart slide-up ── */}
-          {!compact && (
-            <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out z-10">
-              <button
-                onClick={handleAddToCart}
-                className="w-full py-3 bg-[#111] text-white text-[11px] font-bold tracking-wide flex items-center justify-center gap-1.5 hover:bg-primary transition-colors duration-150"
-              >
-                <ShoppingCart className="w-3.5 h-3.5" strokeWidth={2} />
-                Add to Cart
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ── Info ── */}
-        <div className={`flex flex-col ${compact ? "p-2.5" : "p-3 md:p-3.5"}`}>
+        <div className={compact ? "p-2.5 flex flex-col flex-1" : "flex flex-col flex-1"} style={compact ? undefined : { padding: "14px 16px 0" }}>
           {/* Category */}
           {!compact && (
-            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1">
+            <span
+              className="mb-1"
+              style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(0,0,0,0.35)" }}
+            >
               {categoryLabel}
             </span>
           )}
 
           {/* Name */}
-          <h3 className={`font-semibold leading-snug line-clamp-2 text-foreground/90 ${compact ? "text-[11px]" : "text-[12.5px] sm:text-[13px]"}`}>
+          <h3
+            className="line-clamp-2"
+            style={{
+              fontSize: compact ? 11 : 14,
+              fontWeight: 600,
+              color: "#111",
+              lineHeight: 1.3,
+            }}
+          >
             {product.name}
           </h3>
 
           {/* Rating */}
           <div className="flex items-center gap-1 mt-1.5">
             <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 shrink-0" />
-            <span className="text-[11px] font-semibold text-foreground/80">{product.rating}</span>
-            <span className="text-[11px] text-muted-foreground">({product.reviews_count})</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.7)" }}>{product.rating}</span>
+            <span style={{ fontSize: 11, color: "rgba(0,0,0,0.35)" }}>({product.reviews_count})</span>
             {lowStock && (
-              <span className="ml-auto text-[9px] font-bold text-primary shrink-0">{product.stock} left</span>
+              <span className="ml-auto shrink-0" style={{ fontSize: 9, fontWeight: 700, color: "#e8251a" }}>{product.stock} left</span>
             )}
           </div>
 
           {/* Price */}
           <div className="flex items-baseline gap-1.5 mt-2 tabular-nums">
-            <span className={`font-extrabold text-foreground ${compact ? "text-sm" : "text-base sm:text-[17px]"}`}>
+            <span style={{ fontSize: compact ? 14 : 16, fontWeight: 700, color: "#111" }}>
               {formatPrice(product.price)}
             </span>
             {product.original_price && product.original_price > (product.price ?? 0) && (
-              <span className="text-[11px] line-through text-muted-foreground">
+              <span style={{ fontSize: 12, textDecoration: "line-through", color: "rgba(0,0,0,0.35)" }}>
                 {formatPrice(product.original_price)}
               </span>
             )}
           </div>
         </div>
+
+        {/* ── Add to Cart — flush at bottom ── */}
+        {!compact && (
+          <button
+            onClick={handleAddToCart}
+            className="w-full flex items-center justify-center gap-1.5 mt-auto transition-colors duration-200"
+            style={{
+              background: "#111",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "10px 0",
+              borderRadius: "0 0 10px 10px",
+              marginTop: 14,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#e8251a")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#111")}
+          >
+            <ShoppingCart className="w-3.5 h-3.5" strokeWidth={2} />
+            Add to Cart
+          </button>
+        )}
       </article>
     );
   })
