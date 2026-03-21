@@ -362,7 +362,10 @@ const ProductDetail = () => {
           {/* Left — Image gallery */}
           <div className="relative xl:sticky xl:top-24 self-start">
             {discount > 0 && (
-              <span className="absolute top-3 left-3 md:top-4 md:left-4 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded z-20 shadow-sm">
+              <span
+                style={{ background: '#e8251a', color: '#fff', fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 4 }}
+                className="absolute top-3 left-3 md:top-4 md:left-4 z-20"
+              >
                 -{discount}%
               </span>
             )}
@@ -375,7 +378,8 @@ const ProductDetail = () => {
             <div className="flex items-center gap-2">
               <Link
                 to={`/products/${product.category}`}
-                className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded hover:bg-primary/20 transition-colors"
+                style={{ fontSize: 11, fontWeight: 600, color: '#e8251a', background: 'rgba(232,37,26,0.08)', padding: '2px 10px', borderRadius: 4 }}
+                className="hover:opacity-80 transition-opacity"
               >
                 {catLabel}
               </Link>
@@ -385,7 +389,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Name */}
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold leading-tight">{product.name}</h1>
+            <h1 className="text-2xl md:text-[32px] font-extrabold leading-tight">{product.name}</h1>
 
             {shortTagline && (
               <p className="text-sm md:text-base text-muted-foreground font-medium">{shortTagline}</p>
@@ -414,9 +418,9 @@ const ProductDetail = () => {
             </div>
 
             {/* Price block */}
-            <div className="bg-surface rounded-lg p-3 md:p-4 space-y-1">
+            <div className="space-y-1">
               <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
-                <span className="text-2xl md:text-3xl font-extrabold text-primary tabular-nums">
+                <span style={{ color: '#e8251a' }} className="text-[28px] font-extrabold tabular-nums">
                   {formatPrice(product.price)}
                 </span>
                 {product.original_price && product.original_price > (product.price ?? 0) && (
@@ -433,7 +437,7 @@ const ProductDetail = () => {
 
             {/* Stock */}
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${inStock ? "bg-green-500" : "bg-destructive"}`} />
+              <div style={{ width: 8, height: 8, borderRadius: '50%' }} className={inStock ? "bg-green-500" : "bg-destructive"} />
               <span className={`text-sm font-medium ${inStock ? "text-green-600" : "text-destructive"}`}>
                 {inStock ? (product.stock <= 10 ? `Only ${product.stock} left in stock` : "In Stock") : "Out of Stock"}
               </span>
@@ -451,15 +455,16 @@ const ProductDetail = () => {
             )}
 
             {displayHighlights.length > 0 && (
-              <div className="space-y-2.5 rounded-lg border border-border bg-surface/60 p-3 md:p-4">
-                <h3 className="text-sm font-semibold">Key Highlights</h3>
+              <div className="space-y-2.5">
+                <h3 style={{ fontSize: 13, fontWeight: 700 }}>Key Highlights</h3>
                 <div className="flex flex-wrap gap-2">
                   {displayHighlights.map((highlight, idx) => (
                     <span
                       key={`${highlight}-${idx}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] md:text-xs text-foreground/95"
+                      style={{ background: '#f5f5f5', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 20, padding: '4px 12px', fontSize: 12 }}
+                      className="inline-flex items-center gap-1.5"
                     >
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#e8251a', flexShrink: 0 }} />
                       {highlight}
                     </span>
                   ))}
@@ -468,9 +473,9 @@ const ProductDetail = () => {
             )}
 
             {/* Quantity + CTA — stacked on mobile */}
-            <div className="rounded-xl border border-border bg-card p-3 md:p-4 space-y-3">
+            <div className="space-y-3">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="flex items-center border border-border rounded-lg bg-surface self-start shadow-sm">
+                <div style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 8 }} className="flex items-center self-start">
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   className="px-3 py-2.5 hover:bg-muted transition-colors rounded-l-lg"
@@ -491,7 +496,8 @@ const ProductDetail = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={!inStock}
-                  className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: '#e8251a', color: '#fff', borderRadius: 8, padding: '14px 0', fontSize: 14, fontWeight: 700 }}
+                  className="flex-1 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="w-4 h-4" />
                   Add to Cart
@@ -516,7 +522,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Trust badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 pt-4 border-t border-border">
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '14px 0' }} className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
               <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-muted-foreground text-center sm:text-left">
                 <Truck className="w-4 h-4 text-primary shrink-0" />
                 <span>Free Shipping</span>
@@ -549,19 +555,20 @@ const ProductDetail = () => {
 
         {/* Specs table */}
         <section className="mt-10 md:mt-14">
-          <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Specifications</h2>
+          <div style={{ width: 20, height: 2, background: '#e8251a', marginBottom: 10 }} />
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20 }}>Specifications</h2>
 
           {specEntries.length > 0 ? (
-            <div className="bg-card rounded-xl border border-border overflow-hidden vm-shadow">
+            <div style={{ borderRadius: 10, border: '1px solid rgba(0,0,0,0.08)', overflow: 'hidden' }}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm min-w-[320px]">
                   <tbody>
                     {specEntries.map(([key, value], i) => (
-                      <tr key={key} className={`${i % 2 === 0 ? "bg-muted/25" : ""} border-b border-border/70 last:border-b-0`}>
-                        <td className="px-4 md:px-5 py-2.5 md:py-3 font-semibold text-muted-foreground whitespace-nowrap w-36 md:w-48 text-xs md:text-sm">
+                      <tr key={key} style={{ background: i % 2 === 0 ? '#fafafa' : '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                        <td style={{ padding: '10px 20px', fontWeight: 600, color: '#666', whiteSpace: 'nowrap', width: 200, fontSize: 13 }}>
                           {formatSpecLabel(key)}
                         </td>
-                        <td className="px-4 md:px-5 py-2.5 md:py-3 text-xs md:text-sm">
+                        <td style={{ padding: '10px 20px', fontSize: 13 }}>
                           {formatSpecValue(value)}
                         </td>
                       </tr>
@@ -601,8 +608,9 @@ const ProductDetail = () => {
 
         {faqItems.length > 0 && (
           <section className="mt-10 md:mt-14">
-            <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">FAQs</h2>
-            <div className="bg-card rounded-lg border border-border px-4 md:px-5">
+            <div style={{ width: 20, height: 2, background: '#e8251a', marginBottom: 10 }} />
+            <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20 }}>FAQs</h2>
+            <div className="faq-accordion" style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: '0 16px' }}>
               <Accordion type="single" collapsible>
                 {faqItems.map((faq, idx) => (
                   <AccordionItem key={`${faq.question}-${idx}`} value={`faq-${idx}`}>
@@ -618,12 +626,13 @@ const ProductDetail = () => {
         )}
 
         <section className="mt-10 md:mt-14">
-          <h2 className="text-lg md:text-xl font-extrabold mb-4 md:mb-6">Ratings & Reviews</h2>
+          <div style={{ width: 20, height: 2, background: '#e8251a', marginBottom: 10 }} />
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20 }}>Ratings & Reviews</h2>
 
           <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
-            <div className="bg-card border border-border rounded-lg p-4 md:p-5 space-y-4">
+            <div style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: 20 }} className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="text-3xl font-extrabold tabular-nums">{displayedRating.toFixed(1)}</span>
+                <span style={{ fontSize: 36, fontWeight: 800 }} className="tabular-nums">{displayedRating.toFixed(1)}</span>
                 <div>
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -684,13 +693,14 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={handleSubmitReview}
-                className="w-full md:w-auto bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-primary/90 vm-transition"
+                style={{ background: '#e8251a', color: '#fff', padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 700 }}
+                className="w-full md:w-auto hover:opacity-90 transition-opacity"
               >
                 Submit Review
               </button>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-4 md:p-5">
+            <div style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: 20 }}>
               {reviews.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No customer reviews yet. Be the first to review this product.</p>
               ) : (
@@ -725,11 +735,13 @@ const ProductDetail = () => {
         {/* Related products */}
         {related.length > 0 && (
           <section className="mt-10 md:mt-14">
-            <div className="flex items-center justify-between mb-4 md:mb-6">
-              <h2 className="text-lg md:text-xl font-extrabold">Related Products</h2>
+            <div style={{ width: 20, height: 2, background: '#e8251a', marginBottom: 10 }} />
+            <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800 }}>Related Products</h2>
               <Link
                 to={`/products/${product.category}`}
-                className="text-sm text-primary font-semibold hover:underline"
+                style={{ color: '#e8251a', fontSize: 14, fontWeight: 600 }}
+                className="hover:underline"
               >
                 View All →
               </Link>

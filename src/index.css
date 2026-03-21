@@ -131,6 +131,21 @@
   }
 }
 
+/* ── FAQ Accordion Red Accents ── */
+.faq-accordion button[data-state=open] {
+  color: #e8251a;
+  text-decoration: none;
+}
+.faq-accordion button[data-state=open] > svg {
+  color: #e8251a;
+}
+.faq-accordion > div > [data-state=open] {
+  background: rgba(232,37,26,0.02);
+  border-radius: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
 /* ── Subtle entrance fade ── */
 @keyframes fadeUp {
   from {
