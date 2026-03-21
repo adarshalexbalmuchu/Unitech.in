@@ -76,10 +76,12 @@ const HomeCollectionSection = ({
 
       {/* ── Content ── */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <ProductCardSkeleton key={`${collection}-skeleton-${i}`} />
-          ))}
+        <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProductCardSkeleton key={`${collection}-skeleton-${i}`} />
+            ))}
+          </div>
         </div>
       ) : isError ? (
         <div className="rounded-xl border border-border bg-muted/40 p-8 text-center space-y-3">
@@ -93,10 +95,12 @@ const HomeCollectionSection = ({
         </div>
       ) : displayProducts.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
-            {displayProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              {displayProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
 
           {/* See more */}
