@@ -63,7 +63,7 @@ const HeroCarousel = () => (
     />
 
     {/* ── Main 2-column grid ── */}
-    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-8 pt-14 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-8 pt-8 md:pt-10 pb-12 md:pb-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
 
       {/* ── Left column: Copy + CTAs ── */}
       <div className="flex flex-col items-start">
@@ -81,7 +81,7 @@ const HeroCarousel = () => (
 
         {/* Headline */}
         <h1
-          className="text-[40px] md:text-[56px] lg:text-[64px] font-extrabold leading-[1.0] tracking-[-0.02em] select-none mb-5"
+          className="text-[48px] md:text-[68px] lg:text-[80px] font-extrabold leading-[1.0] tracking-[-0.02em] select-none mb-5"
         >
           <span className="text-white">HEAR THE</span>
           <br />
@@ -142,7 +142,7 @@ const HeroCarousel = () => (
           style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
         >
           {/* Product image placeholder */}
-          <div className="w-full aspect-[4/3] rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <div className="w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", maxHeight: 180 }}>
             <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
               <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
               <rect x="10" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
@@ -208,8 +208,8 @@ const HeroCarousel = () => (
       </div>
     </div>
 
-    {/* ── Equalizer bar visualizer ── */}
-    <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 md:px-8 pb-4">
+    {/* ── Equalizer bar visualizer (full bleed) ── */}
+    <div className="relative z-10 pb-4" style={{ width: "100vw", left: "50%", transform: "translateX(-50%)", position: "relative" }}>
       <AudioBars />
     </div>
 
@@ -218,8 +218,8 @@ const HeroCarousel = () => (
       <div className="flex animate-ticker whitespace-nowrap py-2.5">
         {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
           <span key={i} className="inline-flex items-center shrink-0 mx-4">
-            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>{item}</span>
-            <span className="w-1 h-1 rounded-full ml-8 shrink-0" style={{ background: AMBER }} />
+            <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.55)" }}>{item}</span>
+            <span className="rounded-full ml-8 shrink-0" style={{ width: 6, height: 6, background: AMBER, opacity: 0.7 }} />
           </span>
         ))}
       </div>
