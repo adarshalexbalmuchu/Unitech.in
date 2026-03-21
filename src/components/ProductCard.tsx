@@ -1,6 +1,6 @@
 import { memo, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
+import { Heart, Star, Zap, TrendingUp } from "lucide-react";
 import type { Product } from "@/hooks/useProducts";
 import {
   formatPrice,
@@ -58,19 +58,16 @@ const ProductCard = memo(
       <article
         ref={ref as React.Ref<HTMLElement>}
         onClick={handleNavigate}
-        className={`group bg-white rounded-2xl overflow-hidden cursor-pointer flex flex-col
-          shadow-[0_2px_8px_rgba(0,0,0,0.07)]
-          hover:shadow-[0_16px_40px_rgba(0,0,0,0.13)]
-          hover:-translate-y-1
-          transition-all duration-300 ease-out
-          ${compact ? "w-[148px] sm:w-[184px] min-w-[148px] flex-shrink-0 snap-start" : ""}`}
+        className={`group cursor-pointer flex flex-col ${
+          compact ? "w-[148px] sm:w-[184px] min-w-[148px] flex-shrink-0 snap-start" : ""
+        }`}
       >
-        {/* ── Image ── */}
+        {/* ── Image block ── */}
         <div className="relative w-full aspect-square bg-[#F5F5F5] overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
-            className="w-full h-full object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            className="w-full h-full object-contain p-5 md:p-6 transition-transform duration-500 ease-out group-hover:scale-[1.05]"
             loading="lazy"
             decoding="async"
             onError={(e) => {
@@ -78,93 +75,86 @@ const ProductCard = memo(
             }}
           />
 
-          {/* ── Badges ── */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
-            {discount > 0 && (
-              <span className="rounded-full bg-primary text-white text-[9px] font-bold px-2 py-0.5">
-                -{discount}%
-              </span>
-            )}
-            {isFlashSale && (
-              <span className="rounded-full bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
-                <Zap className="w-2 h-2" /> Flash
-              </span>
-            )}
-            {isNewArrival && !isFlashSale && (
-              <span className="rounded-full bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5">
-                New
-              </span>
-            )}
-            {isHotSelling && !isFlashSale && !isNewArrival && (
-              <span className="rounded-full bg-[#111] text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
-                <TrendingUp className="w-2 h-2" /> Hot
-              </span>
-            )}
-          </div>
+          {/* Discount badge — top left */}
+          {discount > 0 && (
+            <span className="absolute top-3 left-3 text-[10px] font-bold text-primary">
+              -{discount}%
+            </span>
+          )}
 
-          {/* ── Wishlist — always visible, subtle ── */}
+          {/* Collection pill — top left (below discount) */}
+          {(isFlashSale || isNewArrival || isHotSelling) && (
+            <span className="absolute top-3 left-3 mt-[18px] text-[10px] font-semibold text-muted-foreground">
+              {isFlashSale ? (
+                <><Zap className="inline w-2.5 h-2.5 mb-0.5" /> Flash Sale</>
+              ) : isNewArrival ? "Just In" : "Best Seller"}
+            </span>
+          )}
+
+          {/* Wishlist — top right */}
           <button
             onClick={handleWishlist}
-            className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200
-              ${wishlisted
-                ? "bg-primary shadow-sm"
-                : "bg-white/70 backdrop-blur-sm shadow-sm hover:bg-white"
-              }`}
+            className="absolute top-2.5 right-2.5 z-10 w-8 h-8 flex items-center justify-center transition-transform duration-150 hover:scale-110"
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart
-              className={`w-3 h-3 ${wishlisted ? "fill-white text-white" : "text-foreground/50"}`}
-              strokeWidth={2}
+              className={`w-4 h-4 transition-colors ${
+                wishlisted ? "fill-primary text-primary" : "text-foreground/30 group-hover:text-foreground/60"
+              }`}
+              strokeWidth={1.75}
             />
           </button>
-
-          {/* ── Add to cart slide-up ── */}
-          {!compact && (
-            <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out z-10">
-              <button
-                onClick={handleAddToCart}
-                className="w-full py-3 bg-[#111] text-white text-[11px] font-bold tracking-wide flex items-center justify-center gap-1.5 hover:bg-primary transition-colors duration-150"
-              >
-                <ShoppingCart className="w-3.5 h-3.5" strokeWidth={2} />
-                Add to Cart
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ── Info ── */}
-        <div className={`flex flex-col ${compact ? "p-2.5" : "p-3 md:p-3.5"}`}>
-          {/* Category */}
-          {!compact && (
-            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1">
-              {categoryLabel}
-            </span>
-          )}
-
+        <div className={`flex flex-col ${compact ? "pt-2.5" : "pt-3"}`}>
           {/* Name */}
-          <h3 className={`font-semibold leading-snug line-clamp-2 text-foreground/90 ${compact ? "text-[11px]" : "text-[12.5px] sm:text-[13px]"}`}>
+          <h3 className={`font-semibold text-foreground leading-snug line-clamp-2 ${
+            compact ? "text-[11px]" : "text-[13.5px] md:text-[14px]"
+          }`}>
             {product.name}
           </h3>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 mt-1.5">
-            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 shrink-0" />
-            <span className="text-[11px] font-semibold text-foreground/80">{product.rating}</span>
-            <span className="text-[11px] text-muted-foreground">({product.reviews_count})</span>
-            {lowStock && (
-              <span className="ml-auto text-[9px] font-bold text-primary shrink-0">{product.stock} left</span>
-            )}
-          </div>
-
-          {/* Price */}
-          <div className="flex items-baseline gap-1.5 mt-2 tabular-nums">
-            <span className={`font-extrabold text-foreground ${compact ? "text-sm" : "text-base sm:text-[17px]"}`}>
-              {formatPrice(product.price)}
-            </span>
-            {product.original_price && product.original_price > (product.price ?? 0) && (
-              <span className="text-[11px] line-through text-muted-foreground">
-                {formatPrice(product.original_price)}
+          {/* Category + rating row */}
+          {!compact && (
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-[12px] text-muted-foreground">{categoryLabel}</span>
+              <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
+                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                {product.rating}
+                <span className="ml-0.5">({product.reviews_count})</span>
               </span>
+            </div>
+          )}
+
+          {/* Low stock */}
+          {lowStock && !compact && (
+            <span className="text-[11px] font-semibold text-primary mt-0.5">
+              Only {product.stock} left
+            </span>
+          )}
+
+          {/* Price row */}
+          <div className={`flex items-center justify-between ${compact ? "mt-1.5" : "mt-3"}`}>
+            <div className="flex items-baseline gap-1.5 tabular-nums">
+              <span className={`font-bold text-foreground ${compact ? "text-sm" : "text-[14px] md:text-[15px]"}`}>
+                {formatPrice(product.price)}
+              </span>
+              {product.original_price && product.original_price > (product.price ?? 0) && (
+                <span className="text-[11px] line-through text-muted-foreground">
+                  {formatPrice(product.original_price)}
+                </span>
+              )}
+            </div>
+
+            {/* Add to cart — Nike-style text link */}
+            {!compact && (
+              <button
+                onClick={handleAddToCart}
+                className="text-[12px] font-semibold text-foreground underline underline-offset-2 decoration-foreground/30 hover:decoration-primary hover:text-primary transition-colors"
+              >
+                Add to cart
+              </button>
             )}
           </div>
         </div>
