@@ -148,13 +148,13 @@ const HeroCarousel = () => {
         {/* Featured product card */}
         <Link
           to={hero ? `/product/${hero.slug}` : "/products/home-theatre-systems"}
-          className="rounded-[10px] p-5 md:p-6 flex flex-col gap-4 hover:border-white/20 transition-colors"
+          className="group rounded-[10px] p-5 md:p-6 flex flex-col gap-4 hover:border-white/20 transition-all"
           style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
         >
           {/* Product image */}
-          <div className="w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", height: 260 }}>
+          <div className="relative w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", height: 240 }}>
             {hero ? (
-              <img src={heroImg} alt={hero.name} className="w-full h-full object-contain" />
+              <img src={heroImg} alt={hero.name} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
             ) : (
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
                 <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
@@ -163,74 +163,93 @@ const HeroCarousel = () => {
                 <rect x="24" y="62" width="32" height="6" rx="3" fill="rgba(255,255,255,0.05)" />
               </svg>
             )}
+            {/* Discount tag */}
+            {hero?.price && hero?.original_price && hero.original_price > hero.price && (
+              <span
+                className="absolute top-2 right-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded"
+                style={{ background: RED, color: "#fff" }}
+              >
+                {Math.round(((hero.original_price - hero.price) / hero.original_price) * 100)}% off
+              </span>
+            )}
           </div>
 
-          {/* Product info */}
-          <div className="flex flex-col gap-1.5">
-            <h3 className="text-white text-sm font-bold">{hero?.name || "8787 Home Theatre"}</h3>
-            <p className="text-[12px]" style={{ color: "rgba(255,255,255,0.35)" }}>
-              {hero?.model_number || "Home Theatre System"} · {hero?.brand || "Unitech"}
-            </p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-base font-bold" style={{ color: RED }}>{heroPrice || "₹24,999"}</span>
+          {/* Product info – horizontal layout */}
+          <div className="flex items-end justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <h3 className="text-white text-sm font-bold leading-tight">{hero?.name || "8787 Home Theatre"}</h3>
+              <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                {hero?.model_number || "Home Theatre System"} · {hero?.brand || "Unitech"}
+              </p>
+            </div>
+            <div className="flex flex-col items-end shrink-0">
+              <span className="text-lg font-bold leading-none" style={{ color: RED }}>{heroPrice || "₹24,999"}</span>
               {heroOriginal && heroOriginal !== heroPrice && (
-                <span className="text-xs line-through" style={{ color: "rgba(255,255,255,0.25)" }}>{heroOriginal}</span>
+                <span className="text-[11px] line-through mt-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>{heroOriginal}</span>
               )}
             </div>
           </div>
 
-          {/* Badges */}
-          <div className="flex gap-2">
-            {hero?.is_featured && (
-              <span
-                className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
-                style={{ color: RED, background: `${RED}12` }}
-              >
-                Bestseller
+          {/* Bottom row: badges + CTA hint */}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              {hero?.is_featured && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded" style={{ color: RED, background: `${RED}12` }}>
+                  Bestseller
+                </span>
+              )}
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded" style={{ color: RED, background: `${RED}12` }}>
+                Free Shipping
               </span>
-            )}
-            <span
-              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
-              style={{ color: RED, background: `${RED}12` }}
-            >
-              Free Shipping
+            </div>
+            <span className="text-[11px] font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: MUTED }}>
+              View <ArrowRight className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
-        {/* Mini category cards */}
+        {/* Category cards with product thumbnails */}
         <div className="grid grid-cols-2 gap-3">
           {([
             { name: "Amplifiers", slug: "audio-amplifiers", link: "/products/audio-amplifiers" },
-            { name: "Home Theatre", slug: "home-theatre-systems", link: "/products/home-theatre-systems" },
+            { name: "Tower Speakers", slug: "tower-speakers", link: "/products/tower-speakers" },
           ] as const).map((cat) => {
-            const catProducts = products.filter((p) => p.category === cat.slug && p.price);
-            const minPrice = catProducts.length
-              ? Math.min(...catProducts.map((p) => p.price!))
-              : null;
-            const priceLabel = minPrice ? `From ₹${minPrice.toLocaleString("en-IN")}` : "";
+            const catProducts = products.filter((p) => p.category === cat.slug && p.price && p.is_active);
+            const featured = catProducts.find((p) => p.is_featured) || catProducts[0] || null;
+            const minPrice = catProducts.length ? Math.min(...catProducts.map((p) => p.price!)) : null;
+            const thumbImg = featured ? resolvePrimaryProductImage(featured.image_url, featured.category) : "";
             return (
             <Link
               key={cat.name}
               to={cat.link}
-              className="rounded-[10px] p-4 flex flex-col gap-3 hover:border-white/20 transition-colors"
+              className="group rounded-[10px] p-3 flex flex-col gap-2 hover:border-white/20 transition-all relative overflow-hidden"
               style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
             >
-              {/* Red equalizer bars */}
-              <div className="flex items-end gap-[2px] h-4" aria-hidden>
-                {[40, 70, 55, 85, 45, 90, 60].map((h, i) => (
-                  <div
-                    key={i}
-                    className="w-[3px] rounded-t-[1px]"
-                    style={{ height: `${h}%`, background: `${RED}55` }}
-                  />
-                ))}
-              </div>
-              <div>
-                <p className="text-white text-xs font-semibold">{cat.name}</p>
-                {priceLabel && (
-                  <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{priceLabel}</p>
+              {/* Thumbnail */}
+              <div className="w-full rounded-md overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", height: 80 }}>
+                {featured ? (
+                  <img src={thumbImg} alt={cat.name} className="h-full object-contain group-hover:scale-110 transition-transform duration-500" />
+                ) : (
+                  <div className="flex items-end gap-[2px] h-5" aria-hidden>
+                    {[40, 70, 55, 85, 45, 90, 60].map((h, i) => (
+                      <div key={i} className="w-[3px] rounded-t-[1px]" style={{ height: `${h}%`, background: `${RED}55` }} />
+                    ))}
+                  </div>
                 )}
+              </div>
+              {/* Info */}
+              <div className="flex items-end justify-between gap-1">
+                <div>
+                  <p className="text-white text-xs font-semibold">{cat.name}</p>
+                  {minPrice && (
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      From ₹{minPrice.toLocaleString("en-IN")}
+                    </p>
+                  )}
+                </div>
+                <span className="text-[10px] font-medium shrink-0" style={{ color: "rgba(255,255,255,0.25)" }}>
+                  {catProducts.length} items
+                </span>
               </div>
             </Link>
             );
