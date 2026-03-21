@@ -1,28 +1,28 @@
 const ProductCardSkeleton = () => (
-  <div className="bg-card rounded-2xl overflow-hidden border border-border animate-pulse">
-    <div className="relative bg-muted p-6 aspect-square">
-      <div className="w-full h-full bg-muted-foreground/10 rounded-lg" />
+  <div className="bg-card rounded-lg outline outline-1 outline-border -outline-offset-1 p-2.5 sm:p-3 flex flex-col gap-2 sm:gap-3 animate-pulse">
+    {/* Image */}
+    <div className="w-full aspect-square bg-muted rounded-md" />
+    {/* Category */}
+    <div className="w-20 h-2.5 bg-muted-foreground/15 rounded" />
+    {/* Spec summary */}
+    <div className="w-32 h-2.5 bg-muted-foreground/10 rounded" />
+    {/* Name */}
+    <div className="space-y-1.5">
+      <div className="w-full h-3.5 bg-muted-foreground/15 rounded" />
+      <div className="w-3/4 h-3.5 bg-muted-foreground/10 rounded" />
     </div>
-    <div className="p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="flex gap-0.5">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="w-3 h-3 bg-muted-foreground/10 rounded" />
-          ))}
-        </div>
-        <div className="w-8 h-3 bg-muted-foreground/10 rounded" />
-      </div>
-      <div className="w-24 h-5 bg-muted-foreground/10 rounded-full" />
-      <div className="space-y-2">
-        <div className="w-full h-4 bg-muted-foreground/10 rounded" />
-        <div className="w-3/4 h-4 bg-muted-foreground/10 rounded" />
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="w-20 h-6 bg-muted-foreground/10 rounded" />
-        <div className="w-16 h-4 bg-muted-foreground/10 rounded" />
-      </div>
-      <div className="w-full h-12 bg-muted-foreground/10 rounded-xl" />
+    {/* Rating */}
+    <div className="flex items-center gap-1.5">
+      <div className="w-3 h-3 bg-muted-foreground/15 rounded" />
+      <div className="w-16 h-3 bg-muted-foreground/10 rounded" />
     </div>
+    {/* Price */}
+    <div className="flex items-baseline gap-2">
+      <div className="w-16 h-5 bg-muted-foreground/15 rounded" />
+      <div className="w-12 h-3.5 bg-muted-foreground/10 rounded" />
+    </div>
+    {/* Add to cart button */}
+    <div className="w-full h-10 bg-muted-foreground/10 rounded-md" />
   </div>
 );
 

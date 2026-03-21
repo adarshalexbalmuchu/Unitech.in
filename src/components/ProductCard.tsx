@@ -126,15 +126,15 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
         </span>
       )}
 
+      {/* ── Spec summary (above name) ── */}
+      {specSummary && !compact && (
+        <p className="text-[0.7rem] text-muted-foreground line-clamp-1 -mt-1">{specSummary}</p>
+      )}
+
       {/* ── Name ── */}
       <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm"}`}>
         {product.name}
       </h3>
-
-      {/* ── Spec summary ── */}
-      {specSummary && !compact && (
-        <p className="text-[0.7rem] text-muted-foreground line-clamp-1">{specSummary}</p>
-      )}
 
       {/* ── Rating ── */}
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
