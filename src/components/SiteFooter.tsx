@@ -39,7 +39,7 @@ const SiteFooter = () => (
             <img
               src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`}
               alt="Unitech India"
-              className="h-8 w-auto brightness-0 invert"
+              className="h-8 w-auto"
             />
           </Link>
           <p className="text-xs md:text-sm text-white/45 mt-3 max-w-[260px] leading-relaxed">
