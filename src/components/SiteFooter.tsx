@@ -27,11 +27,13 @@ const SiteFooter = () => (
         {/* Brand */}
         <div className="flex flex-col gap-4 max-w-[260px]">
           <Link to="/">
-            <img
-              src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`}
-              alt="Unitech India"
-              className="h-8 w-auto"
-            />
+            <div className="inline-block bg-white rounded-md px-3 py-1.5">
+              <img
+                src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`}
+                alt="Unitech India"
+                className="h-7 w-auto"
+              />
+            </div>
           </Link>
           <p className="text-xs text-white/35 leading-relaxed">
             Premium audio & electronics since 1999. Trusted across India.
