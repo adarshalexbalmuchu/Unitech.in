@@ -28,13 +28,13 @@ const SiteFooter = () => (
     >
       {/* ── Column 1 — Brand ── */}
       <div className="flex flex-col gap-4">
-        {/* Logo image — Replace with actual logo path if needed */}
-        <Link to="/" className="inline-block w-fit">
+        {/* Logo image */}
+        <Link to="/" className="inline-flex items-center w-fit rounded-md" style={{ background: "#fff", padding: "6px 12px" }}>
           <img
             src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`}
             alt="Unitech India"
             className="w-auto"
-            style={{ height: 32 }}
+            style={{ height: 24 }}
           />
         </Link>
 

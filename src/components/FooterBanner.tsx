@@ -5,8 +5,37 @@ import { ArrowRight } from "lucide-react";
 const RED = "#e8251a";
 const BG = "#0d0d0d";
 
-/* Static mini equalizer bars — decorative only */
-const EQ_HEIGHTS = [30, 65, 45, 80, 35, 90, 50, 75, 40, 85, 55, 70, 32, 88, 48, 72, 38, 82, 52, 68];
+/* ── Animated audio spectrum bars (same as hero) ── */
+const BAR_HEIGHTS = [
+  28, 62, 44, 78, 52, 91, 36, 73, 58, 86, 42, 67, 82, 31, 69,
+  48, 94, 39, 63, 77, 45, 70, 54, 89, 34, 74, 59, 84, 29, 66,
+  47, 80, 37, 71, 55, 88, 43, 65, 79, 33, 76, 50, 92, 40, 68,
+];
+
+const AudioBars = () => (
+  <div
+    className="flex items-end w-full gap-[2px] md:gap-[3px]"
+    style={{ height: 56 }}
+    aria-hidden
+  >
+    {BAR_HEIGHTS.map((h, i) => {
+      const isRed = i === 5 || i === 12 || i === 21 || i === 32 || i === 40;
+      const duration = 0.7 + (i % 7) * 0.14;
+      const delay = i * 0.035;
+      return (
+        <div
+          key={i}
+          className="flex-1 rounded-t-[1px] origin-bottom"
+          style={{
+            height: `${h}%`,
+            background: isRed ? "#e8251a" : "#333",
+            animation: `barPulse ${duration}s ${delay}s ease-in-out infinite alternate`,
+          }}
+        />
+      );
+    })}
+  </div>
+);
 
 const FooterBanner = () => (
   <section
@@ -79,27 +108,19 @@ const FooterBanner = () => (
         <ArrowRight className="w-4 h-4" strokeWidth={2} />
       </Link>
 
-      {/* Decorative static equalizer bars */}
-      <div
-        className="flex items-end justify-center gap-[3px] mt-10"
-        style={{ width: 200, height: 28 }}
-        aria-hidden
-      >
-        {EQ_HEIGHTS.map((h, i) => {
-          const isRed = i % 5 === 2;
-          return (
-            <div
-              key={i}
-              className="flex-1 rounded-t-[1px]"
-              style={{
-                height: `${h}%`,
-                background: isRed ? `${RED}88` : "rgba(255,255,255,0.08)",
-              }}
-            />
-          );
-        })}
+      {/* Animated equalizer bars — full width like the hero */}
+      <div className="mt-10" style={{ width: "100%", maxWidth: 600 }}>
+        <AudioBars />
       </div>
     </div>
+
+    {/* barPulse keyframe */}
+    <style>{`
+      @keyframes barPulse {
+        0% { transform: scaleY(1); }
+        100% { transform: scaleY(0.4); }
+      }
+    `}</style>
   </section>
 );
 
