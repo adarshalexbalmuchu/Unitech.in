@@ -56,9 +56,6 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
     });
   };
 
-  // Build a short spec line from the specs object
-  const specSummary = buildSpecSummary(product);
-
   return (
     <article
       onClick={handleNavigate}
@@ -126,11 +123,6 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
         </span>
       )}
 
-      {/* ── Spec summary (above name) ── */}
-      {specSummary && !compact && (
-        <p className="text-[0.7rem] text-muted-foreground line-clamp-1 -mt-1">{specSummary}</p>
-      )}
-
       {/* ── Name ── */}
       <h3 className={`font-semibold leading-snug line-clamp-2 ${compact ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm"}`}>
         {product.name}
@@ -176,40 +168,5 @@ const ProductCard = memo(forwardRef<HTMLElement, ProductCardProps>(({ product, c
 
 ProductCard.displayName = "ProductCard";
 
-/** Build a short spec line from the product's specs object */
-function buildSpecSummary(product: Product): string {
-  const s = product.specs;
-  if (!s || Object.keys(s).length === 0) return "";
-
-  const parts: string[] = [];
-
-  // Wattage / power
-  if (s.wattage) parts.push(`${s.wattage}W`);
-  if (s.output_power && typeof s.output_power === "string") parts.push(s.output_power);
-
-  // Channels
-  if (s.channels) parts.push(`${s.channels}ch`);
-
-  // Connectivity shorthand
-  if (s.bluetooth === true || (Array.isArray(s.connectivity) && s.connectivity.some((c) => String(c).toLowerCase().includes("bluetooth")))) {
-    parts.push("BT");
-  }
-
-  // Screen / size
-  if (s.screen_size) parts.push(String(s.screen_size));
-  if (s.screen_range) parts.push(String(s.screen_range));
-  if (s.driver_size) parts.push(String(s.driver_size));
-  if (s.bass_driver) parts.push(`${s.bass_driver} bass`);
-
-  // Type for non-audio
-  if (s.mount_type) parts.push(String(s.mount_type));
-  if (s.type && typeof s.type === "string") parts.push(s.type);
-  if (s.kit_type && typeof s.kit_type === "string") parts.push(s.kit_type);
-
-  // Sockets
-  if (s.sockets) parts.push(`${s.sockets} sockets`);
-
-  return parts.slice(0, 4).join(" · ");
-}
 
 export default ProductCard;

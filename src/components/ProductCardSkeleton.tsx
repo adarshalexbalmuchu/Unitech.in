@@ -4,8 +4,6 @@ const ProductCardSkeleton = () => (
     <div className="w-full aspect-square bg-muted rounded-md" />
     {/* Category */}
     <div className="w-20 h-2.5 bg-muted-foreground/15 rounded" />
-    {/* Spec summary */}
-    <div className="w-32 h-2.5 bg-muted-foreground/10 rounded" />
     {/* Name */}
     <div className="space-y-1.5">
       <div className="w-full h-3.5 bg-muted-foreground/15 rounded" />
