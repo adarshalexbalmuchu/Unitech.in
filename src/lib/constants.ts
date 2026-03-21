@@ -30,7 +30,7 @@ export const isPlaceholderImage = (url?: string | null): boolean => {
 export const SITE_NAME = "Unitech India";
 export const SITE_TAGLINE = "Unitech hai jahan, Music hai vahan";
 export const SITE_DESCRIPTION =
-  "Manufacturing premium audio equipment and electronics since 1999. Trusted by professionals across India.";
+  "Manufacturing premium audio equipment and electronics since 1994. Trusted by professionals across India.";
 
 /* ── Category taxonomy ─────────────────────────────── */
 

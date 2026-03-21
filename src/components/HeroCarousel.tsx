@@ -84,7 +84,7 @@ const HeroCarousel = () => {
         >
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: RED }} />
           <span className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: MUTED }}>
-            India's Premier Audio Brand — Est. 1999
+            India's Premium Audio Brand — Est. 1994
           </span>
         </div>
 
@@ -100,7 +100,7 @@ const HeroCarousel = () => {
         {/* Subtext */}
         <p className="text-sm leading-relaxed max-w-[400px] mb-8" style={{ color: MUTED }}>
           Handcrafted speakers, amplifiers, and home theatres — trusted by
-          professionals and music lovers across India for 25&nbsp;years.
+          professionals and music lovers across India for 30+&nbsp;years.
         </p>
 
         {/* CTA buttons */}

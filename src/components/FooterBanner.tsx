@@ -88,7 +88,7 @@ const FooterBanner = () => (
         className="text-sm mt-4 mb-8"
         style={{ color: "rgba(255,255,255,0.45)", maxWidth: 420 }}
       >
-        Premium audio equipment. Crafted for India. Trusted since 1999.
+        Premium audio equipment. Crafted for India. Trusted since 1994.
       </p>
 
       {/* CTA */}

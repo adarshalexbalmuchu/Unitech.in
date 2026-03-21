@@ -49,7 +49,7 @@ const SiteFooter = () => (
             padding: "3px 8px",
           }}
         >
-          Est. 1999
+          Est. 1994
         </span>
 
         {/* Tagline */}
@@ -57,7 +57,7 @@ const SiteFooter = () => (
           className="text-[13px] max-w-[240px]"
           style={{ color: "rgba(255,255,255,0.4)", lineHeight: 1.7, marginTop: 4 }}
         >
-          Premium audio &amp; electronics, trusted across India for over 25&nbsp;years.
+          Premium audio &amp; electronics, trusted across India for over 30&nbsp;years.
         </p>
 
         {/* Social icons */}
