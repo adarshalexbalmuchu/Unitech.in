@@ -1,6 +1,38 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+/* ── Animated audio spectrum bars ── */
+const BAR_HEIGHTS = [
+  28, 62, 44, 78, 52, 91, 36, 73, 58, 86, 42, 67, 82, 31, 69,
+  48, 94, 39, 63, 77, 45, 70, 54, 89, 34, 74, 59, 84, 29, 66,
+  47, 80, 37, 71, 55, 88, 43, 65, 79, 33, 76, 50, 92, 40, 68,
+];
+
+const AudioBars = () => (
+  <div
+    className="flex items-end w-full gap-[2px] md:gap-[3px]"
+    style={{ height: 56 }}
+    aria-hidden
+  >
+    {BAR_HEIGHTS.map((h, i) => {
+      const isRed = i === 5 || i === 12 || i === 21 || i === 32 || i === 40;
+      const duration = 0.7 + (i % 7) * 0.14;
+      const delay = i * 0.035;
+      return (
+        <div
+          key={i}
+          className="flex-1 rounded-t-[1px] origin-bottom"
+          style={{
+            height: `${h}%`,
+            background: isRed ? "#e8251a" : "#333",
+            animation: `barPulse ${duration}s ${delay}s ease-in-out infinite alternate`,
+          }}
+        />
+      );
+    })}
+  </div>
+);
+
 /* ── Brand color tokens ── */
 const RED = "#e8251a";
 const AMBER = "#e8a020";
@@ -176,6 +208,11 @@ const HeroCarousel = () => (
       </div>
     </div>
 
+    {/* ── Equalizer bar visualizer ── */}
+    <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 md:px-8 pb-4">
+      <AudioBars />
+    </div>
+
     {/* ── Bottom ticker strip ── */}
     <div className="relative z-10 overflow-hidden" style={{ background: BG, borderTop: `0.5px solid ${BORDER}` }}>
       <div className="flex animate-ticker whitespace-nowrap py-2.5">
@@ -188,7 +225,7 @@ const HeroCarousel = () => (
       </div>
     </div>
 
-    {/* Ticker animation */}
+    {/* Animations */}
     <style>{`
       @keyframes ticker {
         0% { transform: translateX(0); }
@@ -196,6 +233,10 @@ const HeroCarousel = () => (
       }
       .animate-ticker {
         animation: ticker 30s linear infinite;
+      }
+      @keyframes barPulse {
+        0% { transform: scaleY(1); }
+        100% { transform: scaleY(0.4); }
       }
     `}</style>
   </section>
