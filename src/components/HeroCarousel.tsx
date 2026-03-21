@@ -63,7 +63,7 @@ const HeroCarousel = () => (
     />
 
     {/* ── Main 2-column grid ── */}
-    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-8 pt-8 md:pt-10 pb-12 md:pb-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-8 pt-8 md:pt-10 pb-16 md:pb-24 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
 
       {/* ── Left column: Copy + CTAs ── */}
       <div className="flex flex-col items-start">
@@ -142,7 +142,7 @@ const HeroCarousel = () => (
           style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
         >
           {/* Product image placeholder */}
-          <div className="w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", maxHeight: 180 }}>
+          <div className="w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)", height: 260 }}>
             <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
               <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
               <rect x="10" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
