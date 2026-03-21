@@ -1,7 +1,6 @@
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import HeroCarousel from "@/components/HeroCarousel";
-import ShopByCategory from "@/components/ShopByCategory";
 import HomeCollectionSection from "@/components/HomeCollectionSection";
 import BestSellingStores from "@/components/BestSellingStores";
 import FooterBanner from "@/components/FooterBanner";
@@ -12,7 +11,7 @@ const Index = () => (
     <TopBar />
     <StickyHeader />
     <HeroCarousel />
-    <ShopByCategory />
+    <BestSellingStores />
     <HomeCollectionSection
       title="Featured"
       collection={["featured", "hot-selling"]}
@@ -25,7 +24,6 @@ const Index = () => (
       className="pt-8 md:pt-10"
       variant="new-arrivals"
     />
-    <BestSellingStores />
     <FooterBanner />
     <SiteFooter />
   </div>
