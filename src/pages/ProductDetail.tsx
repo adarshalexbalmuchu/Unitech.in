@@ -428,7 +428,7 @@ const ProductDetail = () => {
                   <span className="text-xs md:text-sm font-bold text-destructive">Save {discount}%</span>
                 )}
               </div>
-              <p className="text-[11px] md:text-xs text-muted-foreground">Inclusive of all taxes. Shipping calculated at checkout.</p>
+              <p className="text-[11px] md:text-xs text-muted-foreground">Exclusive of taxes. Shipping calculated at checkout.</p>
             </div>
 
             {/* Stock */}

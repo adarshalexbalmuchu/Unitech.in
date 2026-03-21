@@ -141,7 +141,7 @@ const BestSellingStores = () => {
                   to={`/products/${category.slug}`}
                   className="mt-auto flex items-center justify-between px-3 py-2 md:py-2.5 bg-[#111] text-white text-[11px] md:text-xs font-bold rounded-xl hover:bg-primary transition-colors duration-200 group/btn"
                 >
-                  Shop {category.label.split(" ")[0]}
+                  Shop Now
                   <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
                 </Link>
               </div>

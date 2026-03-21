@@ -18,7 +18,7 @@ const Terms = () => (
 
         <section className="space-y-2">
           <h2 className="text-base font-bold text-foreground">2. Products & Pricing</h2>
-          <p>All product descriptions, images, and specifications are as accurate as possible. Prices are listed in Indian Rupees (INR) and include applicable taxes. We reserve the right to modify prices without prior notice.</p>
+          <p>All product descriptions, images, and specifications are as accurate as possible. Prices are listed in Indian Rupees (INR) and are exclusive of applicable taxes. We reserve the right to modify prices without prior notice.</p>
         </section>
 
         <section className="space-y-2">
