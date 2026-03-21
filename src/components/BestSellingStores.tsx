@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Package2 } from "lucide-react";
+import { ArrowRight, Package2 } from "lucide-react";
 import { CATEGORIES, formatPrice, isPlaceholderImage } from "@/lib/constants";
 import { useProducts } from "@/hooks/useProducts";
 
@@ -17,115 +17,155 @@ const BestSellingStores = () => {
     .map((slug) => {
       const category = CATEGORIES.find((item) => item.slug === slug);
       if (!category) return null;
-
       const items = products
-        .filter((product) => product.category === slug)
-        .sort((left, right) => {
-          const leftScore = Number(left.is_featured) * 1000 + left.reviews_count + left.rating * 10;
-          const rightScore = Number(right.is_featured) * 1000 + right.reviews_count + right.rating * 10;
-          return rightScore - leftScore;
+        .filter((p) => p.category === slug)
+        .sort((a, b) => {
+          const scoreA = Number(a.is_featured) * 1000 + a.reviews_count + a.rating * 10;
+          const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
+          return scoreB - scoreA;
         })
         .slice(0, 3);
-
       return { category, items };
     })
-    .filter((section): section is NonNullable<typeof section> => Boolean(section));
+    .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   return (
-    <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-10 md:py-12 pb-16 md:pb-20">
-      <h2 className="text-xl md:text-2xl font-extrabold mb-5 md:mb-6">Best Selling Categories</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 md:gap-6">
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-primary/15 rounded-xl p-6 md:p-8 flex flex-col justify-center items-center text-center vm-shadow outline outline-1 outline-border -outline-offset-1 group">
-          <div className="pointer-events-none absolute inset-0 opacity-70">
-            <div className="absolute -top-14 -left-14 w-44 h-44 rounded-full bg-primary/15 blur-2xl" />
-            <div className="absolute -bottom-16 -right-10 w-48 h-48 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/0.12),transparent_35%),radial-gradient(circle_at_80%_75%,hsl(var(--primary)/0.10),transparent_40%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,hsl(var(--primary)/0.05)_50%,transparent_100%)]" />
-          </div>
-
-          <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 vm-transition bg-[linear-gradient(115deg,transparent_35%,hsl(var(--primary)/0.14)_50%,transparent_65%)]" />
-
-          <div className="relative z-10 flex flex-col justify-center items-center text-center">
-          <img src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`} alt="Unitech India" className="h-10 md:h-12 mb-3 md:mb-4" />
-          <h3 className="text-lg md:text-xl font-extrabold text-primary mb-1 md:mb-2">Unitech India</h3>
-          <p className="text-xs md:text-sm text-primary/70 font-medium">Live catalog picks from {products.length} active products</p>
-          <p className="mt-2 text-[11px] md:text-xs text-muted-foreground max-w-[26ch]">
-            Real products are now pulled into this section category-by-category instead of using placeholder cards.
+    <section className="max-w-[1280px] mx-auto px-4 md:px-6 py-12 md:py-16">
+      {/* ── Section header ── */}
+      <div className="flex items-end justify-between mb-8 md:mb-10">
+        <div>
+          <div className="w-8 h-[3px] rounded-full mb-3" style={{ background: "hsl(357 100% 45%)" }} />
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-foreground tracking-[-0.03em]">
+            Shop by Category
+          </h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Top products from our best-selling categories
           </p>
-          </div>
         </div>
+        <Link
+          to="/products/all"
+          className="hidden md:inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0 pb-1"
+        >
+          View All <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
-          {categorySections.map(({ category, items }) => {
-            const Icon = category.icon;
+      {/* ── Category cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {categorySections.map(({ category, items }) => {
+          const Icon = category.icon;
 
-            return (
-              <div
-                key={category.slug}
-                className="bg-card rounded-lg p-3 md:p-4 vm-shadow outline outline-1 outline-border -outline-offset-1"
-              >
-                <div className="flex items-center gap-3 mb-3 md:mb-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 bg-surface rounded-full flex justify-center items-center">
-                    <Icon className="w-4 h-4 md:w-5 md:h-5 text-primary" strokeWidth={1.5} />
+          return (
+            <div
+              key={category.slug}
+              className="group bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+            >
+              {/* ── Product image mosaic ── */}
+              <div className="bg-[#F5F5F5] p-2.5 md:p-3 flex gap-1.5 md:gap-2">
+                {isLoading ? (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="flex-1 aspect-square rounded-xl bg-white/70 animate-pulse"
+                      />
+                    ))}
+                  </>
+                ) : items.length > 0 ? (
+                  <>
+                    {items.map((product) => (
+                      <div
+                        key={product.id}
+                        className="flex-1 aspect-square rounded-xl bg-white overflow-hidden flex items-center justify-center"
+                      >
+                        {!isPlaceholderImage(product.image_url) ? (
+                          <img
+                            src={product.image_url ?? ""}
+                            alt={product.name}
+                            className="w-full h-full object-contain p-1.5 md:p-2 transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Icon
+                            className="w-6 h-6 text-muted-foreground/25"
+                            strokeWidth={1.25}
+                          />
+                        )}
+                      </div>
+                    ))}
+                    {/* Pad to always show 3 slots */}
+                    {Array.from({ length: Math.max(0, 3 - items.length) }).map((_, i) => (
+                      <div
+                        key={`empty-${i}`}
+                        className="flex-1 aspect-square rounded-xl bg-white/40 flex items-center justify-center"
+                      >
+                        <Icon className="w-5 h-5 text-muted-foreground/20" strokeWidth={1.25} />
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="flex-1 aspect-square rounded-xl bg-white/40 flex items-center justify-center"
+                      >
+                        <Icon className="w-5 h-5 text-muted-foreground/20" strokeWidth={1.25} />
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+
+              {/* ── Info + top product price ── */}
+              <div className="flex flex-col gap-3 p-3 md:p-4 flex-1">
+                {/* Category identity */}
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-primary/8 flex items-center justify-center shrink-0">
+                    <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" strokeWidth={1.75} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm md:text-base">{category.label}</h4>
-                    <p className="text-[11px] md:text-xs text-muted-foreground">Top products from the current catalog</p>
+                    <h3 className="font-bold text-[12px] md:text-[13px] leading-tight line-clamp-1">
+                      {category.label}
+                    </h3>
+                    {!isLoading && items.length > 0 && (
+                      <p className="text-[10px] text-muted-foreground mt-0.5 tabular-nums">
+                        from {formatPrice(Math.min(...items.map(p => p.price ?? Infinity)))}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {isLoading ? (
-                  <div className="grid grid-cols-3 gap-2 md:gap-3">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="space-y-2 animate-pulse">
-                        <div className="w-full aspect-square rounded-md bg-surface" />
-                        <div className="h-3 rounded bg-surface" />
-                        <div className="h-3 w-2/3 mx-auto rounded bg-surface" />
-                      </div>
-                    ))}
-                  </div>
-                ) : items.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-2 md:gap-3">
-                    {items.map((product) => (
-                      <Link
-                        key={product.id}
-                        to={`/product/${product.slug}`}
-                        className="group flex flex-col gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                      >
-                        <div className="w-full aspect-square bg-surface rounded-md overflow-hidden flex justify-center items-center border border-border/60 transition-colors group-hover:border-primary/30">
-                          {!isPlaceholderImage(product.image_url) ? (
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Icon className="w-6 h-6 md:w-7 md:h-7 text-muted-foreground/35" strokeWidth={1.25} />
-                          )}
-                        </div>
-
-                        <div className="space-y-1 text-center">
-                          <p className="text-[10px] md:text-[11px] font-semibold leading-tight line-clamp-2 min-h-[2.5em] group-hover:text-primary transition-colors">
-                            {product.name}
-                          </p>
-                          <span className="block text-[10px] md:text-xs font-bold tabular-nums text-foreground">
-                            {formatPrice(product.price)}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="min-h-28 rounded-md bg-surface/60 border border-dashed border-border flex flex-col items-center justify-center gap-2 text-center px-4">
-                    <Package2 className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
-                    <p className="text-xs text-muted-foreground">No active products available in this category yet.</p>
-                  </div>
-                )}
+                {/* CTA button */}
+                <Link
+                  to={`/products/${category.slug}`}
+                  className="mt-auto flex items-center justify-between px-3 py-2 md:py-2.5 bg-[#111] text-white text-[11px] md:text-xs font-bold rounded-xl hover:bg-primary transition-colors duration-200 group/btn"
+                >
+                  Shop {category.label.split(" ")[0]}
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+                </Link>
               </div>
-            );
-          })}
-        </div>
+
+              {/* ── Empty state ── */}
+              {!isLoading && items.length === 0 && (
+                <div className="absolute inset-x-3 bottom-16 flex flex-col items-center justify-center gap-1 py-4">
+                  <Package2 className="w-5 h-5 text-muted-foreground/30" strokeWidth={1.5} />
+                  <p className="text-[10px] text-muted-foreground/50">No products yet</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Mobile CTA */}
+      <div className="mt-8 flex justify-center md:hidden">
+        <Link
+          to="/products/all"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
+        >
+          View All Products <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </section>
   );

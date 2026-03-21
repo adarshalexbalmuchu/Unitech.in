@@ -2,25 +2,26 @@ import { Link } from "react-router-dom";
 import { CATEGORIES } from "@/lib/constants";
 
 const CategoryRow = () => (
-  <section className="max-w-[1280px] mx-auto px-4 md:px-6 pt-2 md:pt-4 pb-6 md:pb-8">
-    <div className="flex justify-start md:justify-center items-start gap-4 md:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-2">
-      {CATEGORIES.map((cat) => {
-        const Icon = cat.icon;
-        return (
-          <Link
-            key={cat.slug}
-            to={`/products/${cat.slug}`}
-            className="flex-shrink-0 flex flex-col items-center gap-2 md:gap-3 cursor-pointer group w-20 md:w-24 lg:w-28"
-          >
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-surface rounded-xl md:rounded-2xl flex justify-center items-center transition-all duration-300 group-hover:bg-primary/10 group-hover:-translate-y-1">
-              <Icon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
-            </div>
-            <span className="text-[10px] md:text-xs font-semibold text-center leading-tight w-full break-words px-1">
+  <section className="border-b border-border bg-white">
+    <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-4 md:py-5">
+      <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-none">
+        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-muted-foreground pr-1 md:pr-2 border-r border-border mr-1 md:mr-2">
+          Shop
+        </span>
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          return (
+            <Link
+              key={cat.slug}
+              to={`/products/${cat.slug}`}
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-[11px] md:text-xs font-semibold text-foreground/70 hover:text-foreground hover:border-foreground/30 hover:bg-muted transition-all duration-150"
+            >
+              <Icon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" strokeWidth={2} />
               {cat.label}
-            </span>
-          </Link>
-        );
-      })}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   </section>
 );

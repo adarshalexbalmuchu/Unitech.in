@@ -1,7 +1,6 @@
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import HeroCarousel from "@/components/HeroCarousel";
-import CategoryRow from "@/components/CategoryRow";
 import HomeCollectionSection from "@/components/HomeCollectionSection";
 import BestSellingStores from "@/components/BestSellingStores";
 import FooterBanner from "@/components/FooterBanner";
@@ -12,7 +11,6 @@ const Index = () => (
     <TopBar />
     <StickyHeader />
     <HeroCarousel />
-    <CategoryRow />
     <HomeCollectionSection
       title="Featured"
       collection={["featured", "hot-selling"]}

@@ -6,46 +6,51 @@
 
 @layer base {
   :root {
+    /* ── Core ── */
     --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    --foreground: 0 0% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 7%;
 
-    --primary: 221 83% 53%;
+    /* ── Brand Red — Unitech #E8000D ── */
+    --primary: 357 100% 45%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary-foreground: 0 0% 7%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 42%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 7%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 221 83% 53%;
+    --ring: 357 100% 45%;
 
     --radius: 0.5rem;
 
-    /* VoltMart custom tokens */
+    /* ── Custom tokens ── */
     --vm-surface: 0 0% 96%;
-    --vm-text-main: 0 0% 10%;
-    --vm-text-muted: 0 0% 45%;
-    --vm-accent-blue: 221 83% 53%;
-    --vm-accent-red: 0 84% 60%;
+    --vm-text-main: 0 0% 7%;
+    --vm-text-muted: 0 0% 42%;
+    --vm-accent-red: 357 100% 45%;
+    --vm-accent-blue: 357 100% 45%;
     --vm-border-light: 0 0% 0% / 0.06;
     --vm-shadow-base: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-    --vm-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+    --vm-shadow-hover: 0 12px 24px -4px rgba(0,0,0,0.10), 0 4px 8px -2px rgba(0,0,0,0.05);
     --vm-spring: cubic-bezier(0.25, 1, 0.5, 1);
+
+    /* ── Hero ── */
+    --hero-bg: #0D0D0D;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -54,37 +59,7 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 96%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 96%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 96%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 221 83% 53%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 357 100% 45%;
   }
 }
 
@@ -100,7 +75,7 @@
   }
   h1, h2, h3, h4 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
   }
 }
 
@@ -127,10 +102,47 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
   .scrollbar-none {
     scrollbar-width: none;
   }
+  .tracking-hero {
+    letter-spacing: -0.04em;
+  }
+}
+
+/* ── Hero audio bar animation ── */
+@keyframes barPulse {
+  0%, 100% {
+    transform: scaleY(0.35);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* ── Subtle entrance fade ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s var(--vm-spring) both;
 }
