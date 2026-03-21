@@ -189,6 +189,11 @@ const ProductCard = memo(
           {!compact && (
             <span style={{ fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 2 }}>Excl. of taxes</span>
           )}
+          {!compact && (
+            <p style={{ fontSize: 8, color: "rgba(0,0,0,0.28)", marginTop: 8, lineHeight: 1.4 }}>
+              *Product images are indicative and may differ from the actual product.
+            </p>
+          )}
         </div>
 
         {/* ── Add to Cart — flush at bottom ── */}

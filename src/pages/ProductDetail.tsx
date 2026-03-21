@@ -370,6 +370,9 @@ const ProductDetail = () => {
               </span>
             )}
             <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
+            <p style={{ fontSize: 10, color: 'rgba(0,0,0,0.35)', marginTop: 8, lineHeight: 1.4 }}>
+              *Product images are indicative and may differ from the actual product.
+            </p>
           </div>
 
           {/* Right — Product info */}
