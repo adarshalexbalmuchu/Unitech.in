@@ -1,117 +1,101 @@
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Phone, Mail, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const productLinks = [
-  { label: "Tower Speakers", to: "/products/tower-speakers" },
-  { label: "Home Theatre", to: "/products/home-theatre-systems" },
-  { label: "Car Audio", to: "/products/car-audio" },
-  { label: "DTH Receivers", to: "/products/dth-receivers" },
-  { label: "Amplifiers", to: "/products/audio-amplifiers" },
-];
-
-const supportLinks = [
-  { label: "Warranty Info", to: "/warranty" },
-  { label: "Contact Us", to: "/contact" },
-  { label: "Shipping & Delivery", to: "/shipping" },
-  { label: "Returns & Refunds", to: "/returns" },
-];
-
-const guideLinks = [
-  { label: "Help Center", to: "/help" },
+const pages = [
+  { label: "Contact", to: "/contact" },
   { label: "FAQ", to: "/faq" },
+  { label: "Shipping", to: "/shipping" },
+  { label: "Returns", to: "/returns" },
   { label: "Privacy Policy", to: "/privacy" },
-  { label: "Terms of Service", to: "/terms" },
+  { label: "Terms", to: "/terms" },
 ];
 
-const columns = [
-  { title: "Products", links: productLinks },
-  { title: "Support", links: supportLinks },
-  { title: "Guide & Help", links: guideLinks },
+const socials = [
+  { href: "https://www.facebook.com/Unitechindia.net/", Icon: Facebook, label: "Facebook" },
+  { href: "https://www.instagram.com/unitechindiaofficial/", Icon: Instagram, label: "Instagram" },
+  { href: "https://x.com/UNITECH_INDIA", Icon: Twitter, label: "X" },
+  { href: "https://youtube.com/@unitechindia8273?si=nW4NphKv4yiEtmn4", Icon: Youtube, label: "YouTube" },
 ];
 
 const SiteFooter = () => (
-  <footer style={{ background: "#111111" }} className="text-white/70">
-    <div className="max-w-[1280px] mx-auto px-4 md:px-6 pt-12 md:pt-16 pb-6 md:pb-8">
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-[2fr_repeat(3,1fr)] gap-8 md:gap-12 mb-10 md:mb-14">
-        {/* Brand column */}
-        <div className="col-span-2 sm:col-span-2 lg:col-span-1">
-          <Link to="/" className="block mb-4">
+  <footer style={{ background: "#111111" }} className="text-white/50">
+    <div className="max-w-[1280px] mx-auto px-4 md:px-8 pt-14 pb-8">
+
+      {/* Top section */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10 mb-10">
+
+        {/* Brand */}
+        <div className="flex flex-col gap-4 max-w-[260px]">
+          <Link to="/">
             <img
               src={`${import.meta.env.BASE_URL}unitech-logo.png?v=2`}
               alt="Unitech India"
               className="h-8 w-auto"
             />
           </Link>
-          <p className="text-xs md:text-sm text-white/45 mt-3 max-w-[260px] leading-relaxed">
-            Manufacturing premium audio equipment and electronics since 1999. Trusted by
-            professionals across India.
+          <p className="text-xs text-white/35 leading-relaxed">
+            Premium audio & electronics since 1999. Trusted across India.
           </p>
-
           {/* Social icons */}
-          <div className="flex gap-2.5 mt-5">
-            {[
-              { href: "https://www.facebook.com/Unitechindia.net/", Icon: Facebook },
-              { href: "https://www.instagram.com/unitechindiaofficial/", Icon: Instagram },
-              { href: "https://x.com/UNITECH_INDIA", Icon: Twitter },
-              { href: "https://youtube.com/@unitechindia8273?si=nW4NphKv4yiEtmn4", Icon: Youtube },
-            ].map(({ href, Icon }) => (
+          <div className="flex gap-2 mt-1">
+            {socials.map(({ href, Icon, label }) => (
               <a
                 key={href}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label={label}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border border-white/10 text-white/35 hover:text-white hover:border-white/30 transition-colors"
               >
-                <Icon className="w-4 h-4" strokeWidth={1.5} />
+                <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
               </a>
             ))}
           </div>
-
-          {/* Contact */}
-          <div className="mt-6 space-y-2.5 text-xs text-white/40">
-            <div className="flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-              <span>unitechindia@gmail.com</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-              <span>Customer Support Available</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-              <span>Pan-India Delivery</span>
-            </div>
-          </div>
         </div>
 
-        {/* Link columns */}
-        {columns.map((col) => (
-          <div key={col.title}>
-            <h5 className="text-white text-xs font-bold uppercase tracking-widest mb-4 md:mb-5">
-              {col.title}
-            </h5>
-            <ul className="flex flex-col gap-2.5 md:gap-3">
-              {col.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    className="text-xs md:text-sm text-white/40 hover:text-white/80 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {/* Pages */}
+        <div className="flex flex-col gap-2">
+          <h5 className="text-white/70 text-[11px] font-semibold uppercase tracking-widest mb-1">Pages</h5>
+          {pages.map((p) => (
+            <Link
+              key={p.to}
+              to={p.to}
+              className="text-xs text-white/35 hover:text-white/70 transition-colors"
+            >
+              {p.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Contact */}
+        <div className="flex flex-col gap-3">
+          <h5 className="text-white/70 text-[11px] font-semibold uppercase tracking-widest mb-1">Contact</h5>
+          <a
+            href="mailto:unitechindia@gmail.com"
+            className="flex items-center gap-2 text-xs text-white/35 hover:text-white/70 transition-colors"
+          >
+            <Mail className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+            unitechindia@gmail.com
+          </a>
+          <a
+            href="tel:+911234567890"
+            className="flex items-center gap-2 text-xs text-white/35 hover:text-white/70 transition-colors"
+          >
+            <Phone className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+            Customer Support
+          </a>
+        </div>
       </div>
 
+      {/* Divider */}
+      <div className="border-t border-white/[0.07]" />
+
       {/* Bottom bar */}
-      <div className="pt-6 md:pt-8 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-[11px] text-white/25">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-6">
+        <p className="text-[11px] text-white/20">
           © {new Date().getFullYear()} Unitech India. All rights reserved.
         </p>
-        <p className="text-[11px] text-white/20 italic">
+        <p className="text-[11px] text-white/15 italic">
           Unitech hai jahan, Music hai vahan
         </p>
       </div>
