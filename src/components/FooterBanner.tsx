@@ -108,11 +108,11 @@ const FooterBanner = () => (
         <ArrowRight className="w-4 h-4" strokeWidth={2} />
       </Link>
 
-      {/* Animated equalizer bars — full width like the hero */}
-      <div className="mt-10" style={{ width: "100%", maxWidth: 600 }}>
+      {/* Animated equalizer bars — full bleed left to right */}
+      </div>
+      <div className="relative z-10 mt-10" style={{ width: "100vw", left: "50%", transform: "translateX(-50%)", position: "relative" }}>
         <AudioBars />
       </div>
-    </div>
 
     {/* barPulse keyframe */}
     <style>{`
