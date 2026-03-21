@@ -150,6 +150,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               <button
                 key={i}
                 onClick={() => setActiveIdx(i)}
+                onMouseEnter={() => setActiveIdx(i)}
                 aria-label={`View image ${i + 1}`}
                 className={`w-full aspect-square rounded-md overflow-hidden border vm-transition flex-shrink-0 bg-card ${
                   i === activeIdx
