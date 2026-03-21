@@ -76,10 +76,12 @@ const HomeCollectionSection = ({
 
       {/* ── Content ── */}
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <ProductCardSkeleton key={`${collection}-skeleton-${i}`} />
-          ))}
+        <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProductCardSkeleton key={`${collection}-skeleton-${i}`} />
+            ))}
+          </div>
         </div>
       ) : isError ? (
         <div className="rounded-xl border border-border bg-muted/40 p-8 text-center space-y-3">
@@ -93,15 +95,17 @@ const HomeCollectionSection = ({
         </div>
       ) : displayProducts.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-            {displayProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="bg-[#F6F6F6] rounded-2xl p-3 md:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              {displayProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
 
-          {/* Mobile see more */}
+          {/* See more */}
           {hasMore && (
-            <div className="mt-8 flex justify-center md:hidden">
+            <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setExpanded((v) => !v)}
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors"

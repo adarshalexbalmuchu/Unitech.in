@@ -15,7 +15,6 @@ import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
-  /** Compact mode for horizontal scroll rows (flash sale, etc.) */
   compact?: boolean;
 }
 
@@ -27,8 +26,7 @@ const ProductCard = memo(
 
     const discount = getDiscountPercent(product.price, product.original_price);
     const wishlisted = isInWishlist(product.id);
-    const categoryLabel =
-      CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
+    const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
     const isFlashSale = product.collections.includes("flash-sale");
     const isHotSelling = product.collections.includes("hot-selling");
     const isNewArrival = product.collections.includes("new-arrivals");
@@ -47,18 +45,12 @@ const ProductCard = memo(
         original_price: product.original_price,
         image_url: product.image_url,
       });
-      toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", {
-        description: product.name,
-      });
+      toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", { description: product.name });
     };
 
     const handleAddToCart = (e: React.MouseEvent) => {
       e.stopPropagation();
-      addToCart(product.id, {
-        name: product.name,
-        price: product.price ?? 0,
-        image_url: product.image_url,
-      });
+      addToCart(product.id, { name: product.name, price: product.price ?? 0, image_url: product.image_url });
       toast.success("Added to cart", { description: product.name });
     };
 
@@ -66,75 +58,72 @@ const ProductCard = memo(
       <article
         ref={ref as React.Ref<HTMLElement>}
         onClick={handleNavigate}
-        className={`group bg-white rounded-xl flex flex-col relative cursor-pointer transition-all duration-300 hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 ${
-          compact
-            ? "w-[152px] sm:w-[192px] md:w-[212px] min-w-[152px] flex-shrink-0 snap-start"
-            : ""
-        }`}
+        className={`group bg-white rounded-2xl overflow-hidden cursor-pointer flex flex-col
+          shadow-[0_2px_8px_rgba(0,0,0,0.07)]
+          hover:shadow-[0_16px_40px_rgba(0,0,0,0.13)]
+          hover:-translate-y-1
+          transition-all duration-300 ease-out
+          ${compact ? "w-[148px] sm:w-[184px] min-w-[148px] flex-shrink-0 snap-start" : ""}`}
       >
-        {/* ── Image container ── */}
-        <div
-          className={`relative w-full overflow-hidden bg-[#F5F5F5] ${
-            compact ? "rounded-lg" : "rounded-xl"
-          }`}
-          style={{ aspectRatio: "1 / 1" }}
-        >
+        {/* ── Image ── */}
+        <div className="relative w-full aspect-square bg-[#F5F5F5] overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
-            className="w-full h-full object-contain p-3 transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+            className="w-full h-full object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             loading="lazy"
             decoding="async"
             onError={(e) => {
-              if (e.currentTarget.src !== fallbackImage)
-                e.currentTarget.src = fallbackImage;
+              if (e.currentTarget.src !== fallbackImage) e.currentTarget.src = fallbackImage;
             }}
           />
 
           {/* ── Badges ── */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
             {discount > 0 && (
-              <span className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-sm">
+              <span className="rounded-full bg-primary text-white text-[9px] font-bold px-2 py-0.5">
                 -{discount}%
               </span>
             )}
             {isFlashSale && (
-              <span className="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
-                <Zap className="w-2 h-2" /> FLASH
+              <span className="rounded-full bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
+                <Zap className="w-2 h-2" /> Flash
               </span>
             )}
             {isNewArrival && !isFlashSale && (
-              <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-sm">
-                NEW
+              <span className="rounded-full bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5">
+                New
               </span>
             )}
             {isHotSelling && !isFlashSale && !isNewArrival && (
-              <span className="bg-foreground text-background text-[9px] font-bold px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
-                <TrendingUp className="w-2 h-2" /> HOT
+              <span className="rounded-full bg-[#111] text-white text-[9px] font-bold px-2 py-0.5 flex items-center gap-0.5">
+                <TrendingUp className="w-2 h-2" /> Hot
               </span>
             )}
           </div>
 
-          {/* ── Wishlist ── */}
+          {/* ── Wishlist — always visible, subtle ── */}
           <button
             onClick={handleWishlist}
-            className="absolute top-2.5 right-2.5 z-10 bg-white/90 backdrop-blur-sm w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
+            className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200
+              ${wishlisted
+                ? "bg-primary shadow-sm"
+                : "bg-white/70 backdrop-blur-sm shadow-sm hover:bg-white"
+              }`}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart
-              className={`w-3.5 h-3.5 transition-colors ${
-                wishlisted ? "fill-primary text-primary" : "text-foreground/60"
-              }`}
-              strokeWidth={1.75}
+              className={`w-3 h-3 ${wishlisted ? "fill-white text-white" : "text-foreground/50"}`}
+              strokeWidth={2}
             />
           </button>
 
-          {/* ── Add to cart — hover reveal (non-compact only) ── */}
+          {/* ── Add to cart slide-up ── */}
           {!compact && (
-            <div className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out z-10">
+            <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out z-10">
               <button
                 onClick={handleAddToCart}
-                className="w-full py-2.5 bg-foreground text-background text-[11px] font-bold tracking-wide flex items-center justify-center gap-1.5 hover:bg-primary transition-colors duration-150 rounded-b-xl"
+                className="w-full py-3 bg-[#111] text-white text-[11px] font-bold tracking-wide flex items-center justify-center gap-1.5 hover:bg-primary transition-colors duration-150"
               >
                 <ShoppingCart className="w-3.5 h-3.5" strokeWidth={2} />
                 Add to Cart
@@ -144,50 +133,39 @@ const ProductCard = memo(
         </div>
 
         {/* ── Info ── */}
-        <div className={compact ? "px-1 pt-2 pb-2" : "px-1 pt-3 pb-1"}>
+        <div className={`flex flex-col ${compact ? "p-2.5" : "p-3 md:p-3.5"}`}>
           {/* Category */}
           {!compact && (
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5 block">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-1">
               {categoryLabel}
             </span>
           )}
 
           {/* Name */}
-          <h3
-            className={`font-semibold leading-snug line-clamp-2 text-foreground ${
-              compact ? "text-[11px]" : "text-xs sm:text-[13px]"
-            }`}
-          >
+          <h3 className={`font-semibold leading-snug line-clamp-2 text-foreground/90 ${compact ? "text-[11px]" : "text-[12.5px] sm:text-[13px]"}`}>
             {product.name}
           </h3>
 
-          {/* Rating + low stock */}
+          {/* Rating */}
           <div className="flex items-center gap-1 mt-1.5">
             <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 shrink-0" />
-            <span className="text-[11px] font-semibold text-foreground">{product.rating}</span>
+            <span className="text-[11px] font-semibold text-foreground/80">{product.rating}</span>
             <span className="text-[11px] text-muted-foreground">({product.reviews_count})</span>
             {lowStock && (
-              <span className="ml-auto text-[9px] font-bold text-primary shrink-0">
-                {product.stock} left
-              </span>
+              <span className="ml-auto text-[9px] font-bold text-primary shrink-0">{product.stock} left</span>
             )}
           </div>
 
-          {/* Pricing */}
+          {/* Price */}
           <div className="flex items-baseline gap-1.5 mt-2 tabular-nums">
-            <span
-              className={`font-extrabold text-foreground ${
-                compact ? "text-sm" : "text-base sm:text-lg"
-              }`}
-            >
+            <span className={`font-extrabold text-foreground ${compact ? "text-sm" : "text-base sm:text-[17px]"}`}>
               {formatPrice(product.price)}
             </span>
-            {product.original_price &&
-              product.original_price > (product.price ?? 0) && (
-                <span className="text-xs line-through text-muted-foreground">
-                  {formatPrice(product.original_price)}
-                </span>
-              )}
+            {product.original_price && product.original_price > (product.price ?? 0) && (
+              <span className="text-[11px] line-through text-muted-foreground">
+                {formatPrice(product.original_price)}
+              </span>
+            )}
           </div>
         </div>
       </article>
