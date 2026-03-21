@@ -1,121 +1,203 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-/* ── Animated audio spectrum bars ─────────────────────────── */
-const BAR_HEIGHTS = [
-  28, 62, 44, 78, 52, 91, 36, 73, 58, 86, 42, 67, 82, 31, 69,
-  48, 94, 39, 63, 77, 45, 70, 54, 89, 34, 74, 59, 84, 29, 66,
-  47, 80, 37, 71, 55, 88, 43, 65, 79, 33, 76, 50, 92, 40, 68,
+/* ── Brand color tokens ── */
+const RED = "#e8251a";
+const AMBER = "#e8a020";
+const BG = "#0d0d0d";
+const BORDER = "rgba(255,255,255,0.08)";
+const MUTED = "rgba(255,255,255,0.45)";
+const SURFACE = "rgba(255,255,255,0.04)";
+
+/* ── Ticker items ── */
+const TICKER_ITEMS = [
+  "Free shipping on orders above ₹999",
+  "1-year warranty on all products",
+  "Trusted by 50,000+ customers",
+  "Easy EMI available",
+  "COD available pan India",
 ];
 
-const AudioBars = () => (
-  <div
-    className="flex items-end w-full gap-[2px] md:gap-[3px]"
-    style={{ height: 56 }}
-    aria-hidden
-  >
-    {BAR_HEIGHTS.map((h, i) => {
-      const isRed = i === 5 || i === 12 || i === 21 || i === 32 || i === 40;
-      const duration = 0.7 + (i % 7) * 0.14;
-      const delay = i * 0.035;
-      return (
-        <div
-          key={i}
-          className="flex-1 rounded-t-[1px] origin-bottom"
-          style={{
-            height: `${h}%`,
-            background: isRed ? "hsl(357 100% 45%)" : "rgba(255,255,255,0.14)",
-            animation: `barPulse ${duration}s ${delay}s ease-in-out infinite alternate`,
-          }}
-        />
-      );
-    })}
-  </div>
-);
-
-/* ── Hero Section ─────────────────────────────────────────── */
+/* ── Hero Section ── */
 const HeroCarousel = () => (
-  <section
-    className="relative w-full overflow-hidden flex flex-col"
-    style={{ background: "#0D0D0D" }}
-  >
-    {/* Dot-grid background (Nothing-style) */}
+  <section className="hero-section relative w-full overflow-hidden" style={{ background: BG }}>
+    {/* Grid overlay */}
     <div
       className="absolute inset-0 pointer-events-none"
       style={{
-        backgroundImage:
-          "radial-gradient(circle, rgba(255,255,255,0.065) 1px, transparent 1px)",
-        backgroundSize: "28px 28px",
+        backgroundImage: `linear-gradient(${BORDER} 1px, transparent 1px), linear-gradient(90deg, ${BORDER} 1px, transparent 1px)`,
+        backgroundSize: "40px 40px",
       }}
     />
 
-    {/* Radial vignette to keep edges dark */}
-    <div
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        background:
-          "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, #0D0D0D 100%)",
-      }}
-    />
+    {/* ── Main 2-column grid ── */}
+    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-8 pt-14 md:pt-24 pb-12 md:pb-16 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
 
-    {/* Bottom fade into white */}
-    <div
-      className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-      style={{
-        background: "linear-gradient(to bottom, transparent, #0D0D0D 85%)",
-      }}
-    />
+      {/* ── Left column: Copy + CTAs ── */}
+      <div className="flex flex-col items-start">
 
-    {/* ── Main content ── */}
-    <div className="relative z-10 max-w-[1280px] mx-auto w-full px-4 md:px-6 pt-16 md:pt-24 lg:pt-28 pb-10 md:pb-14 flex flex-col items-center text-center">
+        {/* Pill badge */}
+        <div
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-8"
+          style={{ border: `0.5px solid ${BORDER}`, background: SURFACE }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: RED }} />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: MUTED }}>
+            India's Premier Audio Brand — Est. 1999
+          </span>
+        </div>
 
-      {/* Label badge */}
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 mb-8 md:mb-10">
-        <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ background: "hsl(357 100% 45%)" }}
-        />
-        <span className="text-[10px] md:text-[11px] font-semibold text-white/50 uppercase tracking-[0.14em]">
-          India's Premier Audio Brand — Est. 1999
-        </span>
+        {/* Headline */}
+        <h1
+          className="text-[40px] md:text-[56px] lg:text-[64px] font-extrabold leading-[1.0] tracking-[-0.02em] select-none mb-5"
+        >
+          <span className="text-white">HEAR THE</span>
+          <br />
+          <span style={{ color: RED }}>DIFFERENCE.</span>
+        </h1>
+
+        {/* Subtext */}
+        <p className="text-sm leading-relaxed max-w-[400px] mb-8" style={{ color: MUTED }}>
+          Handcrafted speakers, amplifiers, and home theatres — trusted by
+          professionals and music lovers across India for 25&nbsp;years.
+        </p>
+
+        {/* CTA buttons */}
+        <div className="flex items-center gap-3 mb-8">
+          <Link
+            to="/products/all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0d0d0d] font-bold text-sm rounded-md hover:bg-white/90 transition-colors"
+          >
+            Shop Now
+            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+          </Link>
+          <Link
+            to="/products/tower-speakers"
+            className="inline-flex items-center gap-2 px-6 py-3 font-semibold text-sm rounded-md transition-colors"
+            style={{ border: `0.5px solid rgba(255,255,255,0.2)`, color: MUTED }}
+          >
+            Explore Products
+          </Link>
+        </div>
+
+        {/* Trust stats */}
+        <div className="flex items-center gap-0">
+          {[
+            { num: "50K+", label: "Customers" },
+            { num: "25 Yrs", label: "Experience" },
+            { num: "200+", label: "Products" },
+          ].map((stat, i) => (
+            <div
+              key={stat.label}
+              className="flex flex-col pr-5 md:pr-7"
+              style={i > 0 ? { paddingLeft: "1.25rem", borderLeft: `0.5px solid ${BORDER}` } : undefined}
+            >
+              <span className="text-white text-base md:text-lg font-bold">{stat.num}</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Headline */}
-      <h1
-        className="text-[52px] sm:text-[68px] md:text-[80px] lg:text-[96px] xl:text-[108px] font-extrabold text-white leading-[0.92] tracking-hero mb-6 md:mb-8 select-none"
-      >
-        HEAR THE<br />
-        <span style={{ color: "hsl(357 100% 45%)" }}>DIFFERENCE.</span>
-      </h1>
+      {/* ── Right column: Product showcase ── */}
+      <div className="flex flex-col gap-3">
 
-      {/* Sub-headline */}
-      <p className="text-sm md:text-base text-white/45 max-w-[46ch] leading-relaxed mb-10 md:mb-12">
-        Handcrafted audio equipment — speakers, amplifiers, home theatres — trusted
-        by professionals and music lovers across India for 25 years.
-      </p>
+        {/* Featured product card */}
+        <div
+          className="rounded-[10px] p-5 md:p-6 flex flex-col gap-4"
+          style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
+        >
+          {/* Product image placeholder */}
+          <div className="w-full aspect-[4/3] rounded-lg overflow-hidden flex items-center justify-center" style={{ background: "rgba(255,255,255,0.03)" }}>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden>
+              <rect x="30" y="10" width="20" height="50" rx="3" fill="rgba(255,255,255,0.08)" />
+              <rect x="10" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
+              <rect x="56" y="25" width="14" height="30" rx="3" fill="rgba(255,255,255,0.06)" />
+              <rect x="24" y="62" width="32" height="6" rx="3" fill="rgba(255,255,255,0.05)" />
+            </svg>
+          </div>
 
-      {/* CTAs */}
-      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-        <Link
-          to="/products/all"
-          className="inline-flex items-center gap-2 px-6 py-3 md:px-7 md:py-3.5 bg-white text-[#0D0D0D] font-bold text-sm rounded-md hover:bg-white/90 transition-colors"
-        >
-          Shop Now
-          <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-        </Link>
-        <Link
-          to="/products/tower-speakers"
-          className="inline-flex items-center gap-2 px-6 py-3 md:px-7 md:py-3.5 border border-white/20 text-white/75 font-semibold text-sm rounded-md hover:bg-white/6 hover:text-white transition-colors"
-        >
-          Explore Products
-        </Link>
+          {/* Product info */}
+          <div className="flex flex-col gap-1.5">
+            <h3 className="text-white text-sm font-bold">Unitech Pro Tower 9.1</h3>
+            <p className="text-[12px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+              250W RMS · Dolby Atmos · Bluetooth 5.3
+            </p>
+            <span className="text-base font-bold mt-1" style={{ color: RED }}>₹24,999</span>
+          </div>
+
+          {/* Badges */}
+          <div className="flex gap-2">
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
+              style={{ color: RED, background: `${RED}12` }}
+            >
+              Bestseller
+            </span>
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded"
+              style={{ color: RED, background: `${RED}12` }}
+            >
+              Free Shipping
+            </span>
+          </div>
+        </div>
+
+        {/* Mini category cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { name: "Amplifiers", price: "From ₹4,999" },
+            { name: "Home Theatre", price: "From ₹12,999" },
+          ].map((cat) => (
+            <div
+              key={cat.name}
+              className="rounded-[10px] p-4 flex flex-col gap-3"
+              style={{ background: SURFACE, border: `0.5px solid rgba(255,255,255,0.1)` }}
+            >
+              {/* Red equalizer bars */}
+              <div className="flex items-end gap-[2px] h-4" aria-hidden>
+                {[40, 70, 55, 85, 45, 90, 60].map((h, i) => (
+                  <div
+                    key={i}
+                    className="w-[3px] rounded-t-[1px]"
+                    style={{ height: `${h}%`, background: `${RED}55` }}
+                  />
+                ))}
+              </div>
+              <div>
+                <p className="text-white text-xs font-semibold">{cat.name}</p>
+                <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{cat.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
 
-    {/* ── Audio spectrum bars ── */}
-    <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 md:px-6 pb-0">
-      <AudioBars />
+    {/* ── Bottom ticker strip ── */}
+    <div className="relative z-10 overflow-hidden" style={{ background: BG, borderTop: `0.5px solid ${BORDER}` }}>
+      <div className="flex animate-ticker whitespace-nowrap py-2.5">
+        {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+          <span key={i} className="inline-flex items-center shrink-0 mx-4">
+            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.25)" }}>{item}</span>
+            <span className="w-1 h-1 rounded-full ml-8 shrink-0" style={{ background: AMBER }} />
+          </span>
+        ))}
+      </div>
     </div>
+
+    {/* Ticker animation */}
+    <style>{`
+      @keyframes ticker {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-ticker {
+        animation: ticker 30s linear infinite;
+      }
+    `}</style>
   </section>
 );
 
