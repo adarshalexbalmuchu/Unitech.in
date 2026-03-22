@@ -56,7 +56,7 @@ const ProductCard = memo(
 
     /* Badge logic: max 2 badges, discount is always primary */
     const badges: { label: string; bg: string; color: string; icon?: typeof Zap; secondary?: boolean }[] = [];
-    if (discount > 0) badges.push({ label: `-${discount}%`, bg: "#e8251a", color: "#fff" });
+    // discount badge removed per request
     if (isFlashSale) badges.push({ label: "Flash", bg: "#e8a020", color: "#fff", icon: Zap });
     else if (isNewArrival && discount === 0) badges.push({ label: "New", bg: "#e8a020", color: "#1a1a1a" });
     else if (isHotSelling) badges.push({ label: "Hot", bg: "rgba(0,0,0,0.65)", color: "#fff", icon: TrendingUp, secondary: true });
@@ -187,7 +187,7 @@ const ProductCard = memo(
             )}
           </div>
           {!compact && (
-            <span style={{ fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 2 }}>Excl. of taxes</span>
+            <span style={{ fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 2 }}>Incl. of all taxes</span>
           )}
           {!compact && (
             <p style={{ fontSize: 8, color: "rgba(0,0,0,0.28)", marginTop: 8, lineHeight: 1.4 }}>

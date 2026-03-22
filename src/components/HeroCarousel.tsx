@@ -125,7 +125,7 @@ const HeroCarousel = () => {
         <div className="flex items-center gap-0">
           {[
             { num: "50K+", label: "Customers" },
-            { num: "25 Yrs", label: "Experience" },
+            { num: "30 Yrs", label: "Experience" },
             { num: "200+", label: "Products" },
           ].map((stat, i) => (
             <div

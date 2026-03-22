@@ -1,4 +1,4 @@
-import { Phone, Mail, MessageCircle, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Phone, Mail, MessageCircle, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AMBER = "#e8a020";
@@ -15,7 +15,7 @@ const pages = [
 const socials = [
   { href: "https://www.facebook.com/Unitechindia.net/", Icon: Facebook, label: "Facebook" },
   { href: "https://www.instagram.com/unitechindiaofficial/", Icon: Instagram, label: "Instagram" },
-  { href: "https://x.com/UNITECH_INDIA", Icon: Twitter, label: "X" },
+  { href: "https://wa.me/message/YIYEC6DV7OCZK1?src=qr", Icon: MessageCircle, label: "WhatsApp" },
   { href: "https://youtube.com/@unitechindia8273?si=nW4NphKv4yiEtmn4", Icon: Youtube, label: "YouTube" },
 ];
 

@@ -8,7 +8,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
-import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
+import { formatPrice, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
@@ -215,7 +215,6 @@ const ProductDetail = () => {
     );
   }
 
-  const discount = getDiscountPercent(product.price, product.original_price);
   const catMeta = CATEGORIES.find((c) => c.slug === product.category);
   const catLabel = catMeta?.label ?? product.category;
   const wishlisted = isInWishlist(product.id);
@@ -361,14 +360,7 @@ const ProductDetail = () => {
         <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5 lg:gap-7 xl:gap-10 items-start">
           {/* Left — Image gallery */}
           <div className="relative xl:sticky xl:top-24 self-start">
-            {discount > 0 && (
-              <span
-                style={{ background: '#e8251a', color: '#fff', fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 4 }}
-                className="absolute top-3 left-3 md:top-4 md:left-4 z-20"
-              >
-                -{discount}%
-              </span>
-            )}
+
             <ProductImageGallery images={images} alt={product.name} fallbackImage={fallbackImage} />
             <p style={{ fontSize: 10, color: 'rgba(0,0,0,0.35)', marginTop: 8, lineHeight: 1.4 }}>
               *Product images are indicative and may differ from the actual product.
@@ -431,11 +423,9 @@ const ProductDetail = () => {
                     {formatPrice(product.original_price)}
                   </span>
                 )}
-                {discount > 0 && (
-                  <span className="text-xs md:text-sm font-bold text-destructive">Save {discount}%</span>
-                )}
+
               </div>
-              <p className="text-[11px] md:text-xs text-muted-foreground">Exclusive of taxes. Shipping calculated at checkout.</p>
+              <p className="text-[11px] md:text-xs text-muted-foreground">Inclusive of all taxes. Shipping calculated at checkout.</p>
             </div>
 
             {/* Stock */}
