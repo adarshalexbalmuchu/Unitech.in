@@ -39,10 +39,9 @@ const AudioBars = () => (
 
 const FooterBanner = () => (
   <section
-    className="cta-section relative w-full overflow-hidden"
+    className="cta-section relative w-full overflow-hidden px-4 md:px-10 py-12 md:py-20"
     style={{
       background: BG,
-      padding: "80px 40px",
       borderBottom: `0.5px solid rgba(255,255,255,0.06)`,
     }}
   >

@@ -558,7 +558,7 @@ const ProductDetail = () => {
                   <tbody>
                     {specEntries.map(([key, value], i) => (
                       <tr key={key} style={{ background: i % 2 === 0 ? '#fafafa' : '#fff', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                        <td style={{ padding: '10px 20px', fontWeight: 600, color: '#666', whiteSpace: 'nowrap', width: 200, fontSize: 13 }}>
+                        <td className="w-[120px] md:w-[200px]" style={{ padding: '10px 12px', fontWeight: 600, color: '#666', whiteSpace: 'nowrap', fontSize: 13 }}>
                           {formatSpecLabel(key)}
                         </td>
                         <td style={{ padding: '10px 20px', fontSize: 13 }}>

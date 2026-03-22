@@ -23,8 +23,7 @@ const SiteFooter = () => (
   <footer className="footer-section" style={{ background: "#0d0d0d", borderTop: "0.5px solid rgba(255,255,255,0.08)" }}>
     {/* Main grid */}
     <div
-      className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr] gap-10 md:gap-12"
-      style={{ padding: "48px 60px 40px" }}
+      className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr] gap-10 md:gap-12 px-4 md:px-[60px] pt-12 pb-10"
     >
       {/* ── Column 1 — Brand ── */}
       <div className="flex flex-col gap-4">
@@ -159,18 +158,17 @@ const SiteFooter = () => (
           >
             <Phone className="w-3.5 h-3.5" strokeWidth={1.5} />
           </span>
-          {/* TODO: Add phone number here */}
-          Add phone number here
+          9810448343
         </span>
       </div>
     </div>
 
     {/* ── Bottom bar ── */}
     <div
+      className="px-4 md:px-[60px] py-3.5"
       style={{
         background: "rgba(0,0,0,0.3)",
         borderTop: "0.5px solid rgba(255,255,255,0.05)",
-        padding: "14px 60px",
       }}
     >
       <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
