@@ -18,7 +18,7 @@ const StickyHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white">
+      <header className="sticky top-0 z-50 bg-white border-b border-border">
         {/* ── Main row ── */}
         <div className="max-w-[1280px] mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center gap-3 md:gap-6">
           {/* Mobile hamburger */}
@@ -85,12 +85,12 @@ const StickyHeader = () => {
           </div>
         </div>
 
-        {/* ── Quick nav (desktop) ── */}
-        <nav className="hidden md:block">
-          <div className="max-w-[1280px] mx-auto px-6 flex items-center justify-between h-9">
+        {/* ── Row 2: Desktop category nav (All Products | categories | Partner With Us) ── */}
+        <nav className="hidden lg:block border-t border-border/60">
+          <div className="max-w-[1280px] mx-auto px-6 flex items-center h-9 overflow-x-auto scrollbar-none">
             <Link
               to="/products/all"
-              className={`shrink-0 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+              className={`shrink-0 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap pr-3 ${
                 location.pathname === "/products/all"
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -98,9 +98,31 @@ const StickyHeader = () => {
             >
               All Products
             </Link>
+            <span className="w-px h-3.5 bg-border shrink-0" />
+            <div className="flex items-center flex-1 justify-center">
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = location.pathname === `/products/${cat.slug}`;
+                return (
+                  <Link
+                    key={cat.slug}
+                    to={`/products/${cat.slug}`}
+                    className={`shrink-0 flex items-center gap-1 px-2 py-1 text-xs whitespace-nowrap transition-colors ${
+                      isActive
+                        ? "text-primary font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+                    {cat.label}
+                  </Link>
+                );
+              })}
+            </div>
+            <span className="w-px h-3.5 bg-border shrink-0" />
             <Link
               to="/wholesale"
-              className={`shrink-0 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
+              className={`shrink-0 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap pl-3 ${
                 location.pathname.startsWith("/wholesale")
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -112,39 +134,15 @@ const StickyHeader = () => {
         </nav>
       </header>
 
-      {/* ── Category bar (desktop — underline style) ── */}
-      <nav className="hidden md:block sticky top-[100px] z-40 bg-white border-b border-border">
-        <div className="max-w-[1280px] mx-auto px-6 flex items-center overflow-x-auto scrollbar-none">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = location.pathname === `/products/${cat.slug}`;
-            return (
-              <Link
-                key={cat.slug}
-                to={`/products/${cat.slug}`}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium whitespace-nowrap transition-colors border-b-2 ${
-                  isActive
-                    ? "text-primary border-primary"
-                    : "text-muted-foreground hover:text-foreground border-transparent"
-                }`}
-              >
-                <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
-                {cat.label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
       {/* ── Category bar (mobile — pill style) ── */}
-      <nav className="md:hidden sticky top-14 z-[39] bg-white border-b border-border">
-        <div className="flex flex-row items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-none snap-x snap-mandatory">
+      <nav className="lg:hidden sticky top-14 z-[39] bg-white border-b border-border">
+        <div className="flex flex-row items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-none">
           <Link
             to="/products/all"
-            className={`shrink-0 snap-start text-xs font-medium px-3 py-2 rounded-full whitespace-nowrap transition-colors ${
+            className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
               location.pathname === "/products/all"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                ? "bg-primary text-white border-primary"
+                : "bg-background text-muted-foreground border-border"
             }`}
           >
             All
@@ -155,10 +153,10 @@ const StickyHeader = () => {
               <Link
                 key={cat.slug}
                 to={`/products/${cat.slug}`}
-                className={`shrink-0 snap-start text-xs font-medium px-3 py-2 rounded-full whitespace-nowrap transition-colors ${
+                className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                    ? "bg-primary text-white border-primary"
+                    : "bg-background text-muted-foreground border-border"
                 }`}
               >
                 {cat.label}
