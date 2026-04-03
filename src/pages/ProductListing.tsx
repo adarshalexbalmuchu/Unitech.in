@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ChevronRight, SlidersHorizontal, ArrowUpDown, X } from "lucide-react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
+import { ChevronRight, SlidersHorizontal, ArrowUpDown, X, Search } from "lucide-react";
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -27,6 +27,8 @@ const PRICE_RANGES = [
 
 const ProductListing = () => {
   const { category } = useParams<{ category: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
   const {
     data: products = [],
     isLoading,
@@ -40,13 +42,26 @@ const ProductListing = () => {
   const [showFeatured, setShowFeatured] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [inlineSearch, setInlineSearch] = useState(searchQuery);
 
   const catMeta = CATEGORIES.find((c) => c.slug === category);
-  const catLabel = catMeta?.label ?? "All Products";
-  const CatIcon = catMeta?.icon;
+  const catLabel = searchQuery ? `Search: "${searchQuery}"` : (catMeta?.label ?? "All Products");
+  const CatIcon = searchQuery ? undefined : catMeta?.icon;
 
   const filtered = useMemo(() => {
     let items = [...products];
+    // Search query filter
+    if (searchQuery.trim().length >= 2) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.brand?.toLowerCase().includes(q) ||
+          p.model_number?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q)
+      );
+    }
     if (showFeatured) items = items.filter((p) => p.is_featured || p.collections.includes("hot-selling"));
     if (priceRange !== null) {
       const range = PRICE_RANGES[priceRange];
@@ -62,7 +77,7 @@ const ProductListing = () => {
       }
     });
     return items;
-  }, [products, sort, priceRange, showFeatured]);
+  }, [products, sort, priceRange, showFeatured, searchQuery]);
 
   const activeFilterCount = (priceRange !== null ? 1 : 0) + (showFeatured ? 1 : 0);
 
@@ -137,23 +152,64 @@ const ProductListing = () => {
           <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <ChevronRight className="w-3 h-3" />
           <Link to="/products/all" className="hover:text-foreground transition-colors">Products</Link>
-          {category && category !== "all" && (
+          {category && category !== "all" && !searchQuery && (
             <>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-foreground font-medium">{catLabel}</span>
+              <span className="text-foreground font-medium">{catMeta?.label ?? category}</span>
+            </>
+          )}
+          {searchQuery && (
+            <>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-foreground font-medium">Search</span>
             </>
           )}
         </nav>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6 md:mb-8">
-          {CatIcon && <CatIcon className="w-6 h-6 md:w-7 md:h-7 text-primary" strokeWidth={1.5} />}
-          <div>
-            <h1 className="text-xl md:text-2xl font-extrabold">{catLabel}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground">
-              {isLoading ? "Loading…" : `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 md:mb-8">
+          <div className="flex items-center gap-3">
+            {CatIcon && <CatIcon className="w-6 h-6 md:w-7 md:h-7 text-primary" strokeWidth={1.5} />}
+            <div>
+              <h1 className="text-xl md:text-2xl font-extrabold">{catLabel}</h1>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                {isLoading ? "Loading…" : `${filtered.length} product${filtered.length !== 1 ? "s" : ""}`}
+              </p>
+            </div>
           </div>
+          {/* Inline search */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const trimmed = inlineSearch.trim();
+              if (trimmed.length >= 2) {
+                setSearchParams(trimmed ? { q: trimmed } : {});
+              } else {
+                setSearchParams({});
+              }
+            }}
+            className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto"
+          >
+            <div className="flex items-center gap-2 flex-1 sm:w-64 px-3 py-2 rounded-lg bg-muted border border-transparent focus-within:border-border transition-colors">
+              <Search className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
+              <input
+                type="text"
+                value={inlineSearch}
+                onChange={(e) => setInlineSearch(e.target.value)}
+                placeholder="Search products…"
+                className="flex-1 bg-transparent outline-none text-sm"
+              />
+              {inlineSearch && (
+                <button
+                  type="button"
+                  onClick={() => { setInlineSearch(""); setSearchParams({}); }}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </form>
         </div>
 
         {/* Toolbar */}

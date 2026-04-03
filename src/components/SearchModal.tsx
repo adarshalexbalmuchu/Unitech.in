@@ -56,6 +56,23 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     navigate(`/products/${slug}`);
   };
 
+  const handleSearch = () => {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return;
+    onClose();
+    navigate(`/products/all?q=${encodeURIComponent(trimmed)}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+    if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
   return (
     <>
       <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
@@ -69,6 +86,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Search for speakers, amplifiers, home theatre..."
                 className="flex-1 bg-transparent outline-none text-sm"
               />
@@ -139,6 +157,13 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                       </button>
                     ))}
                   </div>
+                  {/* View all results link */}
+                  <button
+                    onClick={handleSearch}
+                    className="w-full mt-2 py-2.5 text-sm font-semibold text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                  >
+                    View all results for "{query}"
+                  </button>
                 </div>
               ) : (
                 categoryResults.length === 0 && (
