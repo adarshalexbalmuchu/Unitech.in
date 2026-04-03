@@ -109,7 +109,7 @@ const normalizeProduct = (product: Product): Product => {
   name: (product.name || "").trim(),
   slug: (product.slug || "").trim(),
   description: product.description ?? "",
-  category: (product as any).categories?.slug ?? (product as any).category_id ?? "",
+  category: (product as unknown as Record<string, unknown> & { categories?: { slug?: string }; category_id?: string }).categories?.slug ?? (product as unknown as Record<string, unknown> & { category_id?: string }).category_id ?? "",
   brand: product.brand ?? "",
   model_number: product.model_number ?? "",
   price: toNumberOrNull(product.price),

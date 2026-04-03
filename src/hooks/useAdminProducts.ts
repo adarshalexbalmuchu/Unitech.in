@@ -44,7 +44,7 @@ const setLocal = (products: Product[]) => { localProducts = products; };
 
 const normalizeAdminProduct = (raw: Record<string, unknown>): Product => ({
   ...(raw as unknown as Product),
-  category: (raw as any).categories?.slug ?? "",
+  category: ((raw as Record<string, unknown>).categories as { slug?: string } | undefined)?.slug ?? "",
 });
 
 export const useAdminProducts = () =>
