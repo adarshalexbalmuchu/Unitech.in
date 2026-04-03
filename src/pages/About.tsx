@@ -19,7 +19,7 @@ const MILESTONES = [
   { year: "2002", title: "First Factory", desc: "Opened our own manufacturing unit for audio amplifiers and speakers." },
   { year: "2010", title: "Pan-India Reach", desc: "Expanded dealer network to 500+ retailers across 18 states." },
   { year: "2018", title: "Digital Leap", desc: "Launched our e-commerce platform to serve customers directly." },
-  { year: "2024", title: "50K+ Customers", desc: "Crossed 50,000 happy customers with 4-star average ratings." },
+  { year: "2026", title: "25 Lakh+ Customers", desc: "Crossed 25 lakh happy customers with 4-star average ratings." },
 ];
 
 const VALUES = [
@@ -47,7 +47,7 @@ const VALUES = [
 
 const STATS = [
   { value: "30+", label: "Years in Business" },
-  { value: "50,000+", label: "Happy Customers" },
+  { value: "25,00,000+", label: "Happy Customers" },
   { value: "500+", label: "Retail Partners" },
   { value: "200+", label: "Products" },
 ];
@@ -142,7 +142,7 @@ const About = () => (
           </p>
           <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">
             Over the past three decades, we've expanded into tower speakers, home theatre systems, car audio, DTH
-            receivers, TV kits, and power accessories. Today, Unitech products are trusted by over 50,000 customers
+            receivers, TV kits, and power accessories. Today, Unitech products are trusted by over 25 lakh customers
             and available through 500+ retail partners across India.
           </p>
           <p className="mt-3 text-sm md:text-base text-muted-foreground leading-relaxed">

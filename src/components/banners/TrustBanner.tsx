@@ -69,7 +69,7 @@ const TrustBanner = () => (
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <p className="text-white font-extrabold text-lg md:text-xl tracking-tight">
-            Why <span style={{ color: "#e8251a" }}>50,000+</span> customers trust Unitech
+            Why <span style={{ color: "#e8251a" }}>25 Lakh+</span> customers trust Unitech
           </p>
           <p className="text-xs text-white/40 mt-1">Manufacturing premium audio equipment since 1994</p>
         </div>

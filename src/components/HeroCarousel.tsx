@@ -47,7 +47,7 @@ const SURFACE = "rgba(255,255,255,0.04)";
 const TICKER_ITEMS = [
   "Free shipping on orders above ₹999",
   "1-year warranty on all products",
-  "Trusted by 50,000+ customers",
+  "Trusted by 25 Lakh+ customers",
   "Easy EMI available",
   "COD available pan India",
 ];
@@ -124,7 +124,7 @@ const HeroCarousel = () => {
         {/* Trust stats */}
         <div className="flex items-center gap-0">
           {[
-            { num: "50K+", label: "Customers" },
+            { num: "25L+", label: "Customers" },
             { num: "30 Yrs", label: "Experience" },
             { num: "200+", label: "Products" },
           ].map((stat, i) => (
