@@ -94,6 +94,7 @@ const AdminProducts = () => {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" asChild><Link to="/">← Back to Site</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin/wholesale-leads">Wholesale Leads</Link></Button>
             <Button asChild><Link to="/admin/products/new"><Plus className="h-4 w-4 mr-1" /> Add Product</Link></Button>
           </div>
         </div>

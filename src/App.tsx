@@ -28,6 +28,7 @@ import HelpCenter from "./pages/HelpCenter.tsx";
 import About from "./pages/About.tsx";
 import Wholesale from "./pages/Wholesale.tsx";
 import WholesaleApply from "./pages/WholesaleApply.tsx";
+import AdminWholesaleLeads from "./pages/AdminWholesaleLeads.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
             <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
+            <Route path="/admin/wholesale-leads" element={<AdminGuard><AdminWholesaleLeads /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
