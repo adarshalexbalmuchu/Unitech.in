@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Package2 } from "lucide-react";
-import { CATEGORIES, formatPrice, isPlaceholderImage } from "@/lib/constants";
+import { CATEGORIES, formatPrice, isPlaceholderImage, getCategoryFallbackImage } from "@/lib/constants";
 import { useProducts } from "@/hooks/useProducts";
 
 const highlightedCategorySlugs = [
@@ -84,11 +84,13 @@ const BestSellingStores = () => {
                             alt={product.name}
                             className="w-full h-full object-contain p-1.5 md:p-2 transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
+                            onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(category.slug); }}
                           />
                         ) : (
-                          <Icon
-                            className="w-6 h-6 text-muted-foreground/25"
-                            strokeWidth={1.25}
+                          <img
+                            src={getCategoryFallbackImage(category.slug)}
+                            alt={category.label}
+                            className="w-full h-full object-cover"
                           />
                         )}
                       </div>

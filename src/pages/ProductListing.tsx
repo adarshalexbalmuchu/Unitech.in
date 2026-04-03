@@ -186,7 +186,7 @@ const ProductListing = () => {
             }}
             className="flex items-center gap-2 sm:ml-auto w-full sm:w-auto"
           >
-            <div className="flex items-center gap-2 flex-1 sm:w-64 px-3 py-2 rounded-lg bg-muted border border-transparent focus-within:border-border transition-colors">
+            <div className="flex items-center gap-2 flex-1 sm:w-64 px-3 py-1.5 sm:py-2 rounded-lg bg-muted border border-transparent focus-within:border-border transition-colors">
               <Search className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
               <input
                 type="text"

@@ -143,7 +143,7 @@ const HeroCarousel = () => {
       </div>
 
       {/* ── Right column: Product showcase ── */}
-      <div className="flex flex-col gap-3">
+      <div className="hidden md:flex flex-col gap-3">
 
         {/* Featured product card */}
         <Link

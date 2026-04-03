@@ -73,7 +73,7 @@ export const getCategoryFallbackImage = (category?: string | null): string => {
   const key = (category || "").toLowerCase() as FallbackCategorySlug;
   const label = CATEGORY_FALLBACK_LABELS[key] || "Unitech Product";
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="${label}"><rect width="600" height="600" fill="#f4f4f5"/><circle cx="300" cy="240" r="82" fill="#e4e4e7"/><rect x="180" y="355" width="240" height="30" rx="15" fill="#d4d4d8"/><rect x="140" y="402" width="320" height="24" rx="12" fill="#e4e4e7"/><text x="300" y="490" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="28" fill="#71717a">${label}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="${label}"><rect width="600" height="600" fill="#1a1a1a"/><rect y="570" width="600" height="30" fill="#E8000D"/><text x="300" y="280" text-anchor="middle" font-family="Manrope, system-ui, sans-serif" font-size="32" font-weight="700" fill="#ffffff">${label}</text><text x="300" y="330" text-anchor="middle" font-family="Manrope, system-ui, sans-serif" font-size="16" fill="rgba(255,255,255,0.4)">Unitech India</text></svg>`;
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };

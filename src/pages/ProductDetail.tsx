@@ -30,10 +30,19 @@ const formatSpecValue = (value: unknown) => {
   return String(value);
 };
 
+const SPEC_KEY_OVERRIDES: Record<string, string> = {
+  rgb: "RGB", dth: "DTH", hdmi: "HDMI", usb: "USB", led: "LED",
+  ir: "IR", mpeg4: "MPEG4", mp3: "MP3", rms: "RMS", aac: "AAC",
+  ac: "AC", dc: "DC", lcd: "LCD", av: "AV", fm: "FM", sd: "SD",
+  hd: "HD", uhd: "UHD", wifi: "Wi-Fi", bluetooth: "Bluetooth",
+};
+
 const formatSpecLabel = (key: string) =>
   key
     .replace(/_/g, " ")
-    .replace(/\b\w/g, (match) => match.toUpperCase());
+    .split(" ")
+    .map((w) => SPEC_KEY_OVERRIDES[w.toLowerCase()] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 
 const normalizeStringList = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];
@@ -517,17 +526,17 @@ const ProductDetail = () => {
             </div>
 
             {/* Trust badges */}
-            <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '14px 0' }} className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
-              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-muted-foreground text-center sm:text-left">
-                <Truck className="w-4 h-4 text-primary shrink-0" />
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '14px 0' }} className="flex flex-row items-center justify-around gap-2">
+              <div className="flex flex-row items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
                 <span>Free Shipping</span>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-muted-foreground text-center sm:text-left">
-                <Shield className="w-4 h-4 text-primary shrink-0" />
+              <div className="flex flex-row items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
                 <span>1 Year Warranty</span>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[11px] md:text-xs text-muted-foreground text-center sm:text-left">
-                <RotateCcw className="w-4 h-4 text-primary shrink-0" />
+              <div className="flex flex-row items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
                 <span>Exchange Offer</span>
               </div>
             </div>
@@ -697,7 +706,11 @@ const ProductDetail = () => {
 
             <div style={{ border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: 20 }}>
               {reviews.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No customer reviews yet. Be the first to review this product.</p>
+                <p className="text-sm text-muted-foreground">
+                  {product.reviews_count > 0
+                    ? "Reviews from verified purchases. Sign in to add yours."
+                    : "No customer reviews yet. Be the first to review this product."}
+                </p>
               ) : (
                 <div className="space-y-4 max-h-[420px] overflow-auto pr-1">
                   {reviews.map((review) => (

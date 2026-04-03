@@ -18,7 +18,7 @@ const StickyHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white border-b border-border">
+      <header className="sticky top-0 z-50 bg-white">
         {/* ── Main row ── */}
         <div className="max-w-[1280px] mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center gap-3 md:gap-6">
           {/* Mobile hamburger */}
@@ -85,9 +85,9 @@ const StickyHeader = () => {
           </div>
         </div>
 
-        {/* ── Category nav bar (desktop) ── */}
-        <nav className="hidden md:block border-t border-border/60">
-          <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-6 h-9 overflow-x-auto scrollbar-none">
+        {/* ── Quick nav (desktop) ── */}
+        <nav className="hidden md:block">
+          <div className="max-w-[1280px] mx-auto px-6 flex items-center justify-between h-9">
             <Link
               to="/products/all"
               className={`shrink-0 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
@@ -98,21 +98,6 @@ const StickyHeader = () => {
             >
               All Products
             </Link>
-            <span className="w-px h-3 bg-border shrink-0" />
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.slug}
-                to={`/products/${cat.slug}`}
-                className={`shrink-0 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
-                  location.pathname === `/products/${cat.slug}`
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {cat.label}
-              </Link>
-            ))}
-            <span className="w-px h-3 bg-border shrink-0" />
             <Link
               to="/wholesale"
               className={`shrink-0 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
@@ -126,6 +111,62 @@ const StickyHeader = () => {
           </div>
         </nav>
       </header>
+
+      {/* ── Category bar (desktop — underline style) ── */}
+      <nav className="hidden md:block sticky top-[100px] z-40 bg-white border-b border-border">
+        <div className="max-w-[1280px] mx-auto px-6 flex items-center overflow-x-auto scrollbar-none">
+          {CATEGORIES.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = location.pathname === `/products/${cat.slug}`;
+            return (
+              <Link
+                key={cat.slug}
+                to={`/products/${cat.slug}`}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  isActive
+                    ? "text-primary border-primary"
+                    : "text-muted-foreground hover:text-foreground border-transparent"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+                {cat.label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* ── Category bar (mobile — pill style) ── */}
+      <nav className="md:hidden sticky top-14 z-[39] bg-white border-b border-border">
+        <div className="flex flex-row items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-none snap-x snap-mandatory">
+          <Link
+            to="/products/all"
+            className={`shrink-0 snap-start text-xs font-medium px-3 py-2 rounded-full whitespace-nowrap transition-colors ${
+              location.pathname === "/products/all"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            All
+          </Link>
+          {CATEGORIES.map((cat) => {
+            const isActive = location.pathname === `/products/${cat.slug}`;
+            return (
+              <Link
+                key={cat.slug}
+                to={`/products/${cat.slug}`}
+                className={`shrink-0 snap-start text-xs font-medium px-3 py-2 rounded-full whitespace-nowrap transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {cat.label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* ── Search Modal ── */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

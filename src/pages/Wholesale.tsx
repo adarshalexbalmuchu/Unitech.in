@@ -68,7 +68,7 @@ const Wholesale = () => (
           background: "radial-gradient(ellipse 60% 50% at 50% 100%, rgba(232,37,26,0.08) 0%, transparent 70%)",
         }}
       />
-      <div className="relative z-10 max-w-[1280px] mx-auto px-4 md:px-8 py-20 md:py-32 text-center">
+      <div className="relative z-10 max-w-[1280px] mx-auto px-4 md:px-8 py-16 md:py-24 text-center">
         <h1 className="text-[32px] md:text-[52px] font-extrabold text-white leading-[1.1] tracking-[-0.02em]">
           Built for Retailers.
           <br />
@@ -97,14 +97,14 @@ const Wholesale = () => (
           Why Partner With Us
         </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {WHY_CARDS.map(({ icon: Icon, title, desc }) => (
           <div
             key={title}
-            className="rounded-xl border border-border p-6 hover:border-primary/20 transition-colors"
+            className="rounded-xl border border-border p-4 sm:p-6 hover:border-primary/20 transition-colors"
           >
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-primary/10">
-              <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4 bg-primary/10">
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" strokeWidth={2} />
             </div>
             <h3 className="text-sm font-bold text-foreground">{title}</h3>
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{desc}</p>
@@ -122,17 +122,17 @@ const Wholesale = () => (
             Who This Is For
           </h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-6">
           {TIERS.map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
-              className="rounded-xl bg-background border border-border p-6 text-center hover:border-primary/20 transition-colors"
+              className="rounded-xl bg-background border border-border p-3 sm:p-6 text-center hover:border-primary/20 transition-colors"
             >
-              <div className="mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-primary/10">
-                <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
+              <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-2 sm:mb-4 bg-primary/10">
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" strokeWidth={2} />
               </div>
-              <h3 className="text-sm font-bold text-foreground">{title}</h3>
-              <p className="text-xs text-muted-foreground mt-1.5">{desc}</p>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground">{title}</h3>
+              <p className="hidden sm:block text-xs text-muted-foreground mt-1.5">{desc}</p>
             </div>
           ))}
         </div>
