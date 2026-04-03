@@ -113,11 +113,11 @@ const HeroCarousel = () => {
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </Link>
           <Link
-            to="/products/tower-speakers"
+            to="/wholesale"
             className="inline-flex items-center gap-2 px-6 py-3 font-semibold text-sm rounded-md transition-colors"
             style={{ border: `0.5px solid rgba(255,255,255,0.2)`, color: MUTED }}
           >
-            Explore Products
+            Become a Partner
           </Link>
         </div>
 

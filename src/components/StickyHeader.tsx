@@ -112,6 +112,17 @@ const StickyHeader = () => {
                 {cat.label}
               </Link>
             ))}
+            <span className="w-px h-3 bg-border shrink-0" />
+            <Link
+              to="/wholesale"
+              className={`shrink-0 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
+                location.pathname.startsWith("/wholesale")
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Partner With Us
+            </Link>
           </div>
         </nav>
       </header>
@@ -169,6 +180,18 @@ const StickyHeader = () => {
                   </Link>
                 );
               })}
+            </div>
+
+            {/* Partner link */}
+            <div className="px-3 pb-2">
+              <Link
+                to="/wholesale"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
+              >
+                Partner With Us
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             {/* Account section */}

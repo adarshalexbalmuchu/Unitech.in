@@ -426,6 +426,12 @@ const ProductDetail = () => {
 
               </div>
               <p className="text-[11px] md:text-xs text-muted-foreground">Inclusive of all taxes. Shipping calculated at checkout.</p>
+              <Link
+                to="/wholesale"
+                className="inline-block text-xs text-primary font-medium mt-1 hover:underline transition-all"
+              >
+                Buying in bulk? View wholesale pricing →
+              </Link>
             </div>
 
             {/* Stock */}
