@@ -34,7 +34,7 @@ const ProductCard = memo(
     const fallbackImage = getCategoryFallbackImage(product.category);
     const productImage = resolvePrimaryProductImage(product.image_url, product.category);
 
-    const handleNavigate = () => navigate(`/product/${product.slug}`);
+    const handleNavigate = () => { if (product.slug) navigate(`/product/${product.slug}`); };
 
     const handleWishlist = (e: React.MouseEvent) => {
       e.stopPropagation();
