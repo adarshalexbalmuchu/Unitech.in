@@ -32,6 +32,8 @@ export const SITE_TAGLINE = "Unitech hai jahan, Music hai vahan";
 export const SITE_DESCRIPTION =
   "Manufacturing premium audio equipment and electronics since 1994. Trusted by professionals across India.";
 
+export const WHATSAPP_NUMBER = "919810448343";
+
 /* ── Category taxonomy ─────────────────────────────── */
 
 export interface Category {

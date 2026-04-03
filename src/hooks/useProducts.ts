@@ -58,6 +58,12 @@ export interface Product {
   updated_at: string;
 }
 
+/** Raw row shape returned by Supabase when joining categories */
+type RawProduct = Omit<Product, "category"> & {
+  category_id: string | null;
+  categories: { name: string; slug: string }[] | { name: string; slug: string } | null;
+};
+
 /* ── Fallback data (offline / pre-Supabase) ────────── */
 
 import seedProducts from "@/data/seedProducts";
@@ -98,18 +104,20 @@ const generatePlaceholderRating = (id: string): { rating: number; reviews_count:
   };
 };
 
-const normalizeProduct = (product: Product): Product => {
+const normalizeProduct = (product: RawProduct | Product): Product => {
   const rawRating = toNonNegativeNumber(product.rating);
   const rawReviews = Math.floor(toNonNegativeNumber(product.reviews_count));
   const needsPlaceholder = rawRating === 0 && rawReviews === 0;
   const placeholder = needsPlaceholder ? generatePlaceholderRating(product.id) : null;
+
+  const raw = product as RawProduct;
 
   return {
   ...product,
   name: (product.name || "").trim(),
   slug: (product.slug || "").trim(),
   description: product.description ?? "",
-  category: (product as unknown as Record<string, unknown> & { categories?: { slug?: string }; category_id?: string }).categories?.slug ?? (product as unknown as Record<string, unknown> & { category_id?: string }).category_id ?? "",
+  category: (Array.isArray(raw.categories) ? raw.categories[0]?.slug : raw.categories?.slug) ?? raw.category_id ?? (product as Product).category ?? "",
   brand: product.brand ?? "",
   model_number: product.model_number ?? "",
   price: toNumberOrNull(product.price),
@@ -228,7 +236,7 @@ export const useProducts = (category?: string, options?: ProductQueryOptions) =>
       }
       const { data, error } = await query;
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };
@@ -250,7 +258,7 @@ export const useFeaturedProducts = (options?: ProductQueryOptions) => {
         .eq("is_featured", true)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };
@@ -278,7 +286,7 @@ export const useProductsByCollection = (collection: Collection | Collection[], o
         .overlaps("collections", normalizedCollections)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };

@@ -13,8 +13,9 @@ import { useAdminProducts, useCreateProduct, useUpdateProduct } from "@/hooks/us
 import { CATEGORIES, COLLECTIONS } from "@/lib/constants";
 import type { Product, ProductSpecs } from "@/hooks/useProducts";
 import type { Collection } from "@/lib/constants";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getErrorMessage } from "@/lib/utils";
 
 const generateId = () => `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -23,11 +24,6 @@ const BUCKET = "product-images";
 const MAX_IMAGE_SIZE_MB = 5;
 const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
-
-const getErrorMessage = (error: unknown) => {
-  if (error instanceof Error && error.message) return error.message;
-  return "Unknown error";
-};
 
 const validateImageFile = (file: File): string | null => {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
@@ -92,11 +88,7 @@ const AdminProductForm = () => {
 
   useEffect(() => {
     if (!productsError) return;
-    toast({
-      title: "Unable to load product data",
-      description: getErrorMessage(productsFetchError),
-      variant: "destructive",
-    });
+    toast.error("Unable to load product data", { description: getErrorMessage(productsFetchError) });
   }, [productsError, productsFetchError]);
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
@@ -122,7 +114,7 @@ const AdminProductForm = () => {
 
     const imageError = validateImageFile(file);
     if (imageError) {
-      toast({ title: "Invalid image", description: imageError, variant: "destructive" });
+      toast.error("Invalid image", { description: imageError });
       if (primaryInputRef.current) primaryInputRef.current.value = "";
       return;
     }
@@ -131,9 +123,9 @@ const AdminProductForm = () => {
     try {
       const url = await uploadFile(file);
       set("image_url", url);
-      toast({ title: "Image uploaded" });
+      toast.success("Image uploaded");
     } catch (err: unknown) {
-      toast({ title: "Upload failed", description: getErrorMessage(err), variant: "destructive" });
+      toast.error("Upload failed", { description: getErrorMessage(err) });
     } finally {
       setUploading(false);
       if (primaryInputRef.current) primaryInputRef.current.value = "";
@@ -147,7 +139,7 @@ const AdminProductForm = () => {
     for (const file of Array.from(files)) {
       const imageError = validateImageFile(file);
       if (imageError) {
-        toast({ title: "Invalid image", description: imageError, variant: "destructive" });
+        toast.error("Invalid image", { description: imageError });
         if (additionalInputRef.current) additionalInputRef.current.value = "";
         return;
       }
@@ -161,9 +153,9 @@ const AdminProductForm = () => {
         urls.push(url);
       }
       setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }));
-      toast({ title: `${urls.length} image(s) uploaded` });
+      toast.success(`${urls.length} image(s) uploaded`);
     } catch (err: unknown) {
-      toast({ title: "Upload failed", description: getErrorMessage(err), variant: "destructive" });
+      toast.error("Upload failed", { description: getErrorMessage(err) });
     } finally {
       setUploadingAdditional(false);
       if (additionalInputRef.current) additionalInputRef.current.value = "";
@@ -223,16 +215,12 @@ const AdminProductForm = () => {
     const validationErrors = validateForm();
     setFieldErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
-      toast({
-        title: "Please fix validation errors",
-        description: "Some product fields are missing or invalid.",
-        variant: "destructive",
-      });
+      toast.error("Please fix validation errors", { description: "Some product fields are missing or invalid." });
       return;
     }
 
     let specs: ProductSpecs;
-    try { specs = JSON.parse(specsJson); } catch { toast({ title: "Invalid specs JSON", variant: "destructive" }); return; }
+    try { specs = JSON.parse(specsJson); } catch { toast.error("Invalid specs JSON"); return; }
 
     const now = new Date().toISOString();
     const slug = (form.slug || slugify(form.name)).trim();
@@ -255,23 +243,15 @@ const AdminProductForm = () => {
     if (isEdit) {
       const existing = products.find((p) => p.id === id);
       if (!existing) {
-        toast({
-          title: "Product not found",
-          description: "The product may have been removed or you do not have access.",
-          variant: "destructive",
-        });
+        toast.error("Product not found", { description: "The product may have been removed or you do not have access." });
         return;
       }
 
       const updated: Product = { ...existing, ...payload, updated_at: now };
       updateMutation.mutate(updated, {
-        onSuccess: () => { toast({ title: "Product updated" }); navigate("/admin/products"); },
+        onSuccess: () => { toast.success("Product updated"); navigate("/admin/products"); },
         onError: (error) => {
-          toast({
-            title: "Failed to update product",
-            description: getErrorMessage(error),
-            variant: "destructive",
-          });
+          toast.error("Failed to update product", { description: getErrorMessage(error) });
         },
       });
     } else {
@@ -280,13 +260,9 @@ const AdminProductForm = () => {
         created_at: now, updated_at: now,
       };
       createMutation.mutate(product, {
-        onSuccess: () => { toast({ title: "Product created" }); navigate("/admin/products"); },
+        onSuccess: () => { toast.success("Product created"); navigate("/admin/products"); },
         onError: (error) => {
-          toast({
-            title: "Failed to create product",
-            description: getErrorMessage(error),
-            variant: "destructive",
-          });
+          toast.error("Failed to create product", { description: getErrorMessage(error) });
         },
       });
     }

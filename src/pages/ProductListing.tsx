@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { CATEGORIES } from "@/lib/constants";
+import { getErrorMessage } from "@/lib/utils";
 
 type SortKey = "price-asc" | "price-desc" | "rating" | "newest";
 
@@ -80,11 +81,6 @@ const ProductListing = () => {
   }, [products, sort, priceRange, showFeatured, searchQuery]);
 
   const activeFilterCount = (priceRange !== null ? 1 : 0) + (showFeatured ? 1 : 0);
-
-  const getErrorMessage = (err: unknown) => {
-    if (err instanceof Error && err.message) return err.message;
-    return "Unable to load products.";
-  };
 
   const FilterContent = () => (
     <div className="space-y-6">

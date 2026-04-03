@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAdminProducts, useDeleteProduct, useToggleProductField } from "@/hooks/useAdminProducts";
 import { CATEGORIES, formatPrice } from "@/lib/constants";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,11 +34,6 @@ const AdminProducts = () => {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
 
-  const getErrorMessage = (err: unknown) => {
-    if (err instanceof Error && err.message) return err.message;
-    return "Unexpected error";
-  };
-
   const filtered = useMemo(() => {
     let items = products;
     if (categoryFilter !== "all") items = items.filter((p) => p.category === categoryFilter);
@@ -56,13 +52,9 @@ const AdminProducts = () => {
   const handleToggle = (id: string, field: "is_active" | "is_featured", value: boolean) => {
     setPendingToggleId(id);
     toggleMutation.mutate({ id, field, value }, {
-      onSuccess: () => toast({ title: `Product ${field === "is_active" ? (value ? "activated" : "deactivated") : (value ? "featured" : "unfeatured")}` }),
+      onSuccess: () => toast.success(`Product ${field === "is_active" ? (value ? "activated" : "deactivated") : (value ? "featured" : "unfeatured")}`),
       onError: (mutationError) => {
-        toast({
-          title: "Failed to update product",
-          description: getErrorMessage(mutationError),
-          variant: "destructive",
-        });
+        toast.error("Failed to update product", { description: getErrorMessage(mutationError) });
       },
       onSettled: () => setPendingToggleId(null),
     });
@@ -71,13 +63,9 @@ const AdminProducts = () => {
   const handleDelete = (id: string) => {
     setPendingDeleteId(id);
     deleteMutation.mutate(id, {
-      onSuccess: () => toast({ title: "Product deleted" }),
+      onSuccess: () => toast.success("Product deleted"),
       onError: (mutationError) => {
-        toast({
-          title: "Failed to delete product",
-          description: getErrorMessage(mutationError),
-          variant: "destructive",
-        });
+        toast.error("Failed to delete product", { description: getErrorMessage(mutationError) });
       },
       onSettled: () => setPendingDeleteId(null),
     });

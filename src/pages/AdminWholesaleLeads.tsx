@@ -40,7 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 type WholesaleLead = {
@@ -124,12 +124,10 @@ const AdminWholesaleLeads = () => {
 
   const handleDelete = (id: string) => {
     deleteMutation.mutate(id, {
-      onSuccess: () => toast({ title: "Lead deleted" }),
+      onSuccess: () => toast.success("Lead deleted"),
       onError: (err) =>
-        toast({
-          title: "Failed to delete",
+        toast.error("Failed to delete", {
           description: err instanceof Error ? err.message : "Unknown error",
-          variant: "destructive",
         }),
     });
   };

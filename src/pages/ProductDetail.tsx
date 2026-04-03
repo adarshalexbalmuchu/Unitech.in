@@ -14,6 +14,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 type ProductReview = {
   id: string;
@@ -153,11 +154,6 @@ const ProductDetail = () => {
       meta.setAttribute("content", previous);
     };
   }, [product]);
-
-  const getErrorMessage = (err: unknown) => {
-    if (err instanceof Error && err.message) return err.message;
-    return "Unable to load product details.";
-  };
 
   if (isLoading) {
     return (

@@ -3,6 +3,11 @@ import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import seedProducts from "@/data/seedProducts";
 import type { Product } from "@/hooks/useProducts";
 
+type RawAdminProduct = Omit<Product, "category"> & {
+  category_id: string | null;
+  categories: { name: string; slug: string }[] | { name: string; slug: string } | null;
+};
+
 const normalizeProductForWrite = (product: Product): Product => ({
   ...product,
   name: (product.name || "").trim(),
@@ -42,9 +47,9 @@ const setLocal = (products: Product[]) => { localProducts = products; };
 
 /* ── Admin: fetch ALL products (incl. inactive) ────── */
 
-const normalizeAdminProduct = (raw: Record<string, unknown>): Product => ({
+const normalizeAdminProduct = (raw: RawAdminProduct): Product => ({
   ...(raw as unknown as Product),
-  category: ((raw as Record<string, unknown>).categories as { slug?: string } | undefined)?.slug ?? "",
+  category: (Array.isArray(raw.categories) ? raw.categories[0]?.slug : raw.categories?.slug) ?? "",
 });
 
 export const useAdminProducts = () =>
@@ -57,7 +62,7 @@ export const useAdminProducts = () =>
         categories!category_id(name, slug)
       `).order("created_at", { ascending: false });
       if (error) throw error;
-      return ((data as Record<string, unknown>[]) ?? []).map(normalizeAdminProduct);
+      return ((data as RawAdminProduct[]) ?? []).map(normalizeAdminProduct);
     },
   });
 
@@ -84,7 +89,7 @@ export const useCreateProduct = () => {
         categories!category_id(name, slug)
       `).single();
       if (error) throw error;
-      return normalizeAdminProduct(data as Record<string, unknown>);
+      return normalizeAdminProduct(data as RawAdminProduct);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -114,7 +119,7 @@ export const useUpdateProduct = () => {
         categories!category_id(name, slug)
       `).single();
       if (error) throw error;
-      return normalizeAdminProduct(data as Record<string, unknown>);
+      return normalizeAdminProduct(data as RawAdminProduct);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -131,6 +136,7 @@ export const useDeleteProduct = () => {
         setLocal(getLocal().filter((p) => p.id !== id));
         return;
       }
+      if (!supabase) throw new Error("Backend not configured");
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
     },
@@ -149,6 +155,7 @@ export const useToggleProductField = () => {
         setLocal(getLocal().map((p) => (p.id === id ? { ...p, [field]: value } : p)));
         return;
       }
+      if (!supabase) throw new Error("Backend not configured");
       const { error } = await supabase.from("products").update({ [field]: value }).eq("id", id);
       if (error) throw error;
     },

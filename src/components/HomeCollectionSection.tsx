@@ -4,7 +4,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import { useProductsByCollection } from "@/hooks/useProducts";
 import type { Collection } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
 
 type HomeCollectionSectionProps = {
   title: string;
@@ -33,11 +33,6 @@ const HomeCollectionSection = ({
   const filteredProducts = products.filter((p) => p.category !== "power-accessories");
   const hasMore = filteredProducts.length > limit;
   const displayProducts = expanded ? filteredProducts : filteredProducts.slice(0, limit);
-
-  const getErrorMessage = (err: unknown) => {
-    if (err instanceof Error && err.message) return err.message;
-    return "Unable to load products right now.";
-  };
 
   return (
     <section className={cn("max-w-[1280px] mx-auto px-4 md:px-6 py-12 md:py-16", className)}>

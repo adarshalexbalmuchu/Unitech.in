@@ -36,8 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
-
-const WHATSAPP_NUMBER = "919810448343";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const BUSINESS_TYPES = ["Retailer", "Dealer", "Distributor"] as const;
 

@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { isPlaceholderImage, formatPrice } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -43,15 +44,6 @@ type RazorpaySuccessResponse = {
 
 type RazorpayFailureResponse = {
   error?: { description?: string };
-};
-
-const getErrorMessage = (error: unknown) => {
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === "string") return message;
-  }
-  return "Something went wrong during checkout.";
 };
 
 const normalizeShipping = (shipping: ShippingForm) => ({

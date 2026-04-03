@@ -59,6 +59,10 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "OPTIONS" && origin && allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    return jsonResponse({ error: "Origin not allowed" }, 403, corsHeaders);
+  }
+
   if (req.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, 405, corsHeaders);
   }

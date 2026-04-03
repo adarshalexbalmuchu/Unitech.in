@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -18,16 +18,16 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+      toast.error("Password must be at least 6 characters");
       return;
     }
     setLoading(true);
     const { error } = await signUp(email, password, fullName);
     setLoading(false);
     if (error) {
-      toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      toast.error("Sign up failed", { description: error.message });
     } else {
-      toast({ title: "Account created!", description: "Check your email to confirm your account." });
+      toast.success("Account created!", { description: "Check your email to confirm your account." });
       navigate("/login");
     }
   };

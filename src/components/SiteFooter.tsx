@@ -1,5 +1,6 @@
 import { Mail, MessageCircle, Facebook, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const AMBER = "#e8a020";
 
@@ -150,7 +151,7 @@ const SiteFooter = () => (
 
         {/* WhatsApp */}
         <a
-          href="https://wa.me/919810448343"
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2.5 text-[13px] w-fit transition-colors"
