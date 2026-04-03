@@ -109,7 +109,7 @@ const normalizeProduct = (product: Product): Product => {
   name: (product.name || "").trim(),
   slug: (product.slug || "").trim(),
   description: product.description ?? "",
-  category: (product.category || "").trim(),
+  category: (product as any).categories?.slug ?? (product as any).category_id ?? "",
   brand: product.brand ?? "",
   model_number: product.model_number ?? "",
   price: toNumberOrNull(product.price),
@@ -147,7 +147,8 @@ const PRODUCT_SELECT_FIELDS = `
   name,
   slug,
   description,
-  category,
+  category_id,
+  categories!category_id(name, slug),
   brand,
   model_number,
   price,
@@ -216,10 +217,18 @@ export const useProducts = (category?: string, options?: ProductQueryOptions) =>
       }
 
       let query = supabase.from("products").select(PRODUCT_SELECT_FIELDS).eq("is_active", true);
-      if (category) query = query.eq("category", category);
+      if (category) {
+        const { data: catData } = await supabase!
+          .from("categories")
+          .select("id")
+          .eq("slug", category)
+          .maybeSingle();
+        if (!catData) return [];
+        query = query.eq("category_id", catData.id);
+      }
       const { data, error } = await query;
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };
@@ -241,7 +250,7 @@ export const useFeaturedProducts = (options?: ProductQueryOptions) => {
         .eq("is_featured", true)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };
@@ -269,7 +278,7 @@ export const useProductsByCollection = (collection: Collection | Collection[], o
         .overlaps("collections", normalizedCollections)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as Product[]) || []).map(normalizeProduct), includeDemo);
+      return applyPublicCatalogFilter(((data as unknown as Product[]) || []).map(normalizeProduct), includeDemo);
     },
   });
 };

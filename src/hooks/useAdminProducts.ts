@@ -42,14 +42,22 @@ const setLocal = (products: Product[]) => { localProducts = products; };
 
 /* ── Admin: fetch ALL products (incl. inactive) ────── */
 
+const normalizeAdminProduct = (raw: Record<string, unknown>): Product => ({
+  ...(raw as unknown as Product),
+  category: (raw as any).categories?.slug ?? "",
+});
+
 export const useAdminProducts = () =>
   useQuery({
     queryKey: ["admin-products"],
     queryFn: async (): Promise<Product[]> => {
       if (!isSupabaseConfigured) return getLocal();
-      const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase!.from("products").select(`
+        *,
+        categories!category_id(name, slug)
+      `).order("created_at", { ascending: false });
       if (error) throw error;
-      return (data as Product[]) ?? [];
+      return ((data as Record<string, unknown>[]) ?? []).map(normalizeAdminProduct);
     },
   });
 
@@ -64,9 +72,19 @@ export const useCreateProduct = () => {
         setLocal([payload, ...getLocal()]);
         return payload;
       }
-      const { data, error } = await supabase.from("products").insert(payload).select().single();
+      const { data: cat } = await supabase!
+        .from("categories")
+        .select("id")
+        .eq("slug", payload.category)
+        .maybeSingle();
+      const dbPayload: Record<string, unknown> = { ...payload, category_id: cat?.id ?? null };
+      delete dbPayload.category;
+      const { data, error } = await supabase!.from("products").insert(dbPayload).select(`
+        *,
+        categories!category_id(name, slug)
+      `).single();
       if (error) throw error;
-      return data as Product;
+      return normalizeAdminProduct(data as Record<string, unknown>);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -84,9 +102,19 @@ export const useUpdateProduct = () => {
         setLocal(getLocal().map((p) => (p.id === payload.id ? payload : p)));
         return payload;
       }
-      const { data, error } = await supabase.from("products").update(payload).eq("id", payload.id).select().single();
+      const { data: cat } = await supabase!
+        .from("categories")
+        .select("id")
+        .eq("slug", payload.category)
+        .maybeSingle();
+      const dbPayload: Record<string, unknown> = { ...payload, category_id: cat?.id ?? null };
+      delete dbPayload.category;
+      const { data, error } = await supabase!.from("products").update(dbPayload).eq("id", payload.id).select(`
+        *,
+        categories!category_id(name, slug)
+      `).single();
       if (error) throw error;
-      return data as Product;
+      return normalizeAdminProduct(data as Record<string, unknown>);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-products"] });
