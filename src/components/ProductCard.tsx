@@ -88,7 +88,7 @@ const ProductCard = memo(
         {/* ── Image ── */}
         <div
           className="relative w-full overflow-hidden"
-          style={compact ? { aspectRatio: "1", background: "#f8f8f8" } : { height: 220, background: "#f8f8f8", borderRadius: "10px 10px 0 0" }}
+          style={compact ? { aspectRatio: "1", background: "#fff" } : { height: 220, background: "#fff", borderRadius: "10px 10px 0 0" }}
         >
           <img
             src={productImage}
@@ -188,11 +188,6 @@ const ProductCard = memo(
           </div>
           {!compact && (
             <span style={{ fontSize: 9, color: "rgba(0,0,0,0.3)", marginTop: 2 }}>Incl. of all taxes</span>
-          )}
-          {!compact && (
-            <p style={{ fontSize: 8, color: "rgba(0,0,0,0.28)", marginTop: 8, lineHeight: 1.4 }}>
-              *Product images are indicative and may differ from the actual product.
-            </p>
           )}
         </div>
 

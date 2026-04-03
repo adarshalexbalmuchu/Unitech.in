@@ -161,3 +161,9 @@
 .animate-fade-up {
   animation: fadeUp 0.5s var(--vm-spring) both;
 }
+
+/* ── Floating animation for decorative elements ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}

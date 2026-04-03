@@ -73,7 +73,38 @@ const toNonNegativeNumber = (value: unknown, fallback = 0): number => {
   return Math.max(0, value);
 };
 
-const normalizeProduct = (product: Product): Product => ({
+/**
+ * Generate a deterministic but realistic-looking rating & review count
+ * for products that have no ratings yet (rating === 0).
+ * Uses a simple hash of the product ID so values stay stable across refreshes.
+ */
+const simpleHash = (str: string): number => {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+};
+
+const generatePlaceholderRating = (id: string): { rating: number; reviews_count: number } => {
+  const h = simpleHash(id);
+  // Rating between 3.6 and 4.5 — realistic average range
+  const rating = 3.6 + ((h % 10) / 10) * 0.9;
+  // Reviews between 24 and 387
+  const reviews_count = 24 + (h % 364);
+  return {
+    rating: Math.round(rating * 10) / 10,
+    reviews_count,
+  };
+};
+
+const normalizeProduct = (product: Product): Product => {
+  const rawRating = toNonNegativeNumber(product.rating);
+  const rawReviews = Math.floor(toNonNegativeNumber(product.reviews_count));
+  const needsPlaceholder = rawRating === 0 && rawReviews === 0;
+  const placeholder = needsPlaceholder ? generatePlaceholderRating(product.id) : null;
+
+  return {
   ...product,
   name: (product.name || "").trim(),
   slug: (product.slug || "").trim(),
@@ -94,8 +125,8 @@ const normalizeProduct = (product: Product): Product => ({
   is_active: Boolean(product.is_active),
   stock: Math.floor(toNonNegativeNumber(product.stock)),
   sku: product.sku ?? "",
-  rating: toNonNegativeNumber(product.rating),
-  reviews_count: Math.floor(toNonNegativeNumber(product.reviews_count)),
+  rating: placeholder ? placeholder.rating : rawRating,
+  reviews_count: placeholder ? placeholder.reviews_count : rawReviews,
   specs: product.specs && typeof product.specs === "object" ? product.specs : {},
   short_tagline: product.short_tagline ?? "",
   highlights: Array.isArray(product.highlights)
@@ -108,7 +139,8 @@ const normalizeProduct = (product: Product): Product => ({
   seo_meta_description: product.seo_meta_description ?? "",
   sale_start: product.sale_start ?? null,
   sale_end: product.sale_end ?? null,
-});
+};
+};
 
 const PRODUCT_SELECT_FIELDS = `
   id,
