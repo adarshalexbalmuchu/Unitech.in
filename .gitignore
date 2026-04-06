@@ -14,6 +14,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.shiprocket.example
 
 # Editor directories and files
 .vscode/*

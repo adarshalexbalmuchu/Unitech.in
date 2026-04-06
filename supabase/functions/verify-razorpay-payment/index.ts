@@ -151,12 +151,16 @@ serve(async (req: Request) => {
       return jsonResponse({ status: "failed", reasonCode: "signature_mismatch" }, 400, corsHeaders);
     }
 
+    const cancellationDeadline = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
     const { error: updateError } = await serviceClient
       .from("orders")
       .update({
         status: "paid",
         razorpay_payment_id: razorpayPaymentId,
         razorpay_signature: razorpaySignature,
+        fulfillment_status: "pending",
+        cancellation_deadline: cancellationDeadline,
       })
       .eq("id", order.id)
       .eq("status", "payment_initiated");
@@ -164,6 +168,17 @@ serve(async (req: Request) => {
     if (updateError) {
       throw updateError;
     }
+
+    // ── ShipRocket async trigger connection point ──────────────────────────
+    // The create-shiprocket-order Edge Function connects here in the next
+    // build phase. It must run AFTER this response is returned — do not
+    // await anything ShipRocket-related here.
+    //
+    // Implementation: a pg_cron job (or Supabase database webhook) polls
+    // for orders where status = 'paid' AND fulfillment_status = 'pending'
+    // and pushes them to ShipRocket independently. This function's only
+    // responsibility is marking the order paid and setting the deadline.
+    // ──────────────────────────────────────────────────────────────────────
 
     return jsonResponse(
       {
