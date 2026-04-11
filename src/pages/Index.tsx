@@ -1,5 +1,6 @@
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
+import LaunchCountdown from "@/components/LaunchCountdown";
 import HeroCarousel from "@/components/HeroCarousel";
 import HomeCollectionSection from "@/components/HomeCollectionSection";
 import BestSellingStores from "@/components/BestSellingStores";
@@ -13,6 +14,7 @@ const Index = () => (
   <div className="min-h-screen bg-background">
     <TopBar />
     <StickyHeader />
+    <LaunchCountdown />
     <HeroCarousel />
     <BestSellingStores />
     <DealOfTheDayBanner />
