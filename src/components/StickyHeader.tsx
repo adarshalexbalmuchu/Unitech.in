@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Menu, X, Heart, User, ChevronRight } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Search, Menu, X, Heart, User, ChevronRight, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import SearchModal from "@/components/SearchModal";
@@ -7,6 +7,121 @@ import { CATEGORIES } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+
+/* ── Categories mega-menu dropdown ─────────────────── */
+
+const CategoriesDropdown = () => {
+  const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  const handleEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+
+  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  // Close on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  // Clean up timeout
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const isAnyCategoryActive = CATEGORIES.some(
+    (cat) => location.pathname === `/products/${cat.slug}`
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative flex-1 flex justify-center"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex items-center gap-1 px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+          isAnyCategoryActive
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        Categories
+        <ChevronDown
+          className={`w-3 h-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          strokeWidth={2}
+        />
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50"
+          style={{ minWidth: 560 }}
+        >
+          <div
+            className="bg-white rounded-xl shadow-xl border border-border/60 p-5"
+            style={{ animation: "fadeInDown 150ms ease-out" }}
+          >
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = location.pathname === `/products/${cat.slug}`;
+                return (
+                  <Link
+                    key={cat.slug}
+                    to={`/products/${cat.slug}`}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? "bg-primary/5 text-primary font-semibold"
+                        : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <span
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        isActive ? "bg-primary/10" : "bg-muted"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" strokeWidth={1.5} />
+                    </span>
+                    <span className="font-medium">{cat.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-3 border-t border-border/60 text-center">
+              <Link
+                to="/products/all"
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                Browse All Products →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Keyframe for dropdown animation */}
+      <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const StickyHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,9 +200,9 @@ const StickyHeader = () => {
           </div>
         </div>
 
-        {/* ── Row 2: Desktop category nav (All Products | categories | Partner With Us) ── */}
+        {/* ── Row 2: Desktop category nav ── */}
         <nav className="hidden lg:block border-t border-border/60">
-          <div className="max-w-[1280px] mx-auto px-6 flex items-center h-9 overflow-x-auto scrollbar-none">
+          <div className="max-w-[1280px] mx-auto px-6 flex items-center h-9">
             <Link
               to="/products/all"
               className={`shrink-0 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap pr-3 ${
@@ -99,26 +214,10 @@ const StickyHeader = () => {
               All Products
             </Link>
             <span className="w-px h-3.5 bg-border shrink-0" />
-            <div className="flex items-center flex-1 justify-center">
-              {CATEGORIES.map((cat) => {
-                const Icon = cat.icon;
-                const isActive = location.pathname === `/products/${cat.slug}`;
-                return (
-                  <Link
-                    key={cat.slug}
-                    to={`/products/${cat.slug}`}
-                    className={`shrink-0 flex items-center gap-1 px-2 py-1 text-xs whitespace-nowrap transition-colors ${
-                      isActive
-                        ? "text-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
-                    {cat.label}
-                  </Link>
-                );
-              })}
-            </div>
+
+            {/* Categories mega dropdown */}
+            <CategoriesDropdown />
+
             <span className="w-px h-3.5 bg-border shrink-0" />
             <Link
               to="/wholesale"
