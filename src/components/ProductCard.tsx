@@ -24,8 +24,14 @@ const ProductCard = memo(
     const { isInWishlist, toggleWishlist } = useWishlist();
     const { addToCart } = useCart();
 
-    const sellingPrice = product.discounted_price ?? product.price;
-    const discount = getDiscountPercent(sellingPrice, product.original_price);
+    const firstVariant = product.variants?.[0];
+    const sellingPrice = firstVariant?.discounted_price
+      ?? firstVariant?.price
+      ?? product.discounted_price
+      ?? product.price;
+    const originalPrice = firstVariant?.original_price ?? product.original_price;
+    const discount = getDiscountPercent(sellingPrice ?? null, originalPrice ?? null);
+    const hasVariants = (product.variants?.length ?? 0) > 1;
     const wishlisted = isInWishlist(product.id);
     const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
     const isFlashSale = product.collections.includes("flash-sale");
@@ -43,7 +49,7 @@ const ProductCard = memo(
       toggleWishlist(product.id, {
         name: product.name,
         price: sellingPrice,
-        original_price: product.original_price,
+        original_price: originalPrice ?? null,
         image_url: product.image_url,
       });
       toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", { description: product.name });
@@ -179,12 +185,13 @@ const ProductCard = memo(
           {/* Price */}
           <div className="flex items-baseline gap-1.5 mt-2 tabular-nums">
             <span style={{ fontSize: compact ? 14 : 16, fontWeight: 700, color: "#111" }}>
+              {hasVariants && <span style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.45)" }}>From </span>}
               {formatPrice(sellingPrice)}
             </span>
-            {product.original_price && product.original_price > (sellingPrice ?? 0) && (
+            {originalPrice && originalPrice > (sellingPrice ?? 0) && (
               <>
                 <span style={{ fontSize: 12, textDecoration: "line-through", color: "rgba(0,0,0,0.35)" }}>
-                  {formatPrice(product.original_price)}
+                  {formatPrice(originalPrice)}
                 </span>
                 {discount > 0 && (
                   <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a" }}>

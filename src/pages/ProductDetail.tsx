@@ -8,6 +8,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import type { ProductVariant } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -104,6 +105,7 @@ const ProductDetail = () => {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { user } = useAuth();
   const [qty, setQty] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -162,6 +164,15 @@ const ProductDetail = () => {
     return () => {
       meta.setAttribute("content", previous);
     };
+  }, [product]);
+
+  // Default to first variant when product loads/changes
+  useEffect(() => {
+    if (product?.variants?.length) {
+      setSelectedVariant(product.variants[0]);
+    } else {
+      setSelectedVariant(null);
+    }
   }, [product]);
 
   if (isLoading) {
@@ -224,13 +235,18 @@ const ProductDetail = () => {
   const catLabel = catMeta?.label ?? product.category;
   const wishlisted = isInWishlist(product.id);
   const inStock = product.stock > 0;
-  const sellingPrice = product.discounted_price ?? product.price;
+  const sellingPrice = selectedVariant?.discounted_price
+    ?? selectedVariant?.price
+    ?? product.discounted_price
+    ?? product.price;
+  const originalPrice = selectedVariant?.original_price ?? product.original_price;
   const fallbackImage = getCategoryFallbackImage(product.category);
   const images = resolveProductGalleryImages(product.images, product.image_url, product.category);
 
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) {
-      addToCart(product.id, { name: product.name, price: sellingPrice ?? 0, image_url: product.image_url });
+      const label = selectedVariant ? `${product.name} – ${selectedVariant.variant_name}` : product.name;
+      addToCart(product.id, { name: label, price: sellingPrice ?? 0, image_url: product.image_url }, selectedVariant?.id);
     }
     toast.success(`Added ${qty} item${qty > 1 ? "s" : ""} to cart`, { description: product.name });
   };
@@ -240,7 +256,7 @@ const ProductDetail = () => {
     toggleWishlist(product.id, {
       name: product.name,
       price: sellingPrice,
-      original_price: product.original_price,
+      original_price: originalPrice ?? null,
       image_url: product.image_url,
     });
     toast(wasWishlisted ? "Removed from wishlist" : "Added to wishlist", { description: product.name });
@@ -418,20 +434,45 @@ const ProductDetail = () => {
               <span className="text-xs md:text-sm text-muted-foreground">({displayedReviewsCount} reviews)</span>
             </div>
 
+            {/* Variant selector */}
+            {product.variants && product.variants.length > 1 && (
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-foreground">
+                  {product.variants[0]?.variant_type ?? "Variant"}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => setSelectedVariant(v)}
+                      className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+                        selectedVariant?.id === v.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {v.variant_name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Price block */}
             <div className="space-y-1">
               <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
                 <span style={{ color: '#e8251a' }} className="text-[28px] font-extrabold tabular-nums">
                   {formatPrice(sellingPrice)}
                 </span>
-                {product.original_price && product.original_price > (sellingPrice ?? 0) && (
+                {originalPrice && originalPrice > (sellingPrice ?? 0) && (
                   <>
                     <span className="text-base md:text-lg line-through text-muted-foreground tabular-nums">
-                      {formatPrice(product.original_price)}
+                      {formatPrice(originalPrice)}
                     </span>
                     {sellingPrice != null && (
                       <span className="text-sm font-bold text-green-600">
-                        {getDiscountPercent(sellingPrice, product.original_price)}% OFF
+                        {getDiscountPercent(sellingPrice, originalPrice)}% OFF
                       </span>
                     )}
                   </>

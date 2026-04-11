@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 interface CartItem {
   id: string;
   product_id: string;
+  variant_id?: string;
   quantity: number;
   product: {
     name: string;
@@ -17,7 +18,7 @@ interface CartStore {
   loading: boolean;
   cartCount: number;
   cartTotal: number;
-  addToCart: (productId: string, product?: { name: string; price: number; image_url: string }) => void;
+  addToCart: (productId: string, product?: { name: string; price: number; image_url: string }, variantId?: string) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -53,16 +54,16 @@ export const useCart = create<CartStore>()(
         return get().cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
       },
 
-      addToCart: (productId, product) => {
+      addToCart: (productId, product, variantId) => {
         const normalizedProductId = productId?.trim();
         if (!normalizedProductId) return;
 
         const items = get().cartItems;
-        const existing = items.find((i) => i.product_id === normalizedProductId);
+        const existing = items.find((i) => i.product_id === normalizedProductId && i.variant_id === variantId);
         if (existing) {
           set({
             cartItems: items.map((i) =>
-              i.product_id === normalizedProductId
+              i.product_id === normalizedProductId && i.variant_id === variantId
                 ? { ...i, quantity: normalizeQuantity(i.quantity + 1) }
                 : i
             ),
@@ -74,6 +75,7 @@ export const useCart = create<CartStore>()(
               {
                 id: crypto.randomUUID(),
                 product_id: normalizedProductId,
+                variant_id: variantId,
                 quantity: 1,
                 product: normalizeProductPayload(product),
               },

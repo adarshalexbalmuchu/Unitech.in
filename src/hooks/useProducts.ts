@@ -9,6 +9,15 @@ export interface ProductSpecs {
   [key: string]: string | number | boolean | string[];
 }
 
+export interface ProductVariant {
+  id: string;
+  variant_name: string;
+  variant_type?: string;
+  price: number;
+  original_price?: number;
+  discounted_price?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -54,6 +63,9 @@ export interface Product {
   sale_start: string | null;
   sale_end: string | null;
 
+  // Variants (optional)
+  variants?: ProductVariant[];
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -91,6 +103,20 @@ const simpleHash = (str: string): number => {
     h = ((h << 5) - h + str.charCodeAt(i)) | 0;
   }
   return Math.abs(h);
+};
+
+const normalizeVariants = (raw: unknown): ProductVariant[] | undefined => {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  return raw
+    .filter((v): v is Record<string, unknown> => v != null && typeof v === "object" && typeof (v as Record<string, unknown>).id === "string")
+    .map((v) => ({
+      id: String(v.id),
+      variant_name: String(v.variant_name ?? ""),
+      variant_type: v.variant_type != null ? String(v.variant_type) : undefined,
+      price: typeof v.price === "number" && Number.isFinite(v.price) ? v.price : 0,
+      original_price: typeof v.original_price === "number" && Number.isFinite(v.original_price) ? v.original_price : undefined,
+      discounted_price: typeof v.discounted_price === "number" && Number.isFinite(v.discounted_price) ? v.discounted_price : undefined,
+    }));
 };
 
 const generatePlaceholderRating = (id: string): { rating: number; reviews_count: number } => {
@@ -149,6 +175,7 @@ const normalizeProduct = (product: RawProduct | Product): Product => {
   seo_meta_description: product.seo_meta_description ?? "",
   sale_start: product.sale_start ?? null,
   sale_end: product.sale_end ?? null,
+  variants: normalizeVariants((product as Record<string, unknown>).product_variants ?? (product as Product).variants),
 };
 };
 
@@ -181,6 +208,7 @@ const PRODUCT_SELECT_FIELDS = `
   seo_meta_description,
   sale_start,
   sale_end,
+  product_variants(id, variant_name, variant_type, price, original_price, discounted_price),
   created_at,
   updated_at
 `;
