@@ -142,8 +142,7 @@ const AdminOrders = () => {
 
       // Map camelCase Edge Function response to flat snake_case AdminOrder
       const rawOrders = data?.orders || data || [];
-      // deno-lint-ignore no-explicit-any
-      const mapped = rawOrders.map((o: any) => {
+      const mapped = rawOrders.map((o: Record<string, unknown>) => {
         // If already in snake_case (fallback shape), pass through
         if (o.id && o.fulfillment_status !== undefined) return o;
         // Map camelCase → flat AdminOrder
