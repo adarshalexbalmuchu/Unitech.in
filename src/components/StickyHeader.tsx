@@ -8,142 +8,77 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-/* ── Categories mega-menu dropdown ─────────────────── */
+/* ── Per-group nav dropdown ────────────────────────── */
 
-const CategoriesDropdown = () => {
+import type { CategoryGroup } from "@/lib/constants";
+
+const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const handleEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setOpen(true);
   };
-
   const handleLeave = () => {
-    timeoutRef.current = setTimeout(() => setOpen(false), 150);
+    timeoutRef.current = setTimeout(() => setOpen(false), 120);
   };
 
-  // Close on route change
-  useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
+  useEffect(() => { setOpen(false); }, [location.pathname]);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
 
-  // Clean up timeout
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  const isAnyCategoryActive = CATEGORIES.some(
+  const isGroupActive = group.categories.some(
     (cat) => location.pathname === `/products/${cat.slug}`
   );
 
   return (
     <div
-      ref={containerRef}
-      className="relative flex-1 flex justify-center"
+      className="relative"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
-          isAnyCategoryActive
-            ? "text-primary"
-            : "text-muted-foreground hover:text-foreground"
+        className={`flex items-center gap-0.5 px-2.5 py-1 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
+          isGroupActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
         }`}
       >
-        Categories
+        {group.label}
         <ChevronDown
-          className={`w-3 h-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-2.5 h-2.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           strokeWidth={2}
         />
       </button>
 
-      {/* Dropdown panel */}
       {open && (
-        <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50"
-          style={{ minWidth: 520 }}
-        >
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50" style={{ minWidth: 220 }}>
           <div
-            className="bg-white rounded-xl shadow-xl border border-border/60 overflow-hidden"
-            style={{ animation: "fadeInDown 150ms ease-out" }}
+            className="bg-white rounded-xl shadow-xl border border-border/60 py-2"
+            style={{ animation: "fadeInDown 120ms ease-out" }}
           >
-            {/* Tab bar */}
-            <div className="flex border-b border-border/60">
-              {CATEGORY_GROUPS.map((group, idx) => (
-                <button
-                  key={group.label}
-                  type="button"
-                  onMouseEnter={() => setActiveTab(idx)}
-                  onClick={() => setActiveTab(idx)}
-                  className={`flex-1 px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
-                    activeTab === idx
-                      ? "text-primary border-b-2 border-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            {group.categories.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = location.pathname === `/products/${cat.slug}`;
+              return (
+                <Link
+                  key={cat.slug}
+                  to={`/products/${cat.slug}`}
+                  className={`flex items-center gap-2.5 px-4 py-2 text-sm transition-colors ${
+                    isActive
+                      ? "bg-primary/5 text-primary font-semibold"
+                      : "text-foreground/80 hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  {group.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Active tab content */}
-            <div className="p-4">
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-                {CATEGORY_GROUPS[activeTab].categories.map((cat) => {
-                  const Icon = cat.icon;
-                  const isActive = location.pathname === `/products/${cat.slug}`;
-                  return (
-                    <Link
-                      key={cat.slug}
-                      to={`/products/${cat.slug}`}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        isActive
-                          ? "bg-primary/5 text-primary font-semibold"
-                          : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <span
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          isActive ? "bg-primary/10" : "bg-muted"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" strokeWidth={1.5} />
-                      </span>
-                      <span className="font-medium">{cat.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-4 py-3 border-t border-border/60 text-center bg-muted/30">
-              <Link
-                to="/products/all"
-                className="text-xs font-semibold text-primary hover:underline"
-              >
-                Browse All Products →
-              </Link>
-            </div>
+                  <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+                  {cat.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
-
-      {/* Keyframe for dropdown animation */}
-      <style>{`
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 };
@@ -240,8 +175,12 @@ const StickyHeader = () => {
             </Link>
             <span className="w-px h-3.5 bg-border shrink-0" />
 
-            {/* Categories mega dropdown */}
-            <CategoriesDropdown />
+            {/* Group dropdowns */}
+            <div className="flex items-center flex-1 justify-center gap-1">
+              {CATEGORY_GROUPS.map((group) => (
+                <GroupDropdown key={group.label} group={group} />
+              ))}
+            </div>
 
             <span className="w-px h-3.5 bg-border shrink-0" />
             <Link
@@ -256,6 +195,14 @@ const StickyHeader = () => {
             </Link>
           </div>
         </nav>
+
+        {/* Shared dropdown animation */}
+        <style>{`
+          @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
       </header>
 
       {/* ── Category bar (mobile — pill style with group labels) ── */}
