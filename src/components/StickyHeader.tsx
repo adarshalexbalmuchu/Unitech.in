@@ -60,7 +60,7 @@ const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
 
       {open && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50"
+          className="absolute top-full left-0 mt-px pt-1 z-50"
           style={{ minWidth: useGrid ? 420 : 260 }}
         >
           <div
@@ -206,7 +206,7 @@ const StickyHeader = () => {
             <span className="w-px h-3.5 bg-border shrink-0" />
 
             {/* Group dropdowns */}
-            <div className="flex items-center flex-1 justify-center gap-1">
+            <div className="flex items-center flex-1 gap-1 pl-2">
               {CATEGORY_GROUPS.map((group) => (
                 <GroupDropdown key={group.label} group={group} />
               ))}
