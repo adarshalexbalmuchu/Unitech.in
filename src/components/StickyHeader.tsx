@@ -3,7 +3,7 @@ import { Search, Menu, X, Heart, User, ChevronRight, ChevronDown } from "lucide-
 import { Link, useLocation } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import SearchModal from "@/components/SearchModal";
-import { CATEGORIES } from "@/lib/constants";
+import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/constants";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -12,6 +12,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const CategoriesDropdown = () => {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -68,39 +69,63 @@ const CategoriesDropdown = () => {
       {open && (
         <div
           className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50"
-          style={{ minWidth: 560 }}
+          style={{ minWidth: 520 }}
         >
           <div
-            className="bg-white rounded-xl shadow-xl border border-border/60 p-5"
+            className="bg-white rounded-xl shadow-xl border border-border/60 overflow-hidden"
             style={{ animation: "fadeInDown 150ms ease-out" }}
           >
-            <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-              {CATEGORIES.map((cat) => {
-                const Icon = cat.icon;
-                const isActive = location.pathname === `/products/${cat.slug}`;
-                return (
-                  <Link
-                    key={cat.slug}
-                    to={`/products/${cat.slug}`}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                      isActive
-                        ? "bg-primary/5 text-primary font-semibold"
-                        : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                    }`}
-                  >
-                    <span
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                        isActive ? "bg-primary/10" : "bg-muted"
+            {/* Tab bar */}
+            <div className="flex border-b border-border/60">
+              {CATEGORY_GROUPS.map((group, idx) => (
+                <button
+                  key={group.label}
+                  type="button"
+                  onMouseEnter={() => setActiveTab(idx)}
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex-1 px-4 py-2.5 text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
+                    activeTab === idx
+                      ? "text-primary border-b-2 border-primary bg-primary/5"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  {group.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Active tab content */}
+            <div className="p-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                {CATEGORY_GROUPS[activeTab].categories.map((cat) => {
+                  const Icon = cat.icon;
+                  const isActive = location.pathname === `/products/${cat.slug}`;
+                  return (
+                    <Link
+                      key={cat.slug}
+                      to={`/products/${cat.slug}`}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-primary/5 text-primary font-semibold"
+                          : "text-foreground/80 hover:bg-muted hover:text-foreground"
                       }`}
                     >
-                      <Icon className="w-4 h-4" strokeWidth={1.5} />
-                    </span>
-                    <span className="font-medium">{cat.label}</span>
-                  </Link>
-                );
-              })}
+                      <span
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          isActive ? "bg-primary/10" : "bg-muted"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" strokeWidth={1.5} />
+                      </span>
+                      <span className="font-medium">{cat.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-border/60 text-center">
+
+            {/* Footer */}
+            <div className="px-4 py-3 border-t border-border/60 text-center bg-muted/30">
               <Link
                 to="/products/all"
                 className="text-xs font-semibold text-primary hover:underline"
@@ -233,9 +258,9 @@ const StickyHeader = () => {
         </nav>
       </header>
 
-      {/* ── Category bar (mobile — pill style) ── */}
+      {/* ── Category bar (mobile — pill style with group labels) ── */}
       <nav className="lg:hidden sticky top-14 z-[39] bg-white border-b border-border">
-        <div className="flex flex-row items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-none">
+        <div className="flex flex-row items-center gap-1.5 px-4 py-2 overflow-x-auto scrollbar-none">
           <Link
             to="/products/all"
             className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
@@ -246,22 +271,24 @@ const StickyHeader = () => {
           >
             All
           </Link>
-          {CATEGORIES.map((cat) => {
-            const isActive = location.pathname === `/products/${cat.slug}`;
-            return (
-              <Link
-                key={cat.slug}
-                to={`/products/${cat.slug}`}
-                className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
-                  isActive
-                    ? "bg-primary text-white border-primary"
-                    : "bg-background text-muted-foreground border-border"
-                }`}
-              >
-                {cat.label}
-              </Link>
-            );
-          })}
+          {CATEGORY_GROUPS.map((group) => (
+            group.categories.map((cat) => {
+              const isActive = location.pathname === `/products/${cat.slug}`;
+              return (
+                <Link
+                  key={cat.slug}
+                  to={`/products/${cat.slug}`}
+                  className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
+                    isActive
+                      ? "bg-primary text-white border-primary"
+                      : "bg-background text-muted-foreground border-border"
+                  }`}
+                >
+                  {cat.label}
+                </Link>
+              );
+            })
+          ))}
         </div>
       </nav>
 
@@ -293,31 +320,35 @@ const StickyHeader = () => {
 
             {/* Categories */}
             <div className="px-3 py-4 flex-1">
-              <p className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Shop by Category
-              </p>
               <Link
                 to="/products/all"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-colors mb-1"
+                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-colors mb-2"
               >
                 All Products
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
               </Link>
-              {CATEGORIES.map((cat) => {
-                const Icon = cat.icon;
-                return (
-                  <Link
-                    key={cat.slug}
-                    to={`/products/${cat.slug}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    <Icon className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
-                    {cat.label}
-                  </Link>
-                );
-              })}
+              {CATEGORY_GROUPS.map((group) => (
+                <div key={group.label} className="mb-3">
+                  <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    {group.label}
+                  </p>
+                  {group.categories.map((cat) => {
+                    const Icon = cat.icon;
+                    return (
+                      <Link
+                        key={cat.slug}
+                        to={`/products/${cat.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Icon className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
+                        {cat.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
 
             {/* Partner link */}

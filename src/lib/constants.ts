@@ -9,6 +9,12 @@ import {
   Plug,
   Tv,
   Refrigerator,
+  Bluetooth,
+  Volume2,
+  Disc3,
+  Cable,
+  Zap,
+  Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 /** Check if an image URL is a placeholder (should show fallback icon instead) */
@@ -44,35 +50,77 @@ export interface Category {
   icon: LucideIcon;
 }
 
-export const CATEGORIES: Category[] = [
-  { slug: "tower-speakers", label: "Tower Speakers", icon: Speaker },
-  { slug: "home-theatre-systems", label: "Home Theatre Systems", icon: Home },
-  { slug: "dth-receivers", label: "DTH Receivers", icon: Satellite },
-  { slug: "car-audio", label: "Car Audio", icon: Car },
-  { slug: "audio-amplifiers", label: "Audio Amplifiers", icon: Sliders },
-  { slug: "tv-kits", label: "TV Kits & LED Panels", icon: Monitor },
-  { slug: "stands-mounts", label: "Stands & Mounts", icon: Columns3 },
-  { slug: "power-accessories", label: "Power Accessories", icon: Plug },
-  { slug: "led-dth-stands", label: "LED/DTH Stands", icon: Tv },
-  { slug: "appliances", label: "Appliances", icon: Refrigerator },
+export interface CategoryGroup {
+  label: string;
+  categories: Category[];
+}
+
+export const CATEGORY_GROUPS: CategoryGroup[] = [
+  {
+    label: "Audio",
+    categories: [
+      { slug: "tower-speakers", label: "Tower Speaker", icon: Speaker },
+      { slug: "home-theatre-systems", label: "Home Theatre", icon: Home },
+      { slug: "audio-amplifiers", label: "Amplifier", icon: Sliders },
+      { slug: "bt-satellite-speakers", label: "BT / Satellite Speakers", icon: Bluetooth },
+      { slug: "speaker-woofer", label: "Speaker / Woofer", icon: Volume2 },
+    ],
+  },
+  {
+    label: "Car Audio",
+    categories: [
+      { slug: "car-speaker", label: "Car Speaker", icon: Car },
+      { slug: "car-tape", label: "Car Tape", icon: Disc3 },
+    ],
+  },
+  {
+    label: "Power & Connectivity",
+    categories: [
+      { slug: "power-strips", label: "Power Strips", icon: Plug },
+      { slug: "adaptor", label: "Adaptor", icon: Zap },
+      { slug: "cables", label: "Cables", icon: Cable },
+      { slug: "dth", label: "DTH", icon: Satellite },
+    ],
+  },
+  {
+    label: "Tools & Appliances",
+    categories: [
+      { slug: "soldering-iron", label: "Soldering Iron", icon: Wrench },
+      { slug: "led-dth-stands", label: "LED / DTH Stands", icon: Tv },
+      { slug: "appliances", label: "Appliances", icon: Refrigerator },
+    ],
+  },
 ];
+
+/** Flat list of all categories (derived from groups) */
+export const CATEGORIES: Category[] = CATEGORY_GROUPS.flatMap((g) => g.categories);
 
 export type CategorySlug = (typeof CATEGORIES)[number]["slug"];
 
-type FallbackCategorySlug = CategorySlug | "portable-speakers";
+type FallbackCategorySlug = CategorySlug | "portable-speakers" | "car-audio" | "dth-receivers" | "tv-kits" | "stands-mounts" | "power-accessories";
 
 const CATEGORY_FALLBACK_LABELS: Record<FallbackCategorySlug, string> = {
-  "tower-speakers": "Tower Speakers",
+  "tower-speakers": "Tower Speaker",
   "home-theatre-systems": "Home Theatre",
-  "dth-receivers": "DTH Receivers",
+  "audio-amplifiers": "Amplifier",
+  "bt-satellite-speakers": "BT / Satellite Speakers",
+  "speaker-woofer": "Speaker / Woofer",
+  "car-speaker": "Car Speaker",
+  "car-tape": "Car Tape",
+  "power-strips": "Power Strips",
+  "adaptor": "Adaptor",
+  "cables": "Cables",
+  "dth": "DTH",
+  "soldering-iron": "Soldering Iron",
+  "led-dth-stands": "LED / DTH Stands",
+  "appliances": "Appliances",
+  // Legacy slugs for backward compat
+  "portable-speakers": "Portable Speakers",
   "car-audio": "Car Audio",
-  "audio-amplifiers": "Audio Amplifiers",
+  "dth-receivers": "DTH Receivers",
   "tv-kits": "TV Kits",
   "stands-mounts": "Stands & Mounts",
   "power-accessories": "Power Accessories",
-  "led-dth-stands": "LED/DTH Stands",
-  "appliances": "Appliances",
-  "portable-speakers": "Portable Speakers",
 };
 
 export const getCategoryFallbackImage = (category?: string | null): string => {

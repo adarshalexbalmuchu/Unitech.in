@@ -6,7 +6,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
-import { CATEGORIES } from "@/lib/constants";
+import { CATEGORIES, CATEGORY_GROUPS } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/utils";
 
 type SortKey = "price-asc" | "price-desc" | "rating" | "newest";
@@ -114,24 +114,31 @@ const ProductListing = () => {
       </div>
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Categories</h3>
-        <div className="space-y-0.5">
-          {CATEGORIES.map((c) => {
-            const Icon = c.icon;
-            const isActive = c.slug === category;
-            return (
-              <Link
-                key={c.slug}
-                to={`/products/${c.slug}`}
-                onClick={() => setMobileFiltersOpen(false)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                  isActive ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted"
-                }`}
-              >
-                <Icon className="w-4 h-4" strokeWidth={1.5} />
-                {c.label}
-              </Link>
-            );
-          })}
+        <div className="space-y-3">
+          {CATEGORY_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 mb-1">{group.label}</p>
+              <div className="space-y-0.5">
+                {group.categories.map((c) => {
+                  const Icon = c.icon;
+                  const isActive = c.slug === category;
+                  return (
+                    <Link
+                      key={c.slug}
+                      to={`/products/${c.slug}`}
+                      onClick={() => setMobileFiltersOpen(false)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                        isActive ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" strokeWidth={1.5} />
+                      {c.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
