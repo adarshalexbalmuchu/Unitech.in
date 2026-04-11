@@ -61,14 +61,14 @@ const BestSellingStores = () => {
               className="group bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
             >
               {/* ── Product image ── */}
-              <div className="bg-[#F5F5F5] aspect-[4/3] overflow-hidden">
+              <div className="bg-white aspect-[4/3] overflow-hidden">
                 {isLoading ? (
                   <div className="w-full h-full animate-pulse bg-white/70" />
                 ) : items.length > 0 && !isPlaceholderImage(items[0].image_url) ? (
                   <img
                     src={items[0].image_url ?? ""}
                     alt={items[0].name}
-                    className="w-full h-full object-contain p-4 md:p-6 transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(category.slug); }}
                   />
