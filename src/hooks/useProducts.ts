@@ -228,12 +228,8 @@ const isLikelyDemoProduct = (product: Product): boolean => {
 
   const hasDemoTag = tags.some((tag) => ["demo", "mock", "sample", "test"].includes(String(tag).toLowerCase()));
   const hasDemoName = /\b(demo|mock|sample|test)\b/i.test(name);
-  const hasUtPrefix = sku.startsWith("ut-") || model.startsWith("ut-");
-  const hasPlaceholderMedia =
-    isPlaceholderImage(product.image_url) &&
-    (!product.images || product.images.length === 0 || product.images.every((img) => isPlaceholderImage(img)));
 
-  return hasDemoTag || hasDemoName || (hasUtPrefix && hasPlaceholderMedia);
+  return hasDemoTag || hasDemoName;
 };
 
 const applyPublicCatalogFilter = (products: Product[], includeDemo: boolean): Product[] => {
