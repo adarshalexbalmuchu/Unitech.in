@@ -24,7 +24,7 @@ const BestSellingStores = () => {
           const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
           return scoreB - scoreA;
         })
-        .slice(0, 3);
+        .slice(0, 1);
       return { category, items };
     })
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
@@ -60,62 +60,24 @@ const BestSellingStores = () => {
               key={category.slug}
               className="group bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
             >
-              {/* ── Product image mosaic ── */}
-              <div className="bg-[#F5F5F5] p-2.5 md:p-3 flex gap-1.5 md:gap-2">
+              {/* ── Product image ── */}
+              <div className="bg-[#F5F5F5] aspect-[4/3] overflow-hidden">
                 {isLoading ? (
-                  <>
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="flex-1 aspect-square rounded-xl bg-white/70 animate-pulse"
-                      />
-                    ))}
-                  </>
-                ) : items.length > 0 ? (
-                  <>
-                    {items.map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex-1 aspect-square rounded-xl bg-white overflow-hidden flex items-center justify-center"
-                      >
-                        {!isPlaceholderImage(product.image_url) ? (
-                          <img
-                            src={product.image_url ?? ""}
-                            alt={product.name}
-                            className="w-full h-full object-contain p-1.5 md:p-2 transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                            onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(category.slug); }}
-                          />
-                        ) : (
-                          <img
-                            src={getCategoryFallbackImage(category.slug)}
-                            alt={category.label}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
-                    ))}
-                    {/* Pad to always show 3 slots */}
-                    {Array.from({ length: Math.max(0, 3 - items.length) }).map((_, i) => (
-                      <div
-                        key={`empty-${i}`}
-                        className="flex-1 aspect-square rounded-xl bg-white/40 flex items-center justify-center"
-                      >
-                        <Icon className="w-5 h-5 text-muted-foreground/20" strokeWidth={1.25} />
-                      </div>
-                    ))}
-                  </>
+                  <div className="w-full h-full animate-pulse bg-white/70" />
+                ) : items.length > 0 && !isPlaceholderImage(items[0].image_url) ? (
+                  <img
+                    src={items[0].image_url ?? ""}
+                    alt={items[0].name}
+                    className="w-full h-full object-contain p-4 md:p-6 transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(category.slug); }}
+                  />
                 ) : (
-                  <>
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="flex-1 aspect-square rounded-xl bg-white/40 flex items-center justify-center"
-                      >
-                        <Icon className="w-5 h-5 text-muted-foreground/20" strokeWidth={1.25} />
-                      </div>
-                    ))}
-                  </>
+                  <img
+                    src={getCategoryFallbackImage(category.slug)}
+                    alt={category.label}
+                    className="w-full h-full object-cover"
+                  />
                 )}
               </div>
 
