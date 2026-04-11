@@ -6,8 +6,8 @@ import { useProducts } from "@/hooks/useProducts";
 const highlightedCategorySlugs = [
   "tower-speakers",
   "home-theatre-systems",
-  "car-audio",
-  "dth-receivers",
+  "appliances",
+  "dth",
 ] as const;
 
 const BestSellingStores = () => {
