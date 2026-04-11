@@ -32,6 +32,8 @@ const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
     (cat) => location.pathname === `/products/${cat.slug}`
   );
 
+  const useGrid = group.categories.length > 2;
+
   return (
     <div
       className="relative"
@@ -42,7 +44,11 @@ const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={`flex items-center gap-0.5 px-2.5 py-1 text-[11px] font-semibold tracking-wide transition-colors whitespace-nowrap ${
-          isGroupActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+          isGroupActive
+            ? "text-[#e8251a]"
+            : open
+              ? "text-[#e8251a]"
+              : "text-muted-foreground hover:text-[#e8251a]"
         }`}
       >
         {group.label}
@@ -53,29 +59,40 @@ const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
       </button>
 
       {open && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50" style={{ minWidth: 220 }}>
+        <div
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-px pt-1 z-50"
+          style={{ minWidth: useGrid ? 380 : 240 }}
+        >
           <div
-            className="bg-white rounded-xl shadow-xl border border-border/60 py-2"
+            className="bg-white rounded-xl shadow-xl border border-border/60 p-3"
             style={{ animation: "fadeInDown 120ms ease-out" }}
           >
-            {group.categories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = location.pathname === `/products/${cat.slug}`;
-              return (
-                <Link
-                  key={cat.slug}
-                  to={`/products/${cat.slug}`}
-                  className={`flex items-center gap-2.5 px-4 py-2 text-sm transition-colors ${
-                    isActive
-                      ? "bg-primary/5 text-primary font-semibold"
-                      : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
-                  {cat.label}
-                </Link>
-              );
-            })}
+            <div className={useGrid ? "grid grid-cols-2 gap-1" : "flex flex-col gap-0.5"}>
+              {group.categories.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = location.pathname === `/products/${cat.slug}`;
+                return (
+                  <Link
+                    key={cat.slug}
+                    to={`/products/${cat.slug}`}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? "bg-[#e8251a]/5 text-[#e8251a] font-semibold"
+                        : "text-foreground/80 hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${
+                        isActive ? "bg-[#e8251a]/10 text-[#e8251a]" : "bg-muted text-foreground/60"
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                    </span>
+                    <span className="font-medium">{cat.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -86,14 +103,26 @@ const GroupDropdown = ({ group }: { group: CategoryGroup }) => {
 const StickyHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { wishlistItems } = useWishlist();
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const location = useLocation();
 
+  // Track scroll for shadow
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 2);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white border-b border-border">
+      <header
+        className={`sticky top-0 z-50 bg-white border-b border-border transition-shadow duration-200 ${
+          scrolled ? "shadow-[0_2px_8px_rgba(0,0,0,0.06)]" : ""
+        }`}
+      >
         {/* ── Main row ── */}
         <div className="max-w-[1280px] mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center gap-3 md:gap-6">
           {/* Mobile hamburger */}
@@ -117,7 +146,8 @@ const StickyHeader = () => {
           {/* Desktop search */}
           <div
             onClick={() => setSearchOpen(true)}
-            className="hidden md:flex flex-1 items-center gap-3 px-4 py-2.5 rounded-lg bg-muted hover:bg-muted/80 border border-transparent hover:border-border cursor-pointer transition-all"
+            className="hidden md:flex items-center gap-3 px-4 py-2.5 rounded-lg bg-muted hover:bg-muted/80 border border-transparent hover:border-border cursor-pointer transition-all"
+            style={{ flex: "1 1 0", maxWidth: 600, minWidth: 320 }}
           >
             <Search className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
             <span className="text-sm text-muted-foreground">Search speakers, amplifiers, home theatre…</span>
