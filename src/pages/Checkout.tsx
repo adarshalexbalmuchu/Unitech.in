@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, ShoppingCart, CreditCard, Truck, MapPin, Minus, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, ShoppingCart, CreditCard, Truck, MapPin, Minus, Plus, Trash2, CheckCircle2, AlertTriangle } from "lucide-react";
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -9,10 +9,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { isPlaceholderImage, formatPrice } from "@/lib/constants";
+import { isPlaceholderImage, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
@@ -30,7 +29,8 @@ type ShippingForm = {
   name: string;
   email: string;
   phone: string;
-  address: string;
+  addressLine1: string;
+  addressLine2: string;
   city: string;
   state: string;
   pincode: string;
@@ -50,10 +50,10 @@ const normalizeShipping = (shipping: ShippingForm) => ({
   name: shipping.name.trim(),
   email: shipping.email.trim().toLowerCase(),
   phone: shipping.phone.replace(/\s+/g, "").trim(),
-  address: shipping.address.trim(),
+  address: [shipping.addressLine1.trim(), shipping.addressLine2.trim()].filter(Boolean).join(", "),
   city: shipping.city.trim(),
   state: shipping.state.trim(),
-  pincode: shipping.pincode.trim().toUpperCase(),
+  pincode: shipping.pincode.trim(),
 });
 
 const getCheckoutFingerprint = (cartItems: Array<{ product_id: string; quantity: number }>, shipping: ShippingForm) => {
@@ -67,6 +67,14 @@ const getCheckoutFingerprint = (cartItems: Array<{ product_id: string; quantity:
   });
 };
 
+const PINCODE_RE = /^[1-9][0-9]{5}$/;
+
+type ServiceabilityResult = {
+  serviceable: boolean;
+  cheapestRate: number | null;
+  etdDays: number | null;
+} | null;
+
 const Checkout = () => {
   const { cartItems, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCart();
   const { user } = useAuth();
@@ -78,22 +86,114 @@ const Checkout = () => {
     name: user?.user_metadata?.full_name || "",
     email: user?.email || "",
     phone: "",
-    address: "",
+    addressLine1: "",
+    addressLine2: "",
     city: "",
     state: "",
     pincode: "",
   });
 
-  const set = (key: keyof ShippingForm, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+  // Pincode validation state
+  const [pincodeError, setPincodeError] = useState("");
+  const [pincodeVerified, setPincodeVerified] = useState(false);
+
+  // Serviceability state
+  const [serviceability, setServiceability] = useState<ServiceabilityResult>(null);
+  const [serviceabilityChecked, setServiceabilityChecked] = useState(false);
+  const serviceabilityPincodeRef = useRef("");
+
+  const set = (key: keyof ShippingForm, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    // Reset pincode-related state when pincode changes
+    if (key === "pincode") {
+      setPincodeError("");
+      setPincodeVerified(false);
+      setServiceability(null);
+      setServiceabilityChecked(false);
+    }
+  };
+
+  const isPincodeValid = PINCODE_RE.test(form.pincode.trim());
 
   const isFormValid =
     form.name.trim().length >= 2 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
     /^[0-9+\-\s()]{8,20}$/.test(form.phone) &&
-    form.address.trim().length >= 5 &&
+    form.addressLine1.trim().length >= 5 &&
     form.city.trim().length >= 2 &&
     form.state.trim().length >= 2 &&
-    /^[0-9A-Za-z -]{4,10}$/.test(form.pincode);
+    isPincodeValid;
+
+  // Pincode is non-serviceable → block payment
+  const isPaymentBlocked = serviceabilityChecked && serviceability !== null && !serviceability.serviceable;
+
+  // Shipping cost calculation
+  const isFreeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD;
+  const shippingCost = isFreeShipping
+    ? 0
+    : (serviceability?.serviceable && serviceability.cheapestRate != null)
+      ? serviceability.cheapestRate
+      : null;
+
+  const orderTotal = shippingCost != null ? cartTotal + shippingCost : cartTotal;
+
+  // ── Pincode blur handler ────────────────────────────────────────────────
+  const handlePincodeBlur = useCallback(async () => {
+    const pincode = form.pincode.trim();
+
+    if (!pincode) {
+      setPincodeError("");
+      return;
+    }
+
+    if (!PINCODE_RE.test(pincode)) {
+      setPincodeError("Enter a valid 6-digit pincode");
+      setPincodeVerified(false);
+      return;
+    }
+
+    setPincodeError("");
+
+    // City/State autofill from free pincode API
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.[0]?.Status === "Success" && data[0].PostOffice?.length > 0) {
+          const po = data[0].PostOffice[0];
+          setForm((prev) => ({
+            ...prev,
+            city: prev.city || po.District || "",
+            state: prev.state || po.State || "",
+          }));
+          setPincodeVerified(true);
+        }
+      }
+    } catch {
+      // Silently skip autofill on failure
+    }
+
+    // Serviceability check (once per pincode)
+    if (supabase && pincode !== serviceabilityPincodeRef.current) {
+      serviceabilityPincodeRef.current = pincode;
+      try {
+        const { data, error } = await supabase.functions.invoke("check-serviceability", {
+          body: { pincode, weight_kg: 0.5, cod: false },
+        });
+        if (!error && data) {
+          setServiceability({
+            serviceable: data.serviceable,
+            cheapestRate: data.cheapest?.rate ?? null,
+            etdDays: data.cheapest?.etdDays ?? null,
+          });
+          setServiceabilityChecked(true);
+        }
+      } catch {
+        // Silently skip on error — do not block checkout
+        setServiceabilityChecked(false);
+      }
+    }
+  }, [form.pincode]);
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -184,7 +284,7 @@ const Checkout = () => {
           contact: form.phone,
         },
         notes: {
-          shipping_address: `${form.address}, ${form.city}, ${form.state} - ${form.pincode}`,
+          shipping_address: `${form.addressLine1}, ${form.addressLine2 ? form.addressLine2 + ", " : ""}${form.city}, ${form.state} - ${form.pincode}`,
           app_order_id: data.orderId,
         },
         theme: {
@@ -214,7 +314,7 @@ const Checkout = () => {
             toast.success("Payment verified successfully! 🎉", {
               description: `Payment ID: ${response.razorpay_payment_id}`,
             });
-            navigate("/");
+            navigate(`/order-success/${data.orderId}`);
           } catch (verifyError: unknown) {
             console.error("Payment verification error:", verifyError);
             toast.error("Payment received but verification failed", {
@@ -303,10 +403,39 @@ const Checkout = () => {
                   <Input id="phone" type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} required placeholder="+91 98765 43210" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="address">Address *</Label>
-                  <Textarea id="address" value={form.address} onChange={(e) => set("address", e.target.value)} required placeholder="House no., Street, Landmark..." rows={2} />
+                  <Label htmlFor="addressLine1">Address Line 1 *</Label>
+                  <Input id="addressLine1" value={form.addressLine1} onChange={(e) => set("addressLine1", e.target.value.slice(0, 140))} required placeholder="House / Building / Flat No." maxLength={140} />
+                  {form.addressLine1.length >= 100 && (
+                    <p className="text-[10px] text-muted-foreground text-right">{form.addressLine1.length}/140</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="addressLine2">Address Line 2 <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                  <Input id="addressLine2" value={form.addressLine2} onChange={(e) => set("addressLine2", e.target.value.slice(0, 140))} placeholder="Street / Area / Landmark" maxLength={140} />
+                  {form.addressLine2.length >= 100 && (
+                    <p className="text-[10px] text-muted-foreground text-right">{form.addressLine2.length}/140</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pincode">PIN Code *</Label>
+                    <Input
+                      id="pincode"
+                      value={form.pincode}
+                      onChange={(e) => set("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      onBlur={handlePincodeBlur}
+                      required
+                      placeholder="110001"
+                      maxLength={6}
+                      inputMode="numeric"
+                    />
+                    {pincodeError && (
+                      <p className="text-xs text-destructive">{pincodeError}</p>
+                    )}
+                    {pincodeVerified && !pincodeError && (
+                      <p className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Pincode verified</p>
+                    )}
+                  </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="city">City *</Label>
                     <Input id="city" value={form.city} onChange={(e) => set("city", e.target.value)} required placeholder="City" />
@@ -315,11 +444,22 @@ const Checkout = () => {
                     <Label htmlFor="state">State *</Label>
                     <Input id="state" value={form.state} onChange={(e) => set("state", e.target.value)} required placeholder="State" />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pincode">PIN Code *</Label>
-                    <Input id="pincode" value={form.pincode} onChange={(e) => set("pincode", e.target.value)} required placeholder="110001" />
-                  </div>
                 </div>
+
+                {/* Serviceability result */}
+                {serviceabilityChecked && serviceability && (
+                  serviceability.serviceable ? (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-400 text-sm">
+                      <Truck className="w-4 h-4 shrink-0" />
+                      <span>Delivery available{serviceability.etdDays ? ` · Estimated ${serviceability.etdDays} days` : ""}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400 text-sm">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>We currently can't deliver to this pincode. Please try a different address.</span>
+                    </div>
+                  )
+                )}
               </CardContent>
             </Card>
 
@@ -372,21 +512,30 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Shipping</span>
-                  <span className="font-medium text-green-600">Free</span>
+                  {isFreeShipping ? (
+                    <span className="font-medium text-green-600">Free</span>
+                  ) : shippingCost != null ? (
+                    <span className="font-medium">{formatPrice(shippingCost)}</span>
+                  ) : (
+                    <span className="font-medium text-muted-foreground">—</span>
+                  )}
                 </div>
+                {!isFreeShipping && cartTotal > 0 && (
+                  <p className="text-[10px] text-muted-foreground">Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}</p>
+                )}
                 <Separator />
                 <div className="flex justify-between text-lg font-extrabold">
                   <span>Total</span>
-                  <span className="text-primary">{formatPrice(cartTotal)}</span>
+                  <span className="text-primary">{formatPrice(orderTotal)}</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">Final payable amount is verified securely at checkout</p>
                 <Button
                   className="w-full mt-3 gap-2 text-base py-6"
                   onClick={handlePayment}
-                  disabled={loading || !isFormValid}
+                  disabled={loading || !isFormValid || isPaymentBlocked}
                 >
                   <CreditCard className="w-5 h-5" />
-                  {loading ? "Processing..." : `Pay ${formatPrice(cartTotal)}`}
+                  {loading ? "Processing..." : isPaymentBlocked ? "Delivery not available" : `Pay ${formatPrice(orderTotal)}`}
                 </Button>
                 <div className="flex items-center justify-center gap-2 pt-2">
                   <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay" className="h-5 opacity-50" />

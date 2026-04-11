@@ -10,11 +10,15 @@ import ProductListing from "./pages/ProductListing.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import AdminProducts from "./pages/AdminProducts.tsx";
 import AdminProductForm from "./pages/AdminProductForm.tsx";
+import AdminOrders from "./pages/AdminOrders.tsx";
 import Login from "./pages/Login.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Wishlist from "./pages/Wishlist.tsx";
 import Compare from "./pages/Compare.tsx";
 import Account from "./pages/Account.tsx";
+import MyOrders from "./pages/MyOrders.tsx";
+import OrderSuccess from "./pages/OrderSuccess.tsx";
+import OrderTracking from "./pages/OrderTracking.tsx";
 import Checkout from "./pages/Checkout.tsx";
 import Warranty from "./pages/Warranty.tsx";
 import Contact from "./pages/Contact.tsx";
@@ -58,6 +62,9 @@ const App = () => (
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/account/orders" element={<MyOrders />} />
+            <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+            <Route path="/track/:orderId" element={<OrderTracking />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/warranty" element={<Warranty />} />
             <Route path="/contact" element={<Contact />} />
@@ -73,6 +80,7 @@ const App = () => (
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
             <Route path="/admin/products/new" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
             <Route path="/admin/products/:id/edit" element={<AdminGuard><AdminProductForm /></AdminGuard>} />
+            <Route path="/admin/orders" element={<AdminGuard><AdminOrders /></AdminGuard>} />
             <Route path="/admin/wholesale-leads" element={<AdminGuard><AdminWholesaleLeads /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

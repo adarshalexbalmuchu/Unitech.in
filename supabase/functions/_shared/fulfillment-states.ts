@@ -30,7 +30,7 @@ export type FulfillmentStatus =
 
 export const LEGAL_TRANSITIONS: Record<FulfillmentStatus, FulfillmentStatus[]> = {
   pending:          ["processing", "sr_push_failed", "cancelled"],
-  sr_push_failed:   ["processing", "manual_review",  "cancelled"],
+  sr_push_failed:   ["pending", "processing", "manual_review",  "cancelled"],
   courier_pending:  ["processing", "cancelled"],
   processing:       ["shipped",    "cancelled"],
   shipped:          ["out_for_delivery", "returned"],
@@ -40,7 +40,7 @@ export const LEGAL_TRANSITIONS: Record<FulfillmentStatus, FulfillmentStatus[]> =
   returned:         [],
   delivered:        [],
   cancelled:        [],
-  manual_review:    ["processing", "cancelled"],
+  manual_review:    ["pending", "processing", "cancelled"],
 };
 
 // ─── Typed error ──────────────────────────────────────────────────────────────

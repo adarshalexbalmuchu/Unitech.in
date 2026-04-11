@@ -169,16 +169,42 @@ serve(async (req: Request) => {
       throw updateError;
     }
 
-    // ── ShipRocket async trigger connection point ──────────────────────────
-    // The create-shiprocket-order Edge Function connects here in the next
-    // build phase. It must run AFTER this response is returned — do not
-    // await anything ShipRocket-related here.
+    // ── ShipRocket async trigger ────────────────────────────────────────────
+    // Fire create-shiprocket-order asynchronously using EdgeRuntime.waitUntil.
+    // This keeps the ShipRocket push completely off the payment response path.
+    // The create-shiprocket-order function is idempotent — duplicate fires
+    // are harmless. The retry-shiprocket-orders cron provides a safety net
+    // if this fire-and-forget call fails silently.
     //
-    // Implementation: a pg_cron job (or Supabase database webhook) polls
-    // for orders where status = 'paid' AND fulfillment_status = 'pending'
-    // and pushes them to ShipRocket independently. This function's only
-    // responsibility is marking the order paid and setting the deadline.
+    // Approach: EdgeRuntime.waitUntil() — chosen over pg_net because the
+    // project config shows no pg_net extension, and waitUntil keeps the
+    // trigger logic co-located with the payment verification code.
     // ──────────────────────────────────────────────────────────────────────
+    try {
+      // @ts-expect-error: EdgeRuntime is a Supabase Deno runtime global
+      EdgeRuntime.waitUntil(
+        fetch(`${SUPABASE_URL}/functions/v1/create-shiprocket-order`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderId: order.id }),
+        }).catch((triggerErr: unknown) => {
+          console.error(
+            "[verify-razorpay-payment] ShipRocket async trigger failed (will be retried by cron):",
+            triggerErr,
+          );
+        }),
+      );
+    } catch (waitUntilErr) {
+      // EdgeRuntime.waitUntil may not exist in local dev — log and continue.
+      // The retry-shiprocket-orders cron will pick up the order.
+      console.error(
+        "[verify-razorpay-payment] EdgeRuntime.waitUntil unavailable:",
+        waitUntilErr,
+      );
+    }
 
     return jsonResponse(
       {

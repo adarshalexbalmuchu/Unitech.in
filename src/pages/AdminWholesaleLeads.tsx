@@ -168,6 +168,9 @@ const AdminWholesaleLeads = () => {
               <Link to="/admin/products">← Products</Link>
             </Button>
             <Button variant="outline" asChild>
+              <Link to="/admin/orders">Orders</Link>
+            </Button>
+            <Button variant="outline" asChild>
               <Link to="/">← Back to Site</Link>
             </Button>
           </div>

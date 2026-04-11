@@ -3,3 +3,48 @@ verify_jwt = true
 
 [functions.verify-razorpay-payment]
 verify_jwt = true
+
+[functions.create-shiprocket-order]
+verify_jwt = false
+
+[functions.retry-shiprocket-orders]
+verify_jwt = false
+
+[functions.shiprocket-webhook]
+verify_jwt = false
+
+[functions.generate-label]
+verify_jwt = true
+
+[functions.schedule-pickup]
+verify_jwt = true
+
+[functions.generate-manifest]
+verify_jwt = true
+
+[functions.get-admin-orders]
+verify_jwt = true
+
+[functions.push-to-shiprocket]
+verify_jwt = true
+
+[functions.redact-shiprocket-pii]
+verify_jwt = false
+
+[functions.export-reconciliation]
+verify_jwt = true
+
+[functions.get-ndr-queue]
+verify_jwt = true
+
+[functions.resolve-ndr]
+verify_jwt = true
+
+[functions.check-serviceability]
+verify_jwt = true
+
+[functions.track-shipment]
+verify_jwt = true
+
+[functions.cancel-order]
+verify_jwt = true
