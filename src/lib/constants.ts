@@ -7,6 +7,8 @@ import {
   Monitor,
   Columns3,
   Plug,
+  Tv,
+  Refrigerator,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 /** Check if an image URL is a placeholder (should show fallback icon instead) */
@@ -51,6 +53,8 @@ export const CATEGORIES: Category[] = [
   { slug: "tv-kits", label: "TV Kits & LED Panels", icon: Monitor },
   { slug: "stands-mounts", label: "Stands & Mounts", icon: Columns3 },
   { slug: "power-accessories", label: "Power Accessories", icon: Plug },
+  { slug: "led-dth-stands", label: "LED/DTH Stands", icon: Tv },
+  { slug: "appliances", label: "Appliances", icon: Refrigerator },
 ];
 
 export type CategorySlug = (typeof CATEGORIES)[number]["slug"];
@@ -66,6 +70,8 @@ const CATEGORY_FALLBACK_LABELS: Record<FallbackCategorySlug, string> = {
   "tv-kits": "TV Kits",
   "stands-mounts": "Stands & Mounts",
   "power-accessories": "Power Accessories",
+  "led-dth-stands": "LED/DTH Stands",
+  "appliances": "Appliances",
   "portable-speakers": "Portable Speakers",
 };
 
@@ -107,6 +113,9 @@ export type Collection = (typeof COLLECTIONS)[number];
 /* ── Pricing helpers ───────────────────────────────── */
 
 export const CURRENCY_SYMBOL = "₹";
+
+/** Orders above this amount (in INR) get free shipping. Change this single value to adjust. */
+export const FREE_SHIPPING_THRESHOLD = 2000;
 
 export const formatPrice = (price: number | null) => {
   if (price === null) return "Price on Request";

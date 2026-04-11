@@ -24,7 +24,8 @@ const ProductCard = memo(
     const { isInWishlist, toggleWishlist } = useWishlist();
     const { addToCart } = useCart();
 
-    const discount = getDiscountPercent(product.price, product.original_price);
+    const sellingPrice = product.discounted_price ?? product.price;
+    const discount = getDiscountPercent(sellingPrice, product.original_price);
     const wishlisted = isInWishlist(product.id);
     const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
     const isFlashSale = product.collections.includes("flash-sale");
@@ -41,7 +42,7 @@ const ProductCard = memo(
       const wasWishlisted = wishlisted;
       toggleWishlist(product.id, {
         name: product.name,
-        price: product.price,
+        price: sellingPrice,
         original_price: product.original_price,
         image_url: product.image_url,
       });
@@ -50,7 +51,7 @@ const ProductCard = memo(
 
     const handleAddToCart = (e: React.MouseEvent) => {
       e.stopPropagation();
-      addToCart(product.id, { name: product.name, price: product.price ?? 0, image_url: product.image_url });
+      addToCart(product.id, { name: product.name, price: sellingPrice ?? 0, image_url: product.image_url });
       toast.success("Added to cart", { description: product.name });
     };
 
@@ -178,12 +179,19 @@ const ProductCard = memo(
           {/* Price */}
           <div className="flex items-baseline gap-1.5 mt-2 tabular-nums">
             <span style={{ fontSize: compact ? 14 : 16, fontWeight: 700, color: "#111" }}>
-              {formatPrice(product.price)}
+              {formatPrice(sellingPrice)}
             </span>
-            {product.original_price && product.original_price > (product.price ?? 0) && (
-              <span style={{ fontSize: 12, textDecoration: "line-through", color: "rgba(0,0,0,0.35)" }}>
-                {formatPrice(product.original_price)}
-              </span>
+            {product.original_price && product.original_price > (sellingPrice ?? 0) && (
+              <>
+                <span style={{ fontSize: 12, textDecoration: "line-through", color: "rgba(0,0,0,0.35)" }}>
+                  {formatPrice(product.original_price)}
+                </span>
+                {discount > 0 && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a" }}>
+                    {discount}% OFF
+                  </span>
+                )}
+              </>
             )}
           </div>
           {!compact && (

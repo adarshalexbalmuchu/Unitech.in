@@ -8,7 +8,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
-import { formatPrice, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
+import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuth } from "@/contexts/AuthContext";
@@ -224,12 +224,13 @@ const ProductDetail = () => {
   const catLabel = catMeta?.label ?? product.category;
   const wishlisted = isInWishlist(product.id);
   const inStock = product.stock > 0;
+  const sellingPrice = product.discounted_price ?? product.price;
   const fallbackImage = getCategoryFallbackImage(product.category);
   const images = resolveProductGalleryImages(product.images, product.image_url, product.category);
 
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) {
-      addToCart(product.id, { name: product.name, price: product.price ?? 0, image_url: product.image_url });
+      addToCart(product.id, { name: product.name, price: sellingPrice ?? 0, image_url: product.image_url });
     }
     toast.success(`Added ${qty} item${qty > 1 ? "s" : ""} to cart`, { description: product.name });
   };
@@ -238,7 +239,7 @@ const ProductDetail = () => {
     const wasWishlisted = wishlisted;
     toggleWishlist(product.id, {
       name: product.name,
-      price: product.price,
+      price: sellingPrice,
       original_price: product.original_price,
       image_url: product.image_url,
     });
@@ -421,12 +422,19 @@ const ProductDetail = () => {
             <div className="space-y-1">
               <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
                 <span style={{ color: '#e8251a' }} className="text-[28px] font-extrabold tabular-nums">
-                  {formatPrice(product.price)}
+                  {formatPrice(sellingPrice)}
                 </span>
-                {product.original_price && product.original_price > (product.price ?? 0) && (
-                  <span className="text-base md:text-lg line-through text-muted-foreground tabular-nums">
-                    {formatPrice(product.original_price)}
-                  </span>
+                {product.original_price && product.original_price > (sellingPrice ?? 0) && (
+                  <>
+                    <span className="text-base md:text-lg line-through text-muted-foreground tabular-nums">
+                      {formatPrice(product.original_price)}
+                    </span>
+                    {sellingPrice != null && (
+                      <span className="text-sm font-bold text-green-600">
+                        {getDiscountPercent(sellingPrice, product.original_price)}% OFF
+                      </span>
+                    )}
+                  </>
                 )}
 
               </div>

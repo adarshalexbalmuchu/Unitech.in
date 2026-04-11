@@ -18,9 +18,10 @@ export interface Product {
   brand: string | null;
   model_number: string | null;
 
-  // Pricing – discount is derived, not stored
+  // Pricing
   price: number | null;
   original_price: number | null;
+  discounted_price?: number | null;
 
   // Media
   image_url: string;
@@ -122,6 +123,7 @@ const normalizeProduct = (product: RawProduct | Product): Product => {
   model_number: product.model_number ?? "",
   price: toNumberOrNull(product.price),
   original_price: toNumberOrNull(product.original_price),
+  discounted_price: toNumberOrNull(product.discounted_price),
   image_url: (product.image_url || "").trim(),
   images: Array.isArray(product.images)
     ? product.images.filter((img): img is string => typeof img === "string" && img.trim().length > 0)
@@ -161,6 +163,7 @@ const PRODUCT_SELECT_FIELDS = `
   model_number,
   price,
   original_price,
+  discounted_price,
   image_url,
   images,
   collections,

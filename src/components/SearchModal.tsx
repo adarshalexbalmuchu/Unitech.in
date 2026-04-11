@@ -153,7 +153,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                             {p.model_number && ` · ${p.model_number}`}
                           </p>
                         </div>
-                        <span className="text-sm font-bold text-primary shrink-0">{formatPrice(p.price)}</span>
+                        <span className="text-sm font-bold text-primary shrink-0">{formatPrice(p.discounted_price ?? p.price)}</span>
                       </button>
                     ))}
                   </div>

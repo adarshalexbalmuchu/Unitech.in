@@ -19,7 +19,7 @@ const Compare = () => {
   );
 
   const handleAddToCart = (p: typeof compareProducts[0]) => {
-    addToCart(p.id, { name: p.name, price: p.price ?? 0, image_url: p.image_url });
+    addToCart(p.id, { name: p.name, price: p.discounted_price ?? p.price ?? 0, image_url: p.image_url });
     toast.success("Added to cart", { description: p.name });
   };
 
@@ -80,8 +80,8 @@ const Compare = () => {
                   <td className="p-3 text-sm font-semibold text-muted-foreground">Price</td>
                   {compareProducts.map((p) => (
                     <td key={p.id} className="p-3 text-center">
-                      <span className="text-lg font-extrabold text-primary">{formatPrice(p.price)}</span>
-                      {p.original_price && p.original_price > (p.price ?? 0) && (
+                      <span className="text-lg font-extrabold text-primary">{formatPrice(p.discounted_price ?? p.price)}</span>
+                      {p.original_price && p.original_price > ((p.discounted_price ?? p.price) ?? 0) && (
                         <span className="block text-xs line-through text-muted-foreground">{formatPrice(p.original_price)}</span>
                       )}
                     </td>

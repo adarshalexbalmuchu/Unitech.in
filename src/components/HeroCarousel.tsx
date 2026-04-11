@@ -57,7 +57,7 @@ const HeroCarousel = () => {
   const { data: products = [] } = useProducts();
   const hero = products.find((p) => p.name.toLowerCase().includes("8787")) || null;
   const heroImg = hero ? resolvePrimaryProductImage(hero.image_url, hero.category) : "";
-  const heroPrice = hero?.price ? `₹${hero.price.toLocaleString("en-IN")}` : "";
+  const heroPrice = hero ? `₹${(hero.discounted_price ?? hero.price ?? 0).toLocaleString("en-IN")}` : "";
   const heroOriginal = hero?.original_price ? `₹${hero.original_price.toLocaleString("en-IN")}` : "";
 
   return (
@@ -164,12 +164,12 @@ const HeroCarousel = () => {
               </svg>
             )}
             {/* Discount tag */}
-            {hero?.price && hero?.original_price && hero.original_price > hero.price && (
+            {hero?.price && hero?.original_price && hero.original_price > (hero.discounted_price ?? hero.price) && (
               <span
                 className="absolute top-2 right-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded"
                 style={{ background: RED, color: "#fff" }}
               >
-                {Math.round(((hero.original_price - hero.price) / hero.original_price) * 100)}% off
+                {Math.round(((hero.original_price - (hero.discounted_price ?? hero.price)) / hero.original_price) * 100)}% off
               </span>
             )}
           </div>
