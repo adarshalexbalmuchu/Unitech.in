@@ -54,7 +54,7 @@ const TICKER_ITEMS = [
 
 /* ── Hero Section ── */
 const HeroCarousel = () => {
-  const { data: products = [] } = useProducts(undefined, { limit: 10 });
+  const { data: products = [] } = useProducts();
   const hero = products.find((p) => p.name.toLowerCase().includes("8787")) || null;
   const heroImg = hero ? resolvePrimaryProductImage(hero.image_url, hero.category) : "";
   const heroPrice = hero ? `₹${(hero.discounted_price ?? hero.price ?? 0).toLocaleString("en-IN")}` : "";
