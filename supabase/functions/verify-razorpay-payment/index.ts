@@ -1,13 +1,4 @@
-// @ts-expect-error: Deno runtime URL import
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error: Deno runtime URL import
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-declare const Deno: {
-  env: {
-    get: (key: string) => string | undefined;
-  };
-};
 
 const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "")
   .split(",")
@@ -15,8 +6,11 @@ const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "")
   .filter(Boolean);
 
 function buildCorsHeaders(origin: string | null) {
+  // If ALLOWED_ORIGINS is configured, enforce it; otherwise reflect the request origin
   const allowedOrigin =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0] || "";
+    allowedOrigins.length > 0
+      ? (origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0])
+      : (origin || "*");
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
@@ -51,7 +45,7 @@ async function hmacSha256Hex(secret: string, message: string) {
     .join("");
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   const corsHeaders = buildCorsHeaders(origin);
 
