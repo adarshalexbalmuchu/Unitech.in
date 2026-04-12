@@ -4,7 +4,7 @@ import { ChevronRight, ShoppingCart, CreditCard, Truck, MapPin, Minus, Plus, Tra
 import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { useCart } from "@/hooks/useCart";
+import { useCart, useCartCount, useCartTotal } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,7 +76,9 @@ type ServiceabilityResult = {
 } | null;
 
 const Checkout = () => {
-  const { cartItems, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const cartCount = useCartCount();
+  const cartTotal = useCartTotal();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);

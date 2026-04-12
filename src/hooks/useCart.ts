@@ -16,8 +16,6 @@ interface CartItem {
 interface CartStore {
   cartItems: CartItem[];
   loading: boolean;
-  cartCount: number;
-  cartTotal: number;
   addToCart: (productId: string, product?: { name: string; price: number; image_url: string }, variantId?: string) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
@@ -47,12 +45,6 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       cartItems: [],
       loading: false,
-      get cartCount() {
-        return get().cartItems.reduce((sum, item) => sum + item.quantity, 0);
-      },
-      get cartTotal() {
-        return get().cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-      },
 
       addToCart: (productId, product, variantId) => {
         const normalizedProductId = productId?.trim();
@@ -110,3 +102,10 @@ export const useCart = create<CartStore>()(
     { name: "unitech-cart" }
   )
 );
+
+/** Derived selector – always reactive */
+export const useCartCount = () =>
+  useCart((s) => s.cartItems.reduce((sum, item) => sum + item.quantity, 0));
+
+export const useCartTotal = () =>
+  useCart((s) => s.cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0));

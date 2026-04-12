@@ -1,12 +1,14 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
+import { useCart, useCartCount, useCartTotal } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 import { isPlaceholderImage } from "@/lib/constants";
 
 const CartSheet = () => {
-  const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
+  const cartCount = useCartCount();
+  const cartTotal = useCartTotal();
   const navigate = useNavigate();
 
   return (
