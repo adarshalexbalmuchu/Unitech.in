@@ -235,36 +235,41 @@ const StickyHeader = () => {
         `}</style>
       </header>
 
-      {/* ── Category bar (mobile — pill style with group labels) ── */}
+      {/* ── Category bar (mobile — icons + group separators) ── */}
       <nav className="lg:hidden sticky top-14 z-[39] bg-white border-b border-border">
-        <div className="flex flex-row items-center gap-1.5 px-4 py-2 overflow-x-auto scrollbar-none">
+        <div className="flex flex-row items-center gap-1 px-3 py-1.5 overflow-x-auto scrollbar-none">
           <Link
             to="/products/all"
-            className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
+            className={`shrink-0 inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap transition-colors border ${
               location.pathname === "/products/all"
                 ? "bg-primary text-white border-primary"
-                : "bg-background text-muted-foreground border-border"
+                : "bg-background text-muted-foreground border-border hover:bg-muted"
             }`}
           >
             All
           </Link>
-          {CATEGORY_GROUPS.map((group) => (
-            group.categories.map((cat) => {
-              const isActive = location.pathname === `/products/${cat.slug}`;
-              return (
-                <Link
-                  key={cat.slug}
-                  to={`/products/${cat.slug}`}
-                  className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-colors border ${
-                    isActive
-                      ? "bg-primary text-white border-primary"
-                      : "bg-background text-muted-foreground border-border"
-                  }`}
-                >
-                  {cat.label}
-                </Link>
-              );
-            })
+          {CATEGORY_GROUPS.map((group, gi) => (
+            <div key={group.label} className="contents">
+              {gi > 0 && <span className="shrink-0 w-px h-4 bg-border mx-0.5" />}
+              {group.categories.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = location.pathname === `/products/${cat.slug}`;
+                return (
+                  <Link
+                    key={cat.slug}
+                    to={`/products/${cat.slug}`}
+                    className={`shrink-0 inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full whitespace-nowrap transition-colors border ${
+                      isActive
+                        ? "bg-primary text-white border-primary"
+                        : "bg-background text-muted-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" strokeWidth={1.75} />
+                    {cat.label}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
         </div>
       </nav>

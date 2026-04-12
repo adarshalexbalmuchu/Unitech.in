@@ -71,20 +71,20 @@ const LaunchCountdown = () => {
 
   return (
     <div className="w-full bg-[#111] border-b border-white/10">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-6 flex items-center justify-between h-[56px] md:h-[60px] gap-3">
-        {/* Left – badge + headline (hidden on mobile) */}
-        <div className="hidden md:flex items-center gap-3 shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#e8251a] text-white text-[10px] font-bold uppercase tracking-wider rounded-md">
-            <Rocket className="w-3 h-3" />
-            Official Launch
+      <div className="max-w-[1280px] mx-auto px-4 md:px-6 flex items-center justify-between h-auto py-2.5 md:h-[60px] md:py-0 gap-2 md:gap-3 flex-wrap md:flex-nowrap">
+        {/* Left – badge + headline */}
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          <span className="inline-flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 bg-[#e8251a] text-white text-[9px] md:text-[10px] font-bold uppercase tracking-wider rounded-md whitespace-nowrap">
+            <Rocket className="w-2.5 h-2.5 md:w-3 md:h-3" />
+            Launch
           </span>
-          <span className="text-white/80 text-xs font-medium">
-            Unitech Shop Launches <span className="text-white font-semibold">1st May 2026</span>
+          <span className="text-white/80 text-[11px] md:text-xs font-medium">
+            Unitech Shop — <span className="text-white font-semibold">1st May 2026</span>
           </span>
         </div>
 
         {/* Center – countdown */}
-        <div className="flex items-center gap-1.5 md:gap-2 mx-auto md:mx-0">
+        <div className="flex items-center gap-1.5 md:gap-2 md:mx-0 order-3 md:order-none w-full md:w-auto justify-center md:justify-start">
           <FlipDigit value={timeLeft.days} label="Days" />
           <span className="text-white/40 font-bold text-sm md:text-base mt-[-10px]">:</span>
           <FlipDigit value={timeLeft.hours} label="Hrs" />
@@ -98,9 +98,9 @@ const LaunchCountdown = () => {
         <div className="flex items-center gap-2 shrink-0">
           <a
             href="/products/all"
-            className="hidden md:inline-flex items-center px-3 py-1.5 bg-[#e8251a] hover:bg-[#c71f16] text-white text-[11px] font-bold rounded-md transition-colors"
+            className="inline-flex items-center px-2.5 md:px-3 py-1 md:py-1.5 bg-[#e8251a] hover:bg-[#c71f16] text-white text-[10px] md:text-[11px] font-bold rounded-md transition-colors"
           >
-            Explore Now
+            Explore
           </a>
         </div>
       </div>
