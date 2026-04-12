@@ -11,6 +11,7 @@ const pages = [
   { label: "Returns", to: "/returns" },
   { label: "Privacy Policy", to: "/privacy" },
   { label: "Terms", to: "/terms" },
+  { label: "Blog", to: "/blog" },
 ];
 
 const socials = [

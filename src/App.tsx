@@ -32,6 +32,7 @@ import About from "./pages/About.tsx";
 import Wholesale from "./pages/Wholesale.tsx";
 import WholesaleApply from "./pages/WholesaleApply.tsx";
 import AdminWholesaleLeads from "./pages/AdminWholesaleLeads.tsx";
+import Blog from "./pages/Blog.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/about" element={<About />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/wholesale" element={<Wholesale />} />
             <Route path="/wholesale/apply" element={<WholesaleApply />} />
             <Route path="/admin/products" element={<AdminGuard><AdminProducts /></AdminGuard>} />
