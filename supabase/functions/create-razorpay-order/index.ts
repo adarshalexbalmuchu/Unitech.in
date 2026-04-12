@@ -309,9 +309,13 @@ Deno.serve(async (req) => {
       200,
       corsHeaders,
     );
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    console.error(`create-razorpay-order error at step [${step}]:`, msg, error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error
+      ? error.message
+      : (typeof error === "object" && error !== null && "message" in error)
+        ? String((error as Record<string, unknown>).message)
+        : JSON.stringify(error);
+    console.error(`create-razorpay-order error at step [${step}]:`, error);
     return jsonResponse(
       { error: msg, step },
       500,
