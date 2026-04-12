@@ -265,8 +265,19 @@ const Checkout = () => {
         shipping: normalizedShipping,
       };
 
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.access_token) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
         body: payload,
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
       });
 
       if (error || !data?.orderId || !data?.razorpayOrderId || !data?.keyId) {
