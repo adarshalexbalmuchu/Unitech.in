@@ -12,7 +12,7 @@
 #         Processes images one-by-one with verification.
 # ────────────────────────────────────────────────────────────────────
 
-set -euo pipefail
+set -uo pipefail
 
 BUCKET="product-images"
 SUPABASE_URL="${SUPABASE_URL:-$(npx supabase --experimental status --linked -o json 2>/dev/null | jq -r '.api.url // empty')}"
@@ -65,7 +65,7 @@ for FILE in $FILES; do
 
   # Skip if already WebP
   if [[ "${EXT,,}" == "webp" ]]; then
-    ((SKIPPED++))
+    SKIPPED=$((SKIPPED + 1))
     continue
   fi
 
@@ -76,7 +76,7 @@ for FILE in $FILES; do
     "$STORAGE_BASE/public/$BUCKET/$FILE")
   if [[ "$HTTP_CODE" != "200" ]]; then
     echo "SKIP (download failed: $HTTP_CODE)"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
     continue
   fi
 
@@ -88,7 +88,7 @@ for FILE in $FILES; do
   # Convert to WebP (quality 80, max 1200px wide)
   if ! cwebp -q 80 -resize 1200 0 "$WORK_DIR/$FILE" -o "$WORK_DIR/$WEBP_NAME" 2>/dev/null; then
     echo "SKIP (conversion failed)"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
     continue
   fi
 
@@ -99,7 +99,7 @@ for FILE in $FILES; do
   if [[ $WEBP_SIZE -ge $ORIG_SIZE ]]; then
     echo "SKIP (WebP not smaller)"
     rm -f "$WORK_DIR/$WEBP_NAME"
-    ((SKIPPED++))
+    SKIPPED=$((SKIPPED + 1))
     continue
   fi
 
@@ -114,7 +114,7 @@ for FILE in $FILES; do
 
   if [[ "$UPLOAD_CODE" != "200" ]]; then
     echo "FAIL (upload: $UPLOAD_CODE)"
-    ((FAILED++))
+    FAILED=$((FAILED + 1))
     continue
   fi
 
@@ -140,7 +140,7 @@ for FILE in $FILES; do
   SAVED_BYTES=$((SAVED_BYTES + SAVINGS))
   REDUCTION=$((SAVINGS * 100 / ORIG_SIZE))
   echo "✅ -${REDUCTION}% ($(numfmt --to=iec $ORIG_SIZE) → $(numfmt --to=iec $WEBP_SIZE))"
-  ((CONVERTED++))
+  CONVERTED=$((CONVERTED + 1))
 
   # Clean up work files
   rm -f "$WORK_DIR/$FILE" "$WORK_DIR/$WEBP_NAME"
