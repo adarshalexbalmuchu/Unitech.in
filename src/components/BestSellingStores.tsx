@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Package2 } from "lucide-react";
 import { CATEGORIES, formatPrice, isPlaceholderImage, getCategoryFallbackImage } from "@/lib/constants";
-import { useProducts } from "@/hooks/useProducts";
+import { useProducts, type Product } from "@/hooks/useProducts";
 
 const highlightedCategorySlugs = [
   "tower-speakers",
@@ -10,13 +11,60 @@ const highlightedCategorySlugs = [
   "led-dth-stands",
 ] as const;
 
+const IMAGE_CYCLE_MS = 2500;
+const MAX_CYCLE_IMAGES = 4;
+
 /** Override which product slug appears as the hero image per category */
 const preferredProductSlug: Partial<Record<string, string>> = {
   appliances: "2200w-infrared-cooktop",
 };
 
+/* ── Cycling image sub-component ── */
+const CyclingImage = ({ images, categorySlug, categoryLabel }: {
+  images: { src: string; alt: string }[];
+  categorySlug: string;
+  categoryLabel: string;
+}) => {
+  const [index, setIndex] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const timer = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % images.length);
+        setFading(false);
+      }, 300);
+    }, IMAGE_CYCLE_MS);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  const current = images[index];
+  if (!current) {
+    return (
+      <img
+        src={getCategoryFallbackImage(categorySlug)}
+        alt={categoryLabel}
+        className="w-full h-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <img
+      src={current.src}
+      alt={current.alt}
+      className={`w-full h-full object-contain transition-all duration-300 group-hover:scale-105 ${fading ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+      loading="lazy"
+      onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(categorySlug); }}
+    />
+  );
+};
+
 const BestSellingStores = () => {
   const { data: products = [], isLoading } = useProducts();
+  const navigate = useNavigate();
 
   const categorySections = highlightedCategorySlugs
     .map((slug) => {
@@ -24,17 +72,28 @@ const BestSellingStores = () => {
       if (!category) return null;
       const catProducts = products.filter((p) => p.category === slug);
       const preferred = preferredProductSlug[slug];
-      const hero = preferred ? catProducts.find((p) => p.slug === preferred) : undefined;
-      const items = hero
-        ? [hero]
-        : catProducts
-            .sort((a, b) => {
-              const scoreA = Number(a.is_featured) * 1000 + a.reviews_count + a.rating * 10;
-              const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
-              return scoreB - scoreA;
-            })
-            .slice(0, 1);
-      return { category, items };
+
+      // Sort by score for consistent ordering
+      const sorted = [...catProducts].sort((a, b) => {
+        const scoreA = Number(a.is_featured) * 1000 + a.reviews_count + a.rating * 10;
+        const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
+        return scoreB - scoreA;
+      });
+
+      // If there's a preferred product, put it first
+      if (preferred) {
+        const idx = sorted.findIndex((p) => p.slug === preferred);
+        if (idx > 0) {
+          const [item] = sorted.splice(idx, 1);
+          sorted.unshift(item);
+        }
+      }
+
+      // Pick up to MAX_CYCLE_IMAGES with real images
+      const withImages = sorted.filter((p) => !isPlaceholderImage(p.image_url));
+      const cycleItems = withImages.slice(0, MAX_CYCLE_IMAGES);
+
+      return { category, items: cycleItems, topProduct: sorted[0] ?? null };
     })
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
@@ -61,31 +120,28 @@ const BestSellingStores = () => {
 
       {/* ── Category cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {categorySections.map(({ category, items }) => {
+        {categorySections.map(({ category, items, topProduct }) => {
           const Icon = category.icon;
+          const images = items.map((p) => ({ src: p.image_url, alt: p.name }));
 
           return (
             <div
               key={category.slug}
-              className="group bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+              role="link"
+              tabIndex={0}
+              onClick={() => navigate(`/products/${category.slug}`)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(`/products/${category.slug}`); }}
+              className="group bg-white rounded-2xl border border-[#EBEBEB] overflow-hidden hover:shadow-[var(--vm-shadow-hover)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col cursor-pointer"
             >
-              {/* ── Product image ── */}
+              {/* ── Product image (cycling) ── */}
               <div className="bg-white aspect-[4/3] overflow-hidden">
                 {isLoading ? (
                   <div className="w-full h-full animate-pulse bg-white/70" />
-                ) : items.length > 0 && !isPlaceholderImage(items[0].image_url) ? (
-                  <img
-                    src={items[0].image_url ?? ""}
-                    alt={items[0].name}
-                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.src = getCategoryFallbackImage(category.slug); }}
-                  />
                 ) : (
-                  <img
-                    src={getCategoryFallbackImage(category.slug)}
-                    alt={category.label}
-                    className="w-full h-full object-cover"
+                  <CyclingImage
+                    images={images}
+                    categorySlug={category.slug}
+                    categoryLabel={category.label}
                   />
                 )}
               </div>
@@ -101,22 +157,21 @@ const BestSellingStores = () => {
                     <h3 className="font-bold text-[12px] md:text-[13px] leading-tight line-clamp-1">
                       {category.label}
                     </h3>
-                    {!isLoading && items.length > 0 && (
+                    {!isLoading && topProduct && (
                       <p className="text-[10px] text-muted-foreground mt-0.5 tabular-nums">
-                        from {formatPrice(Math.min(...items.map(p => p.price ?? Infinity)))}
+                        from {formatPrice(topProduct.price ?? 0)}
                       </p>
                     )}
                   </div>
                 </div>
 
                 {/* CTA button */}
-                <Link
-                  to={`/products/${category.slug}`}
-                  className="mt-auto flex items-center justify-between px-3 py-2 md:py-2.5 bg-[#111] text-white text-[11px] md:text-xs font-bold rounded-xl hover:bg-primary transition-colors duration-200 group/btn"
+                <div
+                  className="mt-auto flex items-center justify-between px-3 py-2 md:py-2.5 bg-[#111] text-white text-[11px] md:text-xs font-bold rounded-xl group-hover:bg-primary transition-colors duration-200"
                 >
                   Shop Now
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-0.5" />
-                </Link>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </div>
               </div>
 
               {/* ── Empty state ── */}
