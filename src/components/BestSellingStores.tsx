@@ -7,7 +7,7 @@ const highlightedCategorySlugs = [
   "tower-speakers",
   "home-theatre-systems",
   "appliances",
-  "dth",
+  "led-dth-stands",
 ] as const;
 
 const BestSellingStores = () => {
