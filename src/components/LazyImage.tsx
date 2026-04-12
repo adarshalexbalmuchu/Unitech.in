@@ -5,9 +5,11 @@ interface LazyImageProps {
   alt: string;
   className?: string;
   wrapperClassName?: string;
+  width?: number;
+  height?: number;
 }
 
-const LazyImage = ({ src, alt, className = "", wrapperClassName = "" }: LazyImageProps) => {
+const LazyImage = ({ src, alt, className = "", wrapperClassName = "", width, height }: LazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
@@ -22,7 +24,7 @@ const LazyImage = ({ src, alt, className = "", wrapperClassName = "" }: LazyImag
           }
         });
       },
-      { rootMargin: "50px" }
+      { rootMargin: "200px" }
     );
 
     if (imgRef.current) observer.observe(imgRef.current);
@@ -39,6 +41,9 @@ const LazyImage = ({ src, alt, className = "", wrapperClassName = "" }: LazyImag
           src={src}
           alt={alt}
           loading="lazy"
+          decoding="async"
+          width={width}
+          height={height}
           className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity duration-500`}
           onLoad={() => setIsLoaded(true)}
         />

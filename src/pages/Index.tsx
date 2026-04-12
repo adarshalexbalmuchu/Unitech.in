@@ -12,6 +12,22 @@ import CategoryHighlightBanner from "@/components/banners/CategoryHighlightBanne
 
 const Index = () => (
   <div className="min-h-screen bg-background">
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Unitech India",
+          url: "https://unitechshop.com",
+          logo: "https://unitechshop.com/unitech-logo.png",
+          description:
+            "Premium audio equipment & electronics since 1994. Tower speakers, home theatre, car audio & more.",
+          foundingDate: "1994",
+          sameAs: [],
+        }),
+      }}
+    />
     <TopBar />
     <StickyHeader />
     <LaunchCountdown />

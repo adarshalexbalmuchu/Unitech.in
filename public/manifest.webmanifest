@@ -1,0 +1,22 @@
+{
+  "name": "Unitech India – Expand Your Life",
+  "short_name": "Unitech",
+  "description": "Premium audio equipment & electronics since 1994",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e8251a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/unitech-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

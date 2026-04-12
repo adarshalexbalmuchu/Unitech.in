@@ -1,39 +1,49 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AdminGuard from "@/components/AdminGuard";
+
+// Eager: landing + product pages (critical path)
 import Index from "./pages/Index.tsx";
 import ProductListing from "./pages/ProductListing.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
-import AdminProducts from "./pages/AdminProducts.tsx";
-import AdminProductForm from "./pages/AdminProductForm.tsx";
-import AdminOrders from "./pages/AdminOrders.tsx";
-import Login from "./pages/Login.tsx";
-import SignUp from "./pages/SignUp.tsx";
-import Wishlist from "./pages/Wishlist.tsx";
-import Compare from "./pages/Compare.tsx";
-import Account from "./pages/Account.tsx";
-import MyOrders from "./pages/MyOrders.tsx";
-import OrderSuccess from "./pages/OrderSuccess.tsx";
-import OrderTracking from "./pages/OrderTracking.tsx";
-import Checkout from "./pages/Checkout.tsx";
-import Warranty from "./pages/Warranty.tsx";
-import Contact from "./pages/Contact.tsx";
-import Shipping from "./pages/Shipping.tsx";
-import Returns from "./pages/Returns.tsx";
-import FAQ from "./pages/FAQ.tsx";
-import Privacy from "./pages/Privacy.tsx";
-import Terms from "./pages/Terms.tsx";
-import HelpCenter from "./pages/HelpCenter.tsx";
-import About from "./pages/About.tsx";
-import Wholesale from "./pages/Wholesale.tsx";
-import WholesaleApply from "./pages/WholesaleApply.tsx";
-import AdminWholesaleLeads from "./pages/AdminWholesaleLeads.tsx";
-import Blog from "./pages/Blog.tsx";
-import NotFound from "./pages/NotFound.tsx";
+
+// Lazy: everything else — loaded on demand
+const AdminProducts = lazy(() => import("./pages/AdminProducts.tsx"));
+const AdminProductForm = lazy(() => import("./pages/AdminProductForm.tsx"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders.tsx"));
+const AdminWholesaleLeads = lazy(() => import("./pages/AdminWholesaleLeads.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const SignUp = lazy(() => import("./pages/SignUp.tsx"));
+const Wishlist = lazy(() => import("./pages/Wishlist.tsx"));
+const Compare = lazy(() => import("./pages/Compare.tsx"));
+const Account = lazy(() => import("./pages/Account.tsx"));
+const MyOrders = lazy(() => import("./pages/MyOrders.tsx"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess.tsx"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking.tsx"));
+const Checkout = lazy(() => import("./pages/Checkout.tsx"));
+const Warranty = lazy(() => import("./pages/Warranty.tsx"));
+const Contact = lazy(() => import("./pages/Contact.tsx"));
+const Shipping = lazy(() => import("./pages/Shipping.tsx"));
+const Returns = lazy(() => import("./pages/Returns.tsx"));
+const FAQ = lazy(() => import("./pages/FAQ.tsx"));
+const Privacy = lazy(() => import("./pages/Privacy.tsx"));
+const Terms = lazy(() => import("./pages/Terms.tsx"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter.tsx"));
+const About = lazy(() => import("./pages/About.tsx"));
+const Wholesale = lazy(() => import("./pages/Wholesale.tsx"));
+const WholesaleApply = lazy(() => import("./pages/WholesaleApply.tsx"));
+const Blog = lazy(() => import("./pages/Blog.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -54,6 +64,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter basename="/">
           <ScrollToTop />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -86,6 +97,7 @@ const App = () => (
             <Route path="/admin/wholesale-leads" element={<AdminGuard><AdminWholesaleLeads /></AdminGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

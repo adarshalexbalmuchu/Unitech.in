@@ -10,8 +10,6 @@
  */
 
 // @ts-expect-error: Deno runtime URL import
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error: Deno runtime URL import
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { assertAdminUser, AdminAuthError } from "../_shared/admin-auth.ts";
 
@@ -82,7 +80,7 @@ const HEADERS = [
   "notes",
 ];
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204 });
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
 

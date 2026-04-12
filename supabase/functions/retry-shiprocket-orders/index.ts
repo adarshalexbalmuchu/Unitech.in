@@ -15,8 +15,6 @@
  */
 
 // @ts-expect-error: Deno runtime URL import
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error: Deno runtime URL import
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { processShipRocketOrder } from "../_shared/create-shiprocket-order-core.ts";
 import { assertValidTransition } from "../_shared/fulfillment-states.ts";
@@ -29,7 +27,7 @@ const MAX_ORDERS_PER_RUN = 10;
 const MAX_RETRIES = 5;
 const COOLDOWN_MINUTES = 10;
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204 });
   }

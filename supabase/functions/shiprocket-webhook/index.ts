@@ -13,8 +13,6 @@
  */
 
 // @ts-expect-error: Deno runtime URL import
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error: Deno runtime URL import
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import {
@@ -161,7 +159,7 @@ async function auditLog(serviceClient: any, entry: Record<string, unknown>): Pro
 
 // ─── Main handler ────────────────────────────────────────────────────────────
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   // Allow only POST
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204 });

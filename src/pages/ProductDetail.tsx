@@ -365,6 +365,28 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            image: images[0],
+            description: product.description || "",
+            brand: { "@type": "Brand", name: "Unitech" },
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "INR",
+              price: product.price,
+              availability: product.stock > 0
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+              url: `https://unitechshop.com/product/${product.slug}`,
+            },
+          }),
+        }}
+      />
       <TopBar />
       <StickyHeader />
 
