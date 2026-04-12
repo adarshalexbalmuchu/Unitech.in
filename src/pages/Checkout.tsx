@@ -283,9 +283,10 @@ const Checkout = () => {
       if (error || !data?.orderId || !data?.razorpayOrderId || !data?.keyId) {
         // Extract the actual error from the Edge Function response body
         let serverMessage = "Failed to create order";
-        if (error && typeof (error as any).context?.json === "function") {
+        const ctx = (error as Record<string, unknown> | null)?.context;
+        if (ctx && typeof (ctx as Record<string, unknown>).json === "function") {
           try {
-            const body = await (error as any).context.json();
+            const body = await (ctx as { json: () => Promise<Record<string, string>> }).json();
             serverMessage = body?.error
               ? `${body.error}${body.step ? ` (step: ${body.step})` : ""}`
               : serverMessage;
