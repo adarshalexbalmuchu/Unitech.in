@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { X, Rocket } from "lucide-react";
+import { Rocket } from "lucide-react";
 
 const LAUNCH_DATE = new Date("2026-05-01T00:00:00+05:30");
-const DISMISS_KEY = "unitech-launch-dismissed";
 
 interface TimeLeft {
   days: number;
@@ -58,13 +57,6 @@ function FlipDigit({ value, label }: { value: number; label: string }) {
 
 const LaunchCountdown = () => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(getTimeLeft);
-  const [dismissed, setDismissed] = useState(() => {
-    try {
-      return sessionStorage.getItem(DISMISS_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -75,16 +67,7 @@ const LaunchCountdown = () => {
     return () => clearInterval(id);
   }, []);
 
-  if (!timeLeft || dismissed) return null;
-
-  const handleDismiss = () => {
-    setDismissed(true);
-    try {
-      sessionStorage.setItem(DISMISS_KEY, "1");
-    } catch {
-      /* storage unavailable */
-    }
-  };
+  if (!timeLeft) return null;
 
   return (
     <div className="w-full bg-[#111] border-b border-white/10">
@@ -96,7 +79,7 @@ const LaunchCountdown = () => {
             Official Launch
           </span>
           <span className="text-white/80 text-xs font-medium">
-            Unitech India launches on <span className="text-white font-semibold">1st May 2026</span>
+            Unitech Shop Launches <span className="text-white font-semibold">1st May 2026</span>
           </span>
         </div>
 
@@ -111,7 +94,7 @@ const LaunchCountdown = () => {
           <FlipDigit value={timeLeft.seconds} label="Sec" />
         </div>
 
-        {/* Right – CTA + dismiss */}
+        {/* Right – CTA */}
         <div className="flex items-center gap-2 shrink-0">
           <a
             href="/products/all"
@@ -119,13 +102,6 @@ const LaunchCountdown = () => {
           >
             Explore Now
           </a>
-          <button
-            onClick={handleDismiss}
-            aria-label="Dismiss banner"
-            className="p-1 rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
       </div>
     </div>

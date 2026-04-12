@@ -27,14 +27,27 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     if (!query.trim() || query.length < 2) return [];
     const q = query.toLowerCase();
     return products
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.brand?.toLowerCase().includes(q) ||
-          p.model_number?.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q)
-      )
+      .filter((p) => {
+        // Direct field matches
+        if (p.name.toLowerCase().includes(q)) return true;
+        if (p.category.toLowerCase().includes(q)) return true;
+        if (p.brand?.toLowerCase().includes(q)) return true;
+        if (p.model_number?.toLowerCase().includes(q)) return true;
+        if (p.description?.toLowerCase().includes(q)) return true;
+        // Meta / rich content matches
+        if (p.seo_meta_description?.toLowerCase().includes(q)) return true;
+        if (p.short_tagline?.toLowerCase().includes(q)) return true;
+        if (p.highlights?.some((h) => h.toLowerCase().includes(q))) return true;
+        if (p.perfect_for?.some((t) => t.toLowerCase().includes(q))) return true;
+        if (p.sku?.toLowerCase().includes(q)) return true;
+        // Specs values (e.g. "bluetooth", "100W")
+        if (p.specs && Object.values(p.specs).some((v) =>
+          String(v).toLowerCase().includes(q)
+        )) return true;
+        // Collections / tags
+        if (p.collections?.some((c) => c.toLowerCase().includes(q))) return true;
+        return false;
+      })
       .slice(0, 8);
   }, [query, products]);
 

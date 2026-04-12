@@ -33,57 +33,50 @@ import SiteFooter from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const BUSINESS_TYPES = ["Retailer", "Dealer", "Distributor"] as const;
 
-const CATEGORY_OPTIONS = [
-  "Tower Speakers",
-  "Home Theatre",
-  "DTH Systems",
-  "Car Audio",
-  "All Categories",
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
 ] as const;
 
-const VOLUME_OPTIONS = [
-  "Under ₹50,000",
-  "₹50,000–2,00,000",
-  "₹2,00,000–5,00,000",
-  "Above ₹5,00,000",
-] as const;
-
-const SOURCE_OPTIONS = [
-  "Google",
-  "Trade Fair",
-  "Existing Partner",
-  "Social Media",
-  "Other",
+const MAJOR_CITIES = [
+  "Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar",
+  "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Faridabad",
+  "Ghaziabad", "Gurgaon", "Guwahati", "Hyderabad", "Indore", "Jaipur",
+  "Jamshedpur", "Jodhpur", "Kanpur", "Kochi", "Kolkata", "Lucknow",
+  "Ludhiana", "Madurai", "Mangalore", "Meerut", "Mumbai", "Nagpur",
+  "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi",
+  "Surat", "Thane", "Thiruvananthapuram", "Vadodara", "Varanasi",
+  "Vijayawada", "Visakhapatnam", "Other",
 ] as const;
 
 type FormData = {
   full_name: string;
   phone: string;
-  city_state: string;
+  city: string;
+  state: string;
   business_name: string;
   business_type: string;
-  categories: string[];
-  monthly_volume: string;
-  source: string;
   gst_number: string;
 };
 
 const initialForm: FormData = {
   full_name: "",
   phone: "",
-  city_state: "",
+  city: "",
+  state: "",
   business_name: "",
   business_type: "Retailer",
-  categories: [],
-  monthly_volume: "",
-  source: "",
   gst_number: "",
 };
 
@@ -95,18 +88,6 @@ const WholesaleApply = () => {
   const set = (field: keyof FormData, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  const toggleCategory = (cat: string) => {
-    setForm((prev) => {
-      const has = prev.categories.includes(cat);
-      return {
-        ...prev,
-        categories: has
-          ? prev.categories.filter((c) => c !== cat)
-          : [...prev.categories, cat],
-      };
-    });
-  };
-
   const buildWhatsAppMessage = (): string => {
     const lines = [
       "Hello Unitech India,",
@@ -115,11 +96,10 @@ const WholesaleApply = () => {
       "",
       `Name: ${form.full_name}`,
       `Phone: ${form.phone}`,
-      `City/State: ${form.city_state}`,
+      `City: ${form.city}`,
+      `State: ${form.state}`,
       `Business: ${form.business_name}`,
       `Type: ${form.business_type}`,
-      `Categories: ${form.categories.join(", ")}`,
-      `Monthly Volume: ${form.monthly_volume}`,
       `GST: ${form.gst_number.trim() || "Not provided"}`,
       "",
       "Please share partnership details.",
@@ -136,12 +116,9 @@ const WholesaleApply = () => {
         const { error } = await supabase.from("wholesale_leads").insert({
           full_name: form.full_name,
           phone: form.phone,
-          city_state: form.city_state,
+          city_state: `${form.city}, ${form.state}`,
           business_name: form.business_name,
           business_type: form.business_type,
-          categories: form.categories,
-          monthly_volume: form.monthly_volume,
-          source: form.source,
           gst_number: form.gst_number || null,
         });
         if (error) throw error;
@@ -225,28 +202,50 @@ const WholesaleApply = () => {
             </div>
           </div>
 
-          {/* City & Business Name */}
+          {/* City & State */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="city_state">City and State *</Label>
-              <Input
-                id="city_state"
-                value={form.city_state}
-                onChange={(e) => set("city_state", e.target.value)}
+              <Label htmlFor="city">City *</Label>
+              <select
+                id="city"
+                value={form.city}
+                onChange={(e) => set("city", e.target.value)}
                 required
-                placeholder="e.g. Delhi, NCR"
-              />
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">Select city</option>
+                {MAJOR_CITIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="business_name">Business Name *</Label>
-              <Input
-                id="business_name"
-                value={form.business_name}
-                onChange={(e) => set("business_name", e.target.value)}
+              <Label htmlFor="state">State *</Label>
+              <select
+                id="state"
+                value={form.state}
+                onChange={(e) => set("state", e.target.value)}
                 required
-                placeholder="Your shop or company name"
-              />
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="">Select state</option>
+                {INDIAN_STATES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </div>
+          </div>
+
+          {/* Business Name */}
+          <div className="space-y-1.5">
+            <Label htmlFor="business_name">Business Name *</Label>
+            <Input
+              id="business_name"
+              value={form.business_name}
+              onChange={(e) => set("business_name", e.target.value)}
+              required
+              placeholder="Your shop or company name"
+            />
           </div>
 
           {/* Business Type */}
@@ -260,57 +259,6 @@ const WholesaleApply = () => {
             >
               {BUSINESS_TYPES.map((t) => (
                 <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Categories */}
-          <div className="space-y-2">
-            <Label>Product Categories Interested In</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {CATEGORY_OPTIONS.map((cat) => (
-                <label
-                  key={cat}
-                  className="flex items-center gap-2 cursor-pointer text-sm"
-                >
-                  <Checkbox
-                    checked={form.categories.includes(cat)}
-                    onCheckedChange={() => toggleCategory(cat)}
-                  />
-                  {cat}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Monthly Volume */}
-          <div className="space-y-1.5">
-            <Label htmlFor="monthly_volume">Estimated Monthly Purchase Volume</Label>
-            <select
-              id="monthly_volume"
-              value={form.monthly_volume}
-              onChange={(e) => set("monthly_volume", e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Select a range</option>
-              {VOLUME_OPTIONS.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Source */}
-          <div className="space-y-1.5">
-            <Label htmlFor="source">How did you hear about us?</Label>
-            <select
-              id="source"
-              value={form.source}
-              onChange={(e) => set("source", e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Select an option</option>
-              {SOURCE_OPTIONS.map((s) => (
-                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>
