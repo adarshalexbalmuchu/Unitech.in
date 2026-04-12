@@ -281,7 +281,23 @@ const Checkout = () => {
       });
 
       if (error || !data?.orderId || !data?.razorpayOrderId || !data?.keyId) {
-        throw new Error(error?.message || data?.error || "Failed to create order");
+        // Extract the actual error from the Edge Function response body
+        let serverMessage = "Failed to create order";
+        if (error && typeof (error as any).context?.json === "function") {
+          try {
+            const body = await (error as any).context.json();
+            serverMessage = body?.error
+              ? `${body.error}${body.step ? ` (step: ${body.step})` : ""}`
+              : serverMessage;
+          } catch {
+            // fall through
+          }
+        } else if (data?.error) {
+          serverMessage = data.error;
+        } else if (error?.message) {
+          serverMessage = error.message;
+        }
+        throw new Error(serverMessage);
       }
 
       const options = {

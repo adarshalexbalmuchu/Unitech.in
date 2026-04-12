@@ -22,8 +22,11 @@ const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "")
   .filter(Boolean);
 
 function buildCorsHeaders(origin: string | null) {
+  // If ALLOWED_ORIGINS is configured, enforce it; otherwise reflect the request origin
   const allowedOrigin =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0] || "";
+    allowedOrigins.length > 0
+      ? (origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0])
+      : (origin || "*");
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
@@ -75,6 +78,7 @@ serve(async (req) => {
     return jsonResponse({ error: "Method not allowed" }, 405, corsHeaders);
   }
 
+  let step = "init";
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -82,16 +86,23 @@ serve(async (req) => {
     const RAZORPAY_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID")!;
     const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET")!;
 
-    if (
-      !SUPABASE_URL ||
-      !SUPABASE_ANON_KEY ||
-      !SUPABASE_SERVICE_ROLE_KEY ||
-      !RAZORPAY_KEY_ID ||
-      !RAZORPAY_KEY_SECRET
-    ) {
-      throw new Error("Missing required environment variables");
+    const missingVars = [
+      !SUPABASE_URL && "SUPABASE_URL",
+      !SUPABASE_ANON_KEY && "SUPABASE_ANON_KEY",
+      !SUPABASE_SERVICE_ROLE_KEY && "SUPABASE_SERVICE_ROLE_KEY",
+      !RAZORPAY_KEY_ID && "RAZORPAY_KEY_ID",
+      !RAZORPAY_KEY_SECRET && "RAZORPAY_KEY_SECRET",
+    ].filter(Boolean);
+
+    if (missingVars.length > 0) {
+      return jsonResponse(
+        { error: `Missing env vars: ${missingVars.join(", ")}` },
+        500,
+        corsHeaders,
+      );
     }
 
+    step = "auth";
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return jsonResponse({ error: "Missing Authorization header" }, 401, corsHeaders);
@@ -110,6 +121,7 @@ serve(async (req) => {
       return jsonResponse({ error: "Unauthorized" }, 401, corsHeaders);
     }
 
+    step = "parse-body";
     const serviceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
@@ -146,6 +158,7 @@ serve(async (req) => {
       return jsonResponse({ error: "Invalid cart items" }, 400, corsHeaders);
     }
 
+    step = "check-existing-order";
     const { data: existingOrder, error: existingOrderError } = await serviceClient
       .from("orders")
       .select("id, status, razorpay_order_id, amount_total_paise, currency")
@@ -173,6 +186,7 @@ serve(async (req) => {
       );
     }
 
+    step = "fetch-products";
     const productIds = [...new Set(normalizedItems.map((item) => item.productId))];
     const { data: products, error: productsError } = await serviceClient
       .from("products")
@@ -220,6 +234,7 @@ serve(async (req) => {
     const receipt = `order_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
     const credentials = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
 
+    step = "insert-order";
     const { data: createdOrder, error: createdOrderError } = await serviceClient
       .from("orders")
       .insert({
@@ -239,6 +254,7 @@ serve(async (req) => {
       throw createdOrderError || new Error("Failed to create pending order");
     }
 
+    step = "razorpay-create-order";
     const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
       headers: {
@@ -269,6 +285,7 @@ serve(async (req) => {
       );
     }
 
+    step = "update-order-status";
     const { error: updateOrderError } = await serviceClient
       .from("orders")
       .update({
@@ -294,9 +311,10 @@ serve(async (req) => {
       corsHeaders,
     );
   } catch (error) {
-    console.error("create-razorpay-order error:", error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error(`create-razorpay-order error at step [${step}]:`, msg, error);
     return jsonResponse(
-      { error: error instanceof Error ? error.message : "Unknown error" },
+      { error: msg, step },
       500,
       corsHeaders,
     );
