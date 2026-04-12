@@ -143,7 +143,7 @@ const OrderTracking = () => {
 
     if (data.isTerminal) return; // No refresh for terminal orders
 
-    const interval = data.shipments.length === 0 ? 30000 : 120000;
+    const interval = data.shipments.length === 0 ? 60000 : 120000;
     autoRefreshRef.current = setInterval(() => fetchTracking(true), interval);
 
     return () => { if (autoRefreshRef.current) clearInterval(autoRefreshRef.current); };

@@ -235,8 +235,40 @@ const PRODUCT_SELECT_FIELDS = `
   updated_at
 `;
 
+/** Lean select for listing/card views – omits heavy JSONB and text fields */
+const PRODUCT_LIST_FIELDS = `
+  id,
+  name,
+  slug,
+  category_id,
+  categories!category_id(name, slug),
+  brand,
+  price,
+  original_price,
+  discounted_price,
+  image_url,
+  collections,
+  is_featured,
+  is_active,
+  stock,
+  rating,
+  reviews_count,
+  sale_start,
+  sale_end,
+  product_variants(id, variant_name, variant_type, price, original_price, discounted_price),
+  variant_group_id,
+  variant_group_label,
+  variant_display_name,
+  created_at,
+  updated_at
+`;
+
 type ProductQueryOptions = {
   includeDemo?: boolean;
+  /** Max rows to fetch from Supabase (omit for unlimited) */
+  limit?: number;
+  /** Pass false to disable the query (e.g. until a modal is open) */
+  enabled?: boolean;
 };
 
 const HIDE_DEMO_PRODUCTS_BY_DEFAULT =
@@ -309,17 +341,21 @@ const groupVariantProducts = (products: Product[]): Product[] => {
 
 export const useProducts = (category?: string, options?: ProductQueryOptions) => {
   const includeDemo = options?.includeDemo ?? !HIDE_DEMO_PRODUCTS_BY_DEFAULT;
+  const limit = options?.limit;
+  const enabled = options?.enabled ?? true;
 
   return useQuery({
-    queryKey: ["products", category, includeDemo],
+    queryKey: ["products", category, includeDemo, limit],
+    enabled,
     queryFn: async (): Promise<Product[]> => {
       if (!isSupabaseConfigured) {
         let items = fallbackProducts.filter((p) => p.is_active);
         if (category) items = items.filter((p) => p.category === category);
-        return applyPublicCatalogFilter(items.map(normalizeProduct), includeDemo);
+        const result = applyPublicCatalogFilter(items.map(normalizeProduct), includeDemo);
+        return limit ? result.slice(0, limit) : result;
       }
 
-      let query = supabase.from("products").select(PRODUCT_SELECT_FIELDS).eq("is_active", true);
+      let query = supabase.from("products").select(PRODUCT_LIST_FIELDS).eq("is_active", true);
       if (category) {
         const { data: catData } = await supabase!
           .from("categories")
@@ -329,42 +365,46 @@ export const useProducts = (category?: string, options?: ProductQueryOptions) =>
         if (!catData) return [];
         query = query.eq("category_id", catData.id);
       }
+      if (limit) query = query.limit(limit);
       const { data, error } = await query;
       if (error) throw error;
-      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
+      return groupVariantProducts(applyPublicCatalogFilter(((data as unknown as RawProduct[]) || []).map(normalizeProduct), includeDemo));
     },
   });
 };
 
 export const useFeaturedProducts = (options?: ProductQueryOptions) => {
   const includeDemo = options?.includeDemo ?? !HIDE_DEMO_PRODUCTS_BY_DEFAULT;
+  const limit = options?.limit ?? 16;
 
   return useQuery({
-    queryKey: ["products", "featured", includeDemo],
+    queryKey: ["products", "featured", includeDemo, limit],
     queryFn: async (): Promise<Product[]> => {
       if (!isSupabaseConfigured)
         return applyPublicCatalogFilter(
           fallbackProducts.filter((p) => p.is_featured && p.is_active).map(normalizeProduct),
           includeDemo
-        );
+        ).slice(0, limit);
       const { data, error } = await supabase
         .from("products")
-        .select(PRODUCT_SELECT_FIELDS)
+        .select(PRODUCT_LIST_FIELDS)
         .eq("is_featured", true)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .limit(limit);
       if (error) throw error;
-      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
+      return groupVariantProducts(applyPublicCatalogFilter(((data as unknown as RawProduct[]) || []).map(normalizeProduct), includeDemo));
     },
   });
 };
 
 export const useProductsByCollection = (collection: Collection | Collection[], options?: ProductQueryOptions) => {
   const includeDemo = options?.includeDemo ?? !HIDE_DEMO_PRODUCTS_BY_DEFAULT;
+  const limit = options?.limit ?? 20;
   const collections = Array.isArray(collection) ? collection : [collection];
   const normalizedCollections = collections.filter((item): item is Collection => typeof item === "string");
 
   return useQuery({
-    queryKey: ["products", "collection", ...normalizedCollections, includeDemo],
+    queryKey: ["products", "collection", ...normalizedCollections, includeDemo, limit],
     queryFn: async (): Promise<Product[]> => {
       if (normalizedCollections.length === 0) return [];
 
@@ -374,14 +414,15 @@ export const useProductsByCollection = (collection: Collection | Collection[], o
             (p) => p.is_active && normalizedCollections.some((entry) => p.collections.includes(entry))
           ).map(normalizeProduct),
           includeDemo
-        );
+        ).slice(0, limit);
       const { data, error } = await supabase
         .from("products")
-        .select(PRODUCT_SELECT_FIELDS)
+        .select(PRODUCT_LIST_FIELDS)
         .overlaps("collections", normalizedCollections)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .limit(limit);
       if (error) throw error;
-      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
+      return groupVariantProducts(applyPublicCatalogFilter(((data as unknown as RawProduct[]) || []).map(normalizeProduct), includeDemo));
     },
   });
 };

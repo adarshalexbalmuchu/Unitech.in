@@ -102,7 +102,7 @@ const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: product, isLoading, isError, error, refetch } = useProductBySlug(slug);
-  const { data: allProducts = [] } = useProducts();
+  const { data: allProducts = [] } = useProducts(product?.category, { limit: 20 });
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { user } = useAuth();

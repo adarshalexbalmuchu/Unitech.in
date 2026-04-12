@@ -16,7 +16,7 @@ const preferredProductSlug: Partial<Record<string, string>> = {
 };
 
 const BestSellingStores = () => {
-  const { data: products = [], isLoading } = useProducts();
+  const { data: products = [], isLoading } = useProducts(undefined, { limit: 30 });
 
   const categorySections = highlightedCategorySlugs
     .map((slug) => {

@@ -34,7 +34,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Images (including Supabase storage images): stale-while-revalidate
+  // Images (including Supabase storage images): cache-first
+  // Storage image URLs contain timestamps so cache-busting is built in.
   if (
     request.destination === "image" ||
     url.pathname.includes("/storage/v1/object/public/")
@@ -42,13 +43,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(request);
-        const networkFetch = fetch(request)
-          .then((response) => {
-            if (response.ok) cache.put(request, response.clone());
-            return response;
-          })
-          .catch(() => cached);
-        return cached || networkFetch;
+        if (cached) return cached;
+        const response = await fetch(request);
+        if (response.ok) cache.put(request, response.clone());
+        return response;
       })
     );
     return;

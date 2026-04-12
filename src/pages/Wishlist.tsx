@@ -10,7 +10,7 @@ import ProductCard from "@/components/ProductCard";
 
 const Wishlist = () => {
   const { wishlistItems } = useWishlist();
-  const { data: allProducts = [] } = useProducts();
+  const { data: allProducts = [] } = useProducts(undefined, { limit: 100 });
 
   const wishlistProducts = allProducts.filter((p) =>
     wishlistItems.some((item) => item.product_id === p.id)

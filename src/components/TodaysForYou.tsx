@@ -11,9 +11,9 @@ const tabs = [
 
 const TodaysForYou = () => {
   const [active, setActive] = useState(0);
-  const { data: allProducts = [] } = useProducts();
-  const { data: hotSelling = [] } = useProductsByCollection("hot-selling");
-  const { data: newArrivals = [] } = useProductsByCollection("new-arrivals");
+  const { data: allProducts = [] } = useProducts(undefined, { limit: 20 });
+  const { data: hotSelling = [] } = useProductsByCollection("hot-selling", { limit: 8 });
+  const { data: newArrivals = [] } = useProductsByCollection("new-arrivals", { limit: 8 });
 
   const topRated = useMemo(
     () => [...allProducts].sort((a, b) => b.rating - a.rating).slice(0, 8),

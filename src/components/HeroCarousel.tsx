@@ -54,14 +54,14 @@ const TICKER_ITEMS = [
 
 /* ── Hero Section ── */
 const HeroCarousel = () => {
-  const { data: products = [] } = useProducts();
+  const { data: products = [] } = useProducts(undefined, { limit: 10 });
   const hero = products.find((p) => p.name.toLowerCase().includes("8787")) || null;
   const heroImg = hero ? resolvePrimaryProductImage(hero.image_url, hero.category) : "";
   const heroPrice = hero ? `₹${(hero.discounted_price ?? hero.price ?? 0).toLocaleString("en-IN")}` : "";
   const heroOriginal = hero?.original_price ? `₹${hero.original_price.toLocaleString("en-IN")}` : "";
 
   return (
-  <section className="hero-section relative w-full overflow-hidden" style={{ background: BG }}>
+  <section className="hero-section relative w-full overflow-hidden" style={{ background: BG, minHeight: 480 }}>
     {/* Grid overlay */}
     <div
       className="absolute inset-0 pointer-events-none"

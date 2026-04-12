@@ -11,7 +11,7 @@ interface SearchModalProps {
 
 const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
   const [query, setQuery] = useState("");
-  const { data: products = [] } = useProducts();
+  const { data: products = [] } = useProducts(undefined, { limit: 100, enabled: isOpen });
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
