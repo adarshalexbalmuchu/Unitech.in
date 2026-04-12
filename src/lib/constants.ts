@@ -87,7 +87,7 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
     categories: [
       { slug: "soldering-iron", label: "Soldering Iron", icon: Wrench },
       { slug: "led-dth-stands", label: "LED / DTH Stands", icon: Tv },
-      { slug: "appliances", label: "Cooktop", icon: Refrigerator },
+      { slug: "appliances", label: "Appliances", icon: Refrigerator },
     ],
   },
 ];
@@ -113,7 +113,7 @@ const CATEGORY_FALLBACK_LABELS: Record<FallbackCategorySlug, string> = {
   "dth": "DTH",
   "soldering-iron": "Soldering Iron",
   "led-dth-stands": "LED / DTH Stands",
-  "appliances": "Cooktop",
+  "appliances": "Appliances",
   // Legacy slugs for backward compat
   "portable-speakers": "Portable Speakers",
   "car-audio": "Car Audio",

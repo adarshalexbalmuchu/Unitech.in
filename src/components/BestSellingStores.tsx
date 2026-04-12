@@ -10,6 +10,11 @@ const highlightedCategorySlugs = [
   "led-dth-stands",
 ] as const;
 
+/** Override which product slug appears as the hero image per category */
+const preferredProductSlug: Partial<Record<string, string>> = {
+  appliances: "2200w-infrared-cooktop",
+};
+
 const BestSellingStores = () => {
   const { data: products = [], isLoading } = useProducts();
 
@@ -17,14 +22,18 @@ const BestSellingStores = () => {
     .map((slug) => {
       const category = CATEGORIES.find((item) => item.slug === slug);
       if (!category) return null;
-      const items = products
-        .filter((p) => p.category === slug)
-        .sort((a, b) => {
-          const scoreA = Number(a.is_featured) * 1000 + a.reviews_count + a.rating * 10;
-          const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
-          return scoreB - scoreA;
-        })
-        .slice(0, 1);
+      const catProducts = products.filter((p) => p.category === slug);
+      const preferred = preferredProductSlug[slug];
+      const hero = preferred ? catProducts.find((p) => p.slug === preferred) : undefined;
+      const items = hero
+        ? [hero]
+        : catProducts
+            .sort((a, b) => {
+              const scoreA = Number(a.is_featured) * 1000 + a.reviews_count + a.rating * 10;
+              const scoreB = Number(b.is_featured) * 1000 + b.reviews_count + b.rating * 10;
+              return scoreB - scoreA;
+            })
+            .slice(0, 1);
       return { category, items };
     })
     .filter((s): s is NonNullable<typeof s> => Boolean(s));

@@ -18,6 +18,16 @@ export interface ProductVariant {
   discounted_price?: number;
 }
 
+export interface ProductSibling {
+  id: string;
+  name: string;
+  slug: string;
+  price: number | null;
+  discounted_price?: number | null;
+  image_url: string;
+  variant_display_name: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -63,8 +73,14 @@ export interface Product {
   sale_start: string | null;
   sale_end: string | null;
 
-  // Variants (optional)
+  // Variants (optional — from product_variants table)
   variants?: ProductVariant[];
+
+  // Variant grouping (products linked by variant_group_id)
+  variant_group_id?: string | null;
+  variant_group_label?: string | null;
+  variant_display_name?: string | null;
+  siblings?: ProductSibling[];
 
   // Timestamps
   created_at: string;
@@ -176,6 +192,9 @@ const normalizeProduct = (product: RawProduct | Product): Product => {
   sale_start: product.sale_start ?? null,
   sale_end: product.sale_end ?? null,
   variants: normalizeVariants((product as Record<string, unknown>).product_variants ?? (product as Product).variants),
+  variant_group_id: (product as Record<string, unknown>).variant_group_id as string | null ?? null,
+  variant_group_label: (product as Record<string, unknown>).variant_group_label as string | null ?? null,
+  variant_display_name: (product as Record<string, unknown>).variant_display_name as string | null ?? null,
 };
 };
 
@@ -209,6 +228,9 @@ const PRODUCT_SELECT_FIELDS = `
   sale_start,
   sale_end,
   product_variants(id, variant_name, variant_type, price, original_price, discounted_price),
+  variant_group_id,
+  variant_group_label,
+  variant_display_name,
   created_at,
   updated_at
 `;
@@ -237,6 +259,52 @@ const applyPublicCatalogFilter = (products: Product[], includeDemo: boolean): Pr
   return products.filter((product) => !isLikelyDemoProduct(product));
 };
 
+/**
+ * Group products that share a variant_group_id.
+ * Returns the cheapest product per group as the "primary" card,
+ * with all group members (including itself) attached as siblings.
+ * Products with no variant_group_id pass through unchanged.
+ */
+const groupVariantProducts = (products: Product[]): Product[] => {
+  const groups = new Map<string, Product[]>();
+  const ungrouped: Product[] = [];
+
+  for (const p of products) {
+    if (p.variant_group_id) {
+      const arr = groups.get(p.variant_group_id) ?? [];
+      arr.push(p);
+      groups.set(p.variant_group_id, arr);
+    } else {
+      ungrouped.push(p);
+    }
+  }
+
+  const grouped: Product[] = [];
+  for (const members of groups.values()) {
+    // Sort by effective price (cheapest first)
+    members.sort((a, b) => {
+      const pa = a.discounted_price ?? a.price ?? Infinity;
+      const pb = b.discounted_price ?? b.price ?? Infinity;
+      return pa - pb;
+    });
+
+    const primary = members[0];
+    const siblings: ProductSibling[] = members.map((m) => ({
+      id: m.id,
+      name: m.name,
+      slug: m.slug,
+      price: m.price,
+      discounted_price: m.discounted_price,
+      image_url: m.image_url,
+      variant_display_name: m.variant_display_name || m.name,
+    }));
+
+    grouped.push({ ...primary, siblings });
+  }
+
+  return [...ungrouped, ...grouped];
+};
+
 /* ── Hooks ─────────────────────────────────────────── */
 
 export const useProducts = (category?: string, options?: ProductQueryOptions) => {
@@ -263,7 +331,7 @@ export const useProducts = (category?: string, options?: ProductQueryOptions) =>
       }
       const { data, error } = await query;
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
+      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
     },
   });
 };
@@ -285,7 +353,7 @@ export const useFeaturedProducts = (options?: ProductQueryOptions) => {
         .eq("is_featured", true)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
+      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
     },
   });
 };
@@ -313,7 +381,64 @@ export const useProductsByCollection = (collection: Collection | Collection[], o
         .overlaps("collections", normalizedCollections)
         .eq("is_active", true);
       if (error) throw error;
-      return applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo);
+      return groupVariantProducts(applyPublicCatalogFilter(((data as RawProduct[]) || []).map(normalizeProduct), includeDemo));
+    },
+  });
+};
+
+/**
+ * Fetch a single product by slug with its variant group siblings.
+ * Used by ProductDetail to find any product (including non-primary siblings).
+ */
+export const useProductBySlug = (slug?: string) => {
+  return useQuery({
+    queryKey: ["product", "slug", slug],
+    enabled: Boolean(slug),
+    queryFn: async (): Promise<Product | null> => {
+      if (!slug) return null;
+
+      if (!isSupabaseConfigured) {
+        const found = fallbackProducts.find((p) => p.slug === slug);
+        return found ? normalizeProduct(found) : null;
+      }
+
+      const { data, error } = await supabase
+        .from("products")
+        .select(PRODUCT_SELECT_FIELDS)
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+
+      const product = normalizeProduct(data as RawProduct);
+
+      // Fetch siblings if this product belongs to a variant group
+      if (product.variant_group_id) {
+        const { data: siblingRows } = await supabase
+          .from("products")
+          .select("id, name, slug, price, discounted_price, image_url, variant_display_name")
+          .eq("variant_group_id", product.variant_group_id)
+          .eq("is_active", true)
+          .order("price");
+        if (siblingRows && siblingRows.length > 1) {
+          product.siblings = (siblingRows as Array<{
+            id: string; name: string; slug: string;
+            price: number | null; discounted_price: number | null;
+            image_url: string; variant_display_name: string | null;
+          }>).map((s) => ({
+            id: s.id,
+            name: s.name,
+            slug: s.slug,
+            price: s.price,
+            discounted_price: s.discounted_price,
+            image_url: s.image_url || "",
+            variant_display_name: s.variant_display_name || s.name,
+          }));
+        }
+      }
+
+      return product;
     },
   });
 };

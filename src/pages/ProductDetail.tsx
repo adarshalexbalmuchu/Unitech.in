@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Minus, Plus } from "lucide-react";
 import ProductImageGallery from "@/components/product/ProductImageGallery";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -7,7 +7,7 @@ import TopBar from "@/components/TopBar";
 import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ProductCard from "@/components/ProductCard";
-import { useProducts } from "@/hooks/useProducts";
+import { useProducts, useProductBySlug } from "@/hooks/useProducts";
 import type { ProductVariant } from "@/hooks/useProducts";
 import { formatPrice, getDiscountPercent, CATEGORIES, getCategoryFallbackImage, resolveProductGalleryImages } from "@/lib/constants";
 import { useCart } from "@/hooks/useCart";
@@ -100,7 +100,9 @@ const toDescriptionParagraphs = (description: string): string[] => {
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { data: allProducts = [], isLoading, isError, error, refetch } = useProducts();
+  const navigate = useNavigate();
+  const { data: product, isLoading, isError, error, refetch } = useProductBySlug(slug);
+  const { data: allProducts = [] } = useProducts();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { user } = useAuth();
@@ -112,11 +114,11 @@ const ProductDetail = () => {
   const [reviewerName, setReviewerName] = useState("");
   const [reviewComment, setReviewComment] = useState("");
 
-  const product = useMemo(() => allProducts.find((p) => p.slug === slug), [allProducts, slug]);
-
   const related = useMemo(() => {
     if (!product) return [];
-    return allProducts.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+    // Exclude the current product and its siblings from related
+    const siblingIds = new Set(product.siblings?.map((s) => s.id) ?? []);
+    return allProducts.filter((p) => p.category === product.category && p.id !== product.id && !siblingIds.has(p.id)).slice(0, 4);
   }, [allProducts, product]);
 
   const reviewsStorageKey = useMemo(() => (slug ? `product-reviews:${slug}` : ""), [slug]);
@@ -433,6 +435,31 @@ const ProductDetail = () => {
               <span className="text-sm font-semibold">{displayedRating.toFixed(1)}</span>
               <span className="text-xs md:text-sm text-muted-foreground">({displayedReviewsCount} reviews)</span>
             </div>
+
+            {/* Variant group selector (sibling products) */}
+            {product.siblings && product.siblings.length > 1 && (
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-foreground">
+                  {product.variant_group_label ?? "Variant"}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {product.siblings.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => navigate(`/product/${s.slug}`)}
+                      className={`px-3.5 py-2 rounded-lg border text-sm font-semibold transition-colors ${
+                        s.id === product.id
+                          ? "border-[#e8251a] bg-[#e8251a]/10 text-[#e8251a]"
+                          : "border-border bg-background text-foreground hover:border-[#e8251a]/50"
+                      }`}
+                    >
+                      {s.variant_display_name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Variant selector */}
             {product.variants && product.variants.length > 1 && (

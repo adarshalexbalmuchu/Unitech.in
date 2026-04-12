@@ -1,7 +1,7 @@
-import { memo, forwardRef } from "react";
+import { memo, forwardRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, ShoppingCart, Zap, TrendingUp } from "lucide-react";
-import type { Product } from "@/hooks/useProducts";
+import type { Product, ProductSibling } from "@/hooks/useProducts";
 import {
   formatPrice,
   getDiscountPercent,
@@ -24,14 +24,18 @@ const ProductCard = memo(
     const { isInWishlist, toggleWishlist } = useWishlist();
     const { addToCart } = useCart();
 
+    // Variant grouping: siblings are separate products sharing a variant_group_id
+    const hasSiblings = (product.siblings?.length ?? 0) > 1;
+    const [selectedIdx, setSelectedIdx] = useState(0);
+    const activeSibling: ProductSibling | undefined = hasSiblings ? product.siblings![selectedIdx] : undefined;
+
     const firstVariant = product.variants?.[0];
-    const sellingPrice = firstVariant?.discounted_price
-      ?? firstVariant?.price
-      ?? product.discounted_price
-      ?? product.price;
+    const sellingPrice = activeSibling
+      ? (activeSibling.discounted_price ?? activeSibling.price)
+      : (firstVariant?.discounted_price ?? firstVariant?.price ?? product.discounted_price ?? product.price);
     const originalPrice = firstVariant?.original_price ?? product.original_price;
     const discount = getDiscountPercent(sellingPrice ?? null, originalPrice ?? null);
-    const hasVariants = (product.variants?.length ?? 0) > 1;
+    const hasVariants = !hasSiblings && (product.variants?.length ?? 0) > 1;
     const wishlisted = isInWishlist(product.id);
     const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
     const isFlashSale = product.collections.includes("flash-sale");
@@ -39,9 +43,18 @@ const ProductCard = memo(
     const isNewArrival = product.collections.includes("new-arrivals");
     const lowStock = product.stock > 0 && product.stock <= 10;
     const fallbackImage = getCategoryFallbackImage(product.category);
-    const productImage = resolvePrimaryProductImage(product.image_url, product.category);
+    const activeImageUrl = activeSibling?.image_url || product.image_url;
+    const productImage = resolvePrimaryProductImage(activeImageUrl, product.category);
 
-    const handleNavigate = () => { if (product.slug) navigate(`/product/${product.slug}`); };
+    const handleNavigate = () => {
+      const slug = activeSibling?.slug || product.slug;
+      if (slug) navigate(`/product/${slug}`);
+    };
+
+    const handleSiblingClick = useCallback((e: React.MouseEvent, idx: number) => {
+      e.stopPropagation();
+      setSelectedIdx(idx);
+    }, []);
 
     const handleWishlist = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -57,8 +70,11 @@ const ProductCard = memo(
 
     const handleAddToCart = (e: React.MouseEvent) => {
       e.stopPropagation();
-      addToCart(product.id, { name: product.name, price: sellingPrice ?? 0, image_url: product.image_url });
-      toast.success("Added to cart", { description: product.name });
+      const pid = activeSibling?.id || product.id;
+      const pname = activeSibling?.name || product.name;
+      const pimg = activeSibling?.image_url || product.image_url;
+      addToCart(pid, { name: pname, price: sellingPrice ?? 0, image_url: pimg });
+      toast.success("Added to cart", { description: pname });
     };
 
     /* Badge logic: max 2 badges, discount is always primary */
@@ -171,6 +187,43 @@ const ProductCard = memo(
           >
             {product.name}
           </h3>
+
+          {/* ── Variant sibling chips ── */}
+          {hasSiblings && !compact && (() => {
+            const siblings = product.siblings!;
+            const maxVisible = 4;
+            const visible = siblings.slice(0, maxVisible);
+            const overflow = siblings.length - maxVisible;
+            return (
+              <div className="flex flex-wrap gap-1 mt-1.5" onClick={(e) => e.stopPropagation()}>
+                {visible.map((s, i) => (
+                  <button
+                    key={s.id}
+                    onClick={(e) => handleSiblingClick(e, i)}
+                    className="rounded-full transition-all duration-150"
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: "2px 8px",
+                      border: i === selectedIdx ? "1.5px solid #e8251a" : "1px solid rgba(0,0,0,0.12)",
+                      background: i === selectedIdx ? "#e8251a" : "#fff",
+                      color: i === selectedIdx ? "#fff" : "rgba(0,0,0,0.6)",
+                    }}
+                  >
+                    {s.variant_display_name}
+                  </button>
+                ))}
+                {overflow > 0 && (
+                  <span
+                    className="rounded-full"
+                    style={{ fontSize: 10, fontWeight: 600, padding: "2px 6px", color: "rgba(0,0,0,0.35)" }}
+                  >
+                    +{overflow}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Rating */}
           <div className="flex items-center gap-1 mt-1.5">
