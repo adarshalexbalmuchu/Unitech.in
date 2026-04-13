@@ -16,21 +16,21 @@ ALTER TABLE public.products_backup ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read product_variants" ON public.product_variants
   FOR SELECT TO anon, authenticated USING (true);
 CREATE POLICY "Admin write product_variants" ON public.product_variants
-  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (has_role(auth.uid(), 'admin'::text));
 
 -- price_updates: admin only
 CREATE POLICY "Admin only price_updates" ON public.price_updates
-  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (has_role(auth.uid(), 'admin'::text));
 CREATE POLICY "Admin only price_updates_staging" ON public.price_updates_staging
-  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (has_role(auth.uid(), 'admin'::text));
 
 -- products_backup: admin only
 CREATE POLICY "Admin only products_backup" ON public.products_backup
-  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  FOR ALL TO authenticated USING (has_role(auth.uid(), 'admin'::text))
+  WITH CHECK (has_role(auth.uid(), 'admin'::text));
 
 -- ───────────────────────────────────────────────────────────────────────────
 -- 2. Remove duplicate/dangerous RLS policies
@@ -82,7 +82,7 @@ REVOKE TRUNCATE ON public.product_variants FROM authenticated;
 -- ───────────────────────────────────────────────────────────────────────────
 -- 5. Secure SECURITY DEFINER functions with explicit search_path
 -- ───────────────────────────────────────────────────────────────────────────
-ALTER FUNCTION public.has_role(uuid, app_role) SET search_path = public;
+-- has_role only has a (uuid, text) overload; no app_role type exists
 ALTER FUNCTION public.has_role(uuid, text) SET search_path = public;
 ALTER FUNCTION public.handle_new_user() SET search_path = public;
 ALTER FUNCTION public.cancel_stale_orders() SET search_path = public;
