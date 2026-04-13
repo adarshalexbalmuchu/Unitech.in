@@ -78,13 +78,36 @@ const MyOrders = () => {
       return;
     }
 
+    const rows = (data || []) as OrderRow[];
+
+    // Auto-cancel any failed-payment orders that were never marked cancelled
+    const staleFailedIds = rows
+      .filter((o) => o.status === "failed" && o.fulfillment_status !== "cancelled")
+      .map((o) => o.id);
+
+    if (staleFailedIds.length > 0 && supabase) {
+      supabase
+        .from("orders")
+        .update({ fulfillment_status: "cancelled", cancellation_reason: "payment_failed" })
+        .in("id", staleFailedIds)
+        .then(({ error: autoErr }) => {
+          if (autoErr) console.error("Auto-cancel stale failed orders:", autoErr);
+        });
+      // Optimistically update local state
+      rows.forEach((o) => {
+        if (staleFailedIds.includes(o.id)) {
+          o.fulfillment_status = "cancelled";
+        }
+      });
+    }
+
     // If we got PAGE_SIZE+1 results there are more pages
-    if (data && data.length > PAGE_SIZE) {
+    if (rows.length > PAGE_SIZE) {
       setHasMore(true);
-      setOrders(data.slice(0, PAGE_SIZE) as OrderRow[]);
+      setOrders(rows.slice(0, PAGE_SIZE));
     } else {
       setHasMore(false);
-      setOrders((data || []) as OrderRow[]);
+      setOrders(rows);
     }
     setLoading(false);
   }, [user]);

@@ -358,6 +358,17 @@ const Checkout = () => {
           ondismiss: function () {
             setLoading(false);
             toast("Payment cancelled");
+            // Auto-cancel the abandoned order
+            if (supabase && data.orderId) {
+              supabase
+                .from("orders")
+                .update({ status: "failed", fulfillment_status: "cancelled", cancellation_reason: "payment_dismissed" })
+                .eq("id", data.orderId)
+                .in("status", ["pending", "payment_initiated"])
+                .then(({ error: cancelErr }) => {
+                  if (cancelErr) console.error("Auto-cancel on dismiss failed:", cancelErr);
+                });
+            }
           },
         },
       };
@@ -369,6 +380,17 @@ const Checkout = () => {
           description: failureResponse?.error?.description || "Please try again.",
         });
         setLoading(false);
+        // Auto-cancel the failed order
+        if (supabase && data.orderId) {
+          supabase
+            .from("orders")
+            .update({ status: "failed", fulfillment_status: "cancelled", cancellation_reason: "payment_failed" })
+            .eq("id", data.orderId)
+            .in("status", ["pending", "payment_initiated"])
+            .then(({ error: cancelErr }) => {
+              if (cancelErr) console.error("Auto-cancel on payment failure failed:", cancelErr);
+            });
+        }
       });
       rzp.open();
     } catch (err: unknown) {
