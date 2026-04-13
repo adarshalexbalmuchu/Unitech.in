@@ -59,5 +59,8 @@ CREATE POLICY "Admin write product_variants" ON public.product_variants
 -- 3. Now safe to drop the ambiguous overload
 DROP FUNCTION IF EXISTS public.has_role(uuid, app_role);
 
--- 4. Drop the unused app_role type
+-- 4. Convert user_roles.role from app_role enum to plain text
+ALTER TABLE public.user_roles ALTER COLUMN role TYPE text;
+
+-- 5. Drop the unused app_role type
 DROP TYPE IF EXISTS public.app_role;
