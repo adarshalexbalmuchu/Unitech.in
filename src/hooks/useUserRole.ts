@@ -15,21 +15,7 @@ export const useUserRole = () => {
     }
 
     const checkRole = async () => {
-      // Try RPC first
-      const { data, error } = await supabase.rpc("has_role", {
-        _user_id: user.id,
-        _role: "admin",
-      });
-
-      if (!error) {
-        setIsAdmin(data === true);
-        setLoading(false);
-        return;
-      }
-
-      console.warn("has_role RPC failed, falling back to direct query:", error.message);
-
-      // Fallback: query user_roles table directly
+      // Query user_roles table directly (avoids RPC overload ambiguity)
       const { data: roleRow, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
@@ -45,7 +31,7 @@ export const useUserRole = () => {
 
       console.warn("user_roles query failed, falling back to profiles:", roleError.message);
 
-      // Final fallback: check profiles.is_admin
+      // Fallback: check profiles.is_admin
       const { data: profile } = await supabase
         .from("profiles")
         .select("is_admin")
