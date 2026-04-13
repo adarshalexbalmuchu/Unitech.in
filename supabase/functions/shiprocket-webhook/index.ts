@@ -28,17 +28,23 @@ declare const Deno: {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const CORS_HEADERS: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 function jsonOk(body: unknown = { received: true }): Response {
   return new Response(JSON.stringify(body), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
   });
 }
 
 function jsonError(status: number, message: string): Response {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
   });
 }
 
@@ -162,7 +168,7 @@ async function auditLog(serviceClient: any, entry: Record<string, unknown>): Pro
 Deno.serve(async (req: Request) => {
   // Allow only POST
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
   if (req.method !== "POST") {
     return jsonError(405, "Method not allowed");

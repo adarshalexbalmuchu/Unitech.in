@@ -27,9 +27,15 @@ const MAX_ORDERS_PER_RUN = 10;
 const MAX_RETRIES = 5;
 const COOLDOWN_MINUTES = 10;
 
+const CORS_HEADERS: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
 
   // ── Auth: only service role callers ────────────────────────────────────────
@@ -39,7 +45,7 @@ Deno.serve(async (req: Request) => {
   if (authHeader !== `Bearer ${serviceRoleKey}`) {
     return new Response(
       JSON.stringify({ error: "Unauthorized" }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
+      { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   }
 
@@ -71,14 +77,14 @@ Deno.serve(async (req: Request) => {
       console.error("[retry-shiprocket-orders] query failed:", queryErr);
       return new Response(
         JSON.stringify({ error: "Failed to query eligible orders" }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
+        { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
       );
     }
 
     if (!failedOrders || failedOrders.length === 0) {
       return new Response(
         JSON.stringify({ processed: 0, succeeded: 0, escalated: 0 }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
+        { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
       );
     }
 
@@ -134,13 +140,13 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({ processed, succeeded, escalated }),
-      { status: 200, headers: { "Content-Type": "application/json" } },
+      { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   } catch (err) {
     console.error("[retry-shiprocket-orders] unhandled error:", err);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   }
 });

@@ -23,15 +23,21 @@ declare const Deno: {
   env: { get: (key: string) => string | undefined };
 };
 
+const CORS_HEADERS: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
 
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { "Content-Type": "application/json" } },
+      { status: 405, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   }
 
@@ -42,7 +48,7 @@ Deno.serve(async (req: Request) => {
   if (authHeader !== `Bearer ${serviceRoleKey}`) {
     return new Response(
       JSON.stringify({ error: "Unauthorized" }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
+      { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   }
 
@@ -53,7 +59,7 @@ Deno.serve(async (req: Request) => {
     if (!orderId) {
       return new Response(
         JSON.stringify({ error: "Missing orderId" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+        { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
       );
     }
 
@@ -64,13 +70,13 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify(result.body), {
       status: result.httpStatus,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
     });
   } catch (err) {
     console.error("[create-shiprocket-order] unhandled error:", err);
     return new Response(
       JSON.stringify({ status: "failed", error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
     );
   }
 });
