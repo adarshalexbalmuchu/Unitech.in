@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Upload, X, ImageIcon } from "lucide-react";
+import { Upload, X, ImageIcon, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAdminProducts, useCreateProduct, useUpdateProduct } from "@/hooks/useAdminProducts";
 import { CATEGORIES, COLLECTIONS } from "@/lib/constants";
 import type { Product, ProductSpecs } from "@/hooks/useProducts";
@@ -16,6 +17,9 @@ import type { Collection } from "@/lib/constants";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getErrorMessage } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import AdminLayout from "@/components/admin/AdminLayout";
+import SpecsEditor from "@/components/admin/SpecsEditor";
 
 const generateId = () => `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -66,6 +70,7 @@ const AdminProductForm = () => {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
 
+  const isMobile = useIsMobile();
   const [form, setForm] = useState<Omit<Product, "id" | "created_at" | "updated_at">>(emptyProduct);
   const [specsJson, setSpecsJson] = useState("{}");
   const [specsError, setSpecsError] = useState("");
@@ -300,224 +305,238 @@ const AdminProductForm = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-foreground">{isEdit ? "Edit Product" : "Add Product"}</h1>
-          <Button variant="outline" asChild><Link to="/admin/products">← Back</Link></Button>
+  const specsObj: Record<string, string> = (() => {
+    try { return JSON.parse(specsJson); } catch { return {}; }
+  })();
+
+  const handleSpecsEditorUpdate = (newSpecs: Record<string, string>) => {
+    const json = JSON.stringify(newSpecs, null, 2);
+    setSpecsJson(json);
+    setSpecsError("");
+  };
+
+  /* ── Section renderers ─────────────────────────────────── */
+  const basicInfoSection = (
+    <Card>
+      <CardHeader><CardTitle className="text-lg">Basic Information</CardTitle></CardHeader>
+      <CardContent className="grid gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="name">Product Name *</Label>
+            <Input id="name" value={form.name} onChange={(e) => set("name", e.target.value)} required className="min-h-[44px]" />
+            {fieldErrors.name && <p className="text-xs text-destructive">{fieldErrors.name}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="slug">Slug</Label>
+            <Input id="slug" value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="auto-generated" className="min-h-[44px]" />
+            {fieldErrors.slug && <p className="text-xs text-destructive">{fieldErrors.slug}</p>}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="description">Description</Label>
+          <Textarea id="description" value={form.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} />
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="space-y-1.5">
+            <Label>Category *</Label>
+            <Select value={form.category} onValueChange={(v) => set("category", v)} required>
+              <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select category" /></SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => <SelectItem key={c.slug} value={c.slug}>{c.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {fieldErrors.category && <p className="text-xs text-destructive">{fieldErrors.category}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="brand">Brand</Label>
+            <Input id="brand" value={form.brand || ""} onChange={(e) => set("brand", e.target.value)} className="min-h-[44px]" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="model">Model Number</Label>
+            <Input id="model" value={form.model_number || ""} onChange={(e) => set("model_number", e.target.value)} className="min-h-[44px]" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const pricingSection = (
+    <Card>
+      <CardHeader><CardTitle className="text-lg">Pricing & Inventory</CardTitle></CardHeader>
+      <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="price">Price (₹)</Label>
+          <Input id="price" type="number" value={form.price ?? ""} onChange={(e) => set("price", e.target.value ? Number(e.target.value) : null)} className="min-h-[44px]" />
+          {fieldErrors.price && <p className="text-xs text-destructive">{fieldErrors.price}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="oprice">MRP (₹)</Label>
+          <Input id="oprice" type="number" value={form.original_price ?? ""} onChange={(e) => set("original_price", e.target.value ? Number(e.target.value) : null)} className="min-h-[44px]" />
+          {fieldErrors.original_price && <p className="text-xs text-destructive">{fieldErrors.original_price}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="stock">Stock</Label>
+          <Input id="stock" type="number" value={form.stock} onChange={(e) => set("stock", Number(e.target.value))} className="min-h-[44px]" />
+          {fieldErrors.stock && <p className="text-xs text-destructive">{fieldErrors.stock}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="sku">SKU</Label>
+          <Input id="sku" value={form.sku || ""} onChange={(e) => set("sku", e.target.value)} className="min-h-[44px]" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const mediaSection = (
+    <Card>
+      <CardHeader><CardTitle className="text-lg">Media</CardTitle></CardHeader>
+      <CardContent className="grid gap-4">
+        {/* Primary Image */}
+        <div className="space-y-2">
+          <Label>Primary Image</Label>
+          <div className="flex items-center gap-4">
+            <div className="h-24 w-24 md:h-20 md:w-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+              {form.image_url && !form.image_url.includes("placeholder") ? (
+                <img src={form.image_url} alt="Primary" className="h-full w-full object-cover" />
+              ) : (
+                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <input ref={primaryInputRef} type="file" accept="image/*" className="hidden" onChange={handlePrimaryUpload} />
+              <Button type="button" variant="outline" disabled={uploading} onClick={() => primaryInputRef.current?.click()} className="min-h-[44px]">
+                <Upload className="h-4 w-4 mr-2" />
+                {uploading ? "Uploading…" : "Upload Image"}
+              </Button>
+              {form.image_url && !form.image_url.includes("placeholder") && (
+                <Button type="button" variant="ghost" size="sm" className="ml-2 text-destructive min-h-[44px]" onClick={() => set("image_url", "")}>
+                  <X className="h-4 w-4 mr-1" /> Remove
+                </Button>
+              )}
+              {fieldErrors.image_url && <p className="text-xs text-destructive mt-1">{fieldErrors.image_url}</p>}
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Basic Information</CardTitle></CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="name">Product Name *</Label>
-                  <Input id="name" value={form.name} onChange={(e) => set("name", e.target.value)} required />
-                  {fieldErrors.name && <p className="text-xs text-destructive">{fieldErrors.name}</p>}
+        {/* Additional Images — horizontal scroll on mobile */}
+        <div className="space-y-2">
+          <Label>Additional Images</Label>
+          {form.images.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+              {form.images.map((url, i) => (
+                <div key={i} className="relative group h-20 w-20 md:h-16 md:w-16 rounded-lg border border-border overflow-hidden shrink-0">
+                  <img src={url} alt={`Additional ${i + 1}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeAdditionalImage(i)}
+                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 active:opacity-100 flex items-center justify-center transition-opacity"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="slug">Slug</Label>
-                  <Input id="slug" value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="auto-generated" />
-                  {fieldErrors.slug && <p className="text-xs text-destructive">{fieldErrors.slug}</p>}
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" value={form.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} />
-              </div>
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <Label>Category *</Label>
-                  <Select value={form.category} onValueChange={(v) => set("category", v)} required>
-                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((c) => <SelectItem key={c.slug} value={c.slug}>{c.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  {fieldErrors.category && <p className="text-xs text-destructive">{fieldErrors.category}</p>}
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="brand">Brand</Label>
-                  <Input id="brand" value={form.brand || ""} onChange={(e) => set("brand", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="model">Model Number</Label>
-                  <Input id="model" value={form.model_number || ""} onChange={(e) => set("model_number", e.target.value)} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          )}
+          <input ref={additionalInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleAdditionalUpload} />
+          <Button type="button" variant="outline" disabled={uploadingAdditional} onClick={() => additionalInputRef.current?.click()} className="min-h-[44px]">
+            <Upload className="h-4 w-4 mr-2" />
+            {uploadingAdditional ? "Uploading…" : "Add Images"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-          {/* Pricing & Inventory */}
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Pricing & Inventory</CardTitle></CardHeader>
-            <CardContent className="grid sm:grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="price">Price (₹)</Label>
-                <Input id="price" type="number" value={form.price ?? ""} onChange={(e) => set("price", e.target.value ? Number(e.target.value) : null)} />
-                {fieldErrors.price && <p className="text-xs text-destructive">{fieldErrors.price}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="oprice">Original Price (₹)</Label>
-                <Input id="oprice" type="number" value={form.original_price ?? ""} onChange={(e) => set("original_price", e.target.value ? Number(e.target.value) : null)} />
-                {fieldErrors.original_price && <p className="text-xs text-destructive">{fieldErrors.original_price}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="stock">Stock</Label>
-                <Input id="stock" type="number" value={form.stock} onChange={(e) => set("stock", Number(e.target.value))} />
-                {fieldErrors.stock && <p className="text-xs text-destructive">{fieldErrors.stock}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" value={form.sku || ""} onChange={(e) => set("sku", e.target.value)} />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Media — File Upload */}
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Media</CardTitle></CardHeader>
-            <CardContent className="grid gap-4">
-              {/* Primary Image */}
-              <div className="space-y-2">
-                <Label>Primary Image</Label>
-                <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                    {form.image_url && !form.image_url.includes("placeholder") ? (
-                      <img src={form.image_url} alt="Primary" className="h-full w-full object-cover" />
-                    ) : (
-                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      ref={primaryInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handlePrimaryUpload}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={uploading}
-                      onClick={() => primaryInputRef.current?.click()}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {uploading ? "Uploading…" : "Upload Image"}
-                    </Button>
-                    {form.image_url && !form.image_url.includes("placeholder") && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="ml-2 text-destructive"
-                        onClick={() => set("image_url", "")}
-                      >
-                        <X className="h-4 w-4 mr-1" /> Remove
-                      </Button>
-                    )}
-                    {fieldErrors.image_url && <p className="text-xs text-destructive mt-1">{fieldErrors.image_url}</p>}
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Images */}
-              <div className="space-y-2">
-                <Label>Additional Images</Label>
-                {form.images.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {form.images.map((url, i) => (
-                      <div key={i} className="relative group h-16 w-16 rounded-lg border border-border overflow-hidden">
-                        <img src={url} alt={`Additional ${i + 1}`} className="h-full w-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeAdditionalImage(i)}
-                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                        >
-                          <X className="h-4 w-4 text-white" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <input
-                  ref={additionalInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleAdditionalUpload}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={uploadingAdditional}
-                  onClick={() => additionalInputRef.current?.click()}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploadingAdditional ? "Uploading…" : "Add Images"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Flags & Collections */}
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Flags & Collections</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-6 gap-y-3">
-                <div className="flex items-center gap-2">
-                  <Switch id="active" checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
-                  <Label htmlFor="active">Active</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="featured" checked={form.is_featured} onCheckedChange={(v) => set("is_featured", v)} />
-                  <Label htmlFor="featured">Featured</Label>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Collections</Label>
-                <div className="flex flex-wrap gap-4">
-                  {COLLECTIONS.map((col) => (
-                    <label key={col} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={form.collections.includes(col)} onCheckedChange={() => toggleCollection(col)} />
-                      {col}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Specs */}
-          <Card>
-            <CardHeader><CardTitle className="text-lg">Specifications (JSON)</CardTitle></CardHeader>
-            <CardContent>
-              <Textarea
-                value={specsJson}
-                onChange={(e) => handleSpecsChange(e.target.value)}
-                rows={8}
-                className="font-mono text-sm"
-              />
-              {specsError && <p className="text-destructive text-sm mt-1">{specsError}</p>}
-            </CardContent>
-          </Card>
-
-          {/* Submit */}
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => navigate("/admin/products")} disabled={isSubmitting || uploading || uploadingAdditional}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting || uploading || uploadingAdditional}>
-              {isSubmitting ? (isEdit ? "Updating…" : "Creating…") : (isEdit ? "Update Product" : "Create Product")}
-            </Button>
+  const flagsSection = (
+    <Card>
+      <CardHeader><CardTitle className="text-lg">Flags & Collections</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-6 gap-y-3">
+          <div className="flex items-center gap-2">
+            <Switch id="active" checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
+            <Label htmlFor="active">Active</Label>
           </div>
+          <div className="flex items-center gap-2">
+            <Switch id="featured" checked={form.is_featured} onCheckedChange={(v) => set("is_featured", v)} />
+            <Label htmlFor="featured">Featured</Label>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Collections</Label>
+          <div className="flex flex-wrap gap-4">
+            {COLLECTIONS.map((col) => (
+              <label key={col} className="flex items-center gap-2 text-sm cursor-pointer min-h-[44px]">
+                <Checkbox checked={form.collections.includes(col)} onCheckedChange={() => toggleCollection(col)} />
+                {col}
+              </label>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const specsSection = (
+    <Card>
+      <CardHeader><CardTitle className="text-lg">Specifications</CardTitle></CardHeader>
+      <CardContent>
+        <SpecsEditor specs={specsObj} onChange={handleSpecsEditorUpdate} />
+      </CardContent>
+    </Card>
+  );
+
+  const submitBar = (
+    <div className="flex justify-end gap-3 sticky bottom-0 bg-background py-3 border-t md:border-0 md:static md:py-0 -mx-4 px-4 md:mx-0 md:px-0">
+      <Button type="button" variant="outline" onClick={() => navigate("/admin/products")} disabled={isSubmitting || uploading || uploadingAdditional} className="min-h-[44px]">Cancel</Button>
+      <Button type="submit" disabled={isSubmitting || uploading || uploadingAdditional} className="min-h-[44px]">
+        {isSubmitting ? (isEdit ? "Updating…" : "Creating…") : (isEdit ? "Update Product" : "Create Product")}
+      </Button>
+    </div>
+  );
+
+  return (
+    <AdminLayout>
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">{isEdit ? "Edit Product" : "Add Product"}</h1>
+          <Button variant="outline" size={isMobile ? "icon" : "default"} asChild>
+            <Link to="/admin/products">{isMobile ? <ArrowLeft className="h-4 w-4" /> : "← Back"}</Link>
+          </Button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {isMobile ? (
+            /* ── MOBILE: Tab layout ─────────────────────── */
+            <Tabs defaultValue="basic" className="space-y-4">
+              <TabsList className="w-full grid grid-cols-4">
+                <TabsTrigger value="basic" className="text-xs">Basic</TabsTrigger>
+                <TabsTrigger value="pricing" className="text-xs">Pricing</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs">Media</TabsTrigger>
+                <TabsTrigger value="specs" className="text-xs">Specs</TabsTrigger>
+              </TabsList>
+              <TabsContent value="basic" className="space-y-4">
+                {basicInfoSection}
+                {flagsSection}
+              </TabsContent>
+              <TabsContent value="pricing">{pricingSection}</TabsContent>
+              <TabsContent value="media">{mediaSection}</TabsContent>
+              <TabsContent value="specs">{specsSection}</TabsContent>
+              {submitBar}
+            </Tabs>
+          ) : (
+            /* ── DESKTOP: Stacked cards ────────────────── */
+            <div className="space-y-6">
+              {basicInfoSection}
+              {pricingSection}
+              {mediaSection}
+              {flagsSection}
+              {specsSection}
+              {submitBar}
+            </div>
+          )}
         </form>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 type WholesaleLead = {
   id: string;
@@ -134,11 +135,11 @@ const AdminWholesaleLeads = () => {
 
   if (!isSupabaseConfigured) {
     return (
-      <div className="min-h-screen bg-background">
+      <AdminLayout>
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Wholesale Leads</h1>
-            <Button variant="outline" asChild>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Wholesale Leads</h1>
+            <Button variant="outline" asChild className="hidden md:inline-flex">
               <Link to="/admin/products">← Products</Link>
             </Button>
           </div>
@@ -148,22 +149,22 @@ const AdminWholesaleLeads = () => {
             </p>
           </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Wholesale Leads</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Wholesale Leads</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               {leads.length} application{leads.length !== 1 ? "s" : ""} received
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="hidden md:flex gap-2">
             <Button variant="outline" asChild>
               <Link to="/admin/products">← Products</Link>
             </Button>
@@ -171,7 +172,7 @@ const AdminWholesaleLeads = () => {
               <Link to="/admin/orders">Orders</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/">← Back to Site</Link>
+              <Link to="/">← Site</Link>
             </Button>
           </div>
         </div>
@@ -413,7 +414,7 @@ const AdminWholesaleLeads = () => {
           </>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

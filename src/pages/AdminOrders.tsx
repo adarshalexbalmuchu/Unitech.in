@@ -18,6 +18,9 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatPrice } from "@/lib/constants";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import AdminLayout from "@/components/admin/AdminLayout";
+import OrderCardMobile from "@/components/admin/OrderCardMobile";
 
 // ── Fulfillment status display ────────────────────────────────────────────────
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -100,6 +103,7 @@ interface NdrItem {
 const AdminOrders = () => {
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+  const isMobile = useIsMobile();
 
   // Orders tab state
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -431,18 +435,18 @@ const AdminOrders = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Order Management</h1>
-            <p className="text-sm text-muted-foreground">{orders.length} total orders</p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Orders</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">{orders.length} total</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild><Link to="/">← Back to Site</Link></Button>
+          <div className="hidden md:flex gap-2">
+            <Button variant="outline" asChild><Link to="/">← Site</Link></Button>
             <Button variant="outline" asChild><Link to="/admin/products">Products</Link></Button>
-            <Button variant="outline" asChild><Link to="/admin/wholesale-leads">Wholesale Leads</Link></Button>
+            <Button variant="outline" asChild><Link to="/admin/wholesale-leads">Leads</Link></Button>
           </div>
         </div>
 
@@ -470,18 +474,18 @@ const AdminOrders = () => {
           )}
 
           {/* Search + filter */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search by order ID, AWB, or customer..."
+                placeholder="Search order ID, AWB, customer…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 min-h-[44px]"
               />
             </div>
-            <Button variant="outline" size="sm" onClick={() => fetchOrders()} disabled={ordersLoading}>
-              <RefreshCw className={`w-4 h-4 mr-1.5 ${ordersLoading ? "animate-spin" : ""}`} /> Refresh
+            <Button variant="outline" size="icon" onClick={() => fetchOrders()} disabled={ordersLoading} className="min-h-[44px] min-w-[44px]">
+              <RefreshCw className={`w-4 h-4 ${ordersLoading ? "animate-spin" : ""}`} />
             </Button>
           </div>
 
@@ -516,14 +520,36 @@ const AdminOrders = () => {
             </div>
           )}
 
-          {/* Orders table */}
+          {/* Orders list */}
           {ordersLoading ? (
             <div className="py-20 text-center">
               <Loader2 className="w-8 h-8 mx-auto animate-spin text-muted-foreground" />
             </div>
           ) : filteredOrders.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">No orders match this filter.</div>
+          ) : isMobile ? (
+            /* ── MOBILE: Card layout ────────────────────────────── */
+            <div className="space-y-3">
+              {filteredOrders.map((order) => {
+                const statusConfig = STATUS_MAP[order.fulfillment_status] || STATUS_MAP.pending;
+                const isActionLoading = actionLoading[`push-${order.id}`] || actionLoading[`label-${order.id}`] || actionLoading[`pickup-${order.id}`] || actionLoading[`manifest-${order.id}`];
+
+                return (
+                  <OrderCardMobile
+                    key={order.id}
+                    order={order}
+                    statusConfig={statusConfig}
+                    isLoading={!!isActionLoading}
+                    onPush={() => handlePushToShipRocket(order)}
+                    onLabel={() => handleGenerateLabel(order)}
+                    onPickup={() => order.shipment_id && setPickupModal({ orderId: order.id, shipmentId: order.shipment_id })}
+                    onManifest={() => handleGenerateManifest(order)}
+                  />
+                );
+              })}
+            </div>
           ) : (
+            /* ── DESKTOP: Table layout ──────────────────────────── */
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -817,7 +843,7 @@ const AdminOrders = () => {
         </DialogContent>
       </Dialog>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 
