@@ -37,7 +37,7 @@ const Index = () => (
     <HomeCollectionSection
       title="Featured"
       collection={["featured", "hot-selling"]}
-      className="pb-0 md:pb-0"
+      className="pb-8 md:pb-10"
       variant="featured"
     />
     <CategoryHighlightBanner />
