@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Search, ShoppingCart } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
-import { formatPrice, CATEGORIES } from "@/lib/constants";
+import { formatPrice, CATEGORIES, ensureHttps } from "@/lib/constants";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -154,7 +154,7 @@ const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
                       >
                         <div className="w-12 h-12 rounded-md bg-surface overflow-hidden flex items-center justify-center shrink-0">
                           {p.image_url && p.image_url !== "/placeholder.svg" ? (
-                            <img src={p.image_url} alt={p.name} className="w-full h-full object-contain p-1" />
+                            <img src={ensureHttps(p.image_url)} alt={p.name} className="w-full h-full object-contain p-1" />
                           ) : (
                             <ShoppingCart className="w-5 h-5 text-muted-foreground/30" />
                           )}

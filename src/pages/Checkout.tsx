@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { isPlaceholderImage, formatPrice, FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
+import { isPlaceholderImage, formatPrice, FREE_SHIPPING_THRESHOLD, ensureHttps } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
@@ -362,7 +362,7 @@ const Checkout = () => {
             if (supabase && data.orderId) {
               supabase
                 .from("orders")
-                .update({ status: "failed", fulfillment_status: "cancelled", cancellation_reason: "payment_dismissed" })
+                .update({ status: "cancelled", fulfillment_status: "cancelled", cancellation_reason: "payment_dismissed" })
                 .eq("id", data.orderId)
                 .in("status", ["pending", "payment_initiated"])
                 .then(({ error: cancelErr }) => {
@@ -384,7 +384,7 @@ const Checkout = () => {
         if (supabase && data.orderId) {
           supabase
             .from("orders")
-            .update({ status: "failed", fulfillment_status: "cancelled", cancellation_reason: "payment_failed" })
+            .update({ status: "cancelled", fulfillment_status: "cancelled", cancellation_reason: "payment_failed" })
             .eq("id", data.orderId)
             .in("status", ["pending", "payment_initiated"])
             .then(({ error: cancelErr }) => {
@@ -523,7 +523,7 @@ const Checkout = () => {
                   <div key={item.id} className="flex gap-3 items-start py-2">
                     <div className="w-14 h-14 rounded-md bg-surface overflow-hidden flex items-center justify-center shrink-0">
                       {!isPlaceholderImage(item.product.image_url) ? (
-                        <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" />
+                        <img src={ensureHttps(item.product.image_url)} alt={item.product.name} className="w-full h-full object-cover" />
                       ) : (
                         <ShoppingCart className="w-5 h-5 text-muted-foreground/30" strokeWidth={1} />
                       )}

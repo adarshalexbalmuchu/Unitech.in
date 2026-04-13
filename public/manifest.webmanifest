@@ -6,6 +6,10 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#e8251a",
+  "serviceworker": {
+    "src": "/sw.js",
+    "scope": "/"
+  },
   "icons": [
     {
       "src": "/favicon.ico",

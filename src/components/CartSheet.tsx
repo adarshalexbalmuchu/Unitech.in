@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart, useCartCount, useCartTotal } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
-import { isPlaceholderImage } from "@/lib/constants";
+import { isPlaceholderImage, ensureHttps } from "@/lib/constants";
 
 const CartSheet = () => {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -38,7 +38,7 @@ const CartSheet = () => {
               {cartItems.map((item) => (
                 <div key={item.id} className="flex gap-3 items-start">
                   {!isPlaceholderImage(item.product.image_url) ? (
-                    <img src={item.product.image_url} alt={item.product.name} className="w-16 h-16 rounded-lg object-cover bg-surface" />
+                    <img src={ensureHttps(item.product.image_url)} alt={item.product.name} className="w-16 h-16 rounded-lg object-cover bg-surface" />
                   ) : (
                     <div className="w-16 h-16 rounded-lg bg-surface flex items-center justify-center">
                       <ShoppingCart className="w-6 h-6 text-muted-foreground/30" strokeWidth={1} />

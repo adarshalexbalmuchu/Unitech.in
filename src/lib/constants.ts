@@ -132,11 +132,15 @@ export const getCategoryFallbackImage = (category?: string | null): string => {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };
 
+/** Upgrade http:// image URLs to https:// to prevent mixed-content warnings. */
+export const ensureHttps = (url: string): string =>
+  url.startsWith("http://") ? url.replace("http://", "https://") : url;
+
 export const resolvePrimaryProductImage = (
   imageUrl?: string | null,
   category?: string | null
 ): string => {
-  if (imageUrl && !isPlaceholderImage(imageUrl)) return imageUrl;
+  if (imageUrl && !isPlaceholderImage(imageUrl)) return ensureHttps(imageUrl);
   return getCategoryFallbackImage(category);
 };
 
@@ -147,7 +151,8 @@ export const resolveProductGalleryImages = (
 ): string[] => {
   const gallery = (images || [])
     .map((img) => img?.trim())
-    .filter((img): img is string => Boolean(img) && !isPlaceholderImage(img));
+    .filter((img): img is string => Boolean(img) && !isPlaceholderImage(img))
+    .map(ensureHttps);
 
   if (gallery.length > 0) return gallery;
   return [resolvePrimaryProductImage(imageUrl, category)];

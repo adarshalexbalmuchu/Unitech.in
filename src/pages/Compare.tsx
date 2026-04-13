@@ -5,7 +5,7 @@ import StickyHeader from "@/components/StickyHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useCompare } from "@/hooks/useCompare";
 import { useCart } from "@/hooks/useCart";
-import { formatPrice, CATEGORIES } from "@/lib/constants";
+import { formatPrice, CATEGORIES, ensureHttps } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -64,7 +64,7 @@ const Compare = () => {
                         </button>
                         <div className="w-20 h-20 mx-auto mb-2 bg-surface rounded-md overflow-hidden flex items-center justify-center">
                           {p.image_url && !p.image_url.includes("placeholder") ? (
-                            <img src={p.image_url} alt={p.name} className="w-full h-full object-contain p-1" />
+                            <img src={ensureHttps(p.image_url)} alt={p.name} className="w-full h-full object-contain p-1" />
                           ) : (
                             <ShoppingCart className="w-8 h-8 text-muted-foreground/20" strokeWidth={1} />
                           )}
