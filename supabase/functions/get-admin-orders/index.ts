@@ -107,12 +107,13 @@ Deno.serve(async (req: Request) => {
         .gte("retry_count", 3);
     }
     if (search) {
-      // Search by order ID (partial UUID match) or customer name in shipping_snapshot
-      // Supabase text search on JSONB uses ->> operator via textSearch
-      // We use `or` with `ilike` on id and on shipping_snapshot->>'name'
-      const searchFilter = `id.ilike.%${search}%,shipping_snapshot->>name.ilike.%${search}%`;
-      countQuery = countQuery.or(searchFilter);
-      dataQuery = dataQuery.or(searchFilter);
+      // Sanitize search input — strip PostgREST filter metacharacters to prevent injection
+      const sanitized = search.replace(/[%_,.()"'\\]/g, "").trim();
+      if (sanitized.length > 0) {
+        const searchFilter = `id.ilike.%${sanitized}%,shipping_snapshot->>name.ilike.%${sanitized}%`;
+        countQuery = countQuery.or(searchFilter);
+        dataQuery = dataQuery.or(searchFilter);
+      }
     }
 
     // ── Get total count ─────────────────────────────────────────────────────
