@@ -342,7 +342,7 @@ const HeroCarousel = () => {
     </div>
 
     {/* ── Equalizer bar visualizer (full bleed) ── */}
-    <div className="relative z-10 pb-4" style={{ width: "100vw", left: "50%", transform: "translateX(-50%)", position: "relative" }}>
+    <div className="relative z-10 pb-4 w-full">
       <AudioBars />
     </div>
 
