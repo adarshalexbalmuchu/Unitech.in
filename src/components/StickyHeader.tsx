@@ -146,8 +146,7 @@ const StickyHeader = () => {
           {/* Desktop search */}
           <div
             onClick={() => setSearchOpen(true)}
-            className="hidden md:flex items-center gap-3 px-4 py-2.5 rounded-lg bg-muted hover:bg-muted/80 border border-transparent hover:border-border cursor-pointer transition-all"
-            style={{ flex: "1 1 0", maxWidth: 600, minWidth: 320 }}
+            className="hidden md:flex flex-1 items-center gap-3 px-4 py-2.5 rounded-lg bg-muted hover:bg-muted/80 border border-transparent hover:border-border cursor-pointer transition-all"
           >
             <Search className="w-[18px] h-[18px] text-muted-foreground shrink-0" strokeWidth={1.5} />
             <span className="text-[14px] text-muted-foreground">Search speakers, amplifiers, home theatre…</span>
