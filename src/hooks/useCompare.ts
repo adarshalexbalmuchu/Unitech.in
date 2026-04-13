@@ -6,6 +6,7 @@ interface CompareProduct {
   name: string;
   image_url: string;
   price: number | null;
+  discounted_price: number | null;
   original_price: number | null;
   rating: number;
   category: string;

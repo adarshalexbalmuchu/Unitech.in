@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import seedProducts from "@/data/seedProducts";
 import type { Product } from "@/hooks/useProducts";
+import type { Collection } from "@/lib/constants";
 
 type RawAdminProduct = Omit<Product, "category"> & {
   category_id: string | null;
@@ -26,7 +27,7 @@ const normalizeProductForWrite = (product: Product): Product => ({
     ? product.images.filter((img): img is string => typeof img === "string" && img.trim().length > 0)
     : [],
   collections: Array.isArray(product.collections)
-    ? product.collections.filter((collection): collection is string => typeof collection === "string")
+    ? product.collections.filter((collection): collection is Collection => typeof collection === "string")
     : [],
   stock: Math.max(0, Math.floor(product.stock || 0)),
   sku: product.sku ?? "",

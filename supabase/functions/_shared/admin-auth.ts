@@ -71,17 +71,21 @@ export async function assertAdminUser(req: Request, serviceClient: any): Promise
     throw new AdminAuthError("Unauthorized", 401);
   }
 
-  // Check admin role via the existing has_role() SQL function
-  // Using service client to bypass RLS on user_roles
-  const { data: isAdmin, error: roleError } = await serviceClient.rpc(
-    "has_role",
-    { _user_id: user.id, _role: "admin" },
-  );
+  // Check admin role by querying user_roles table directly
+  // Using service client to bypass RLS
+  const { data: roleRows, error: roleError } = await serviceClient
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("role", "admin")
+    .limit(1);
 
   if (roleError) {
     console.error("[admin-auth] role check failed:", roleError);
     throw new AdminAuthError("Role verification failed", 500);
   }
+
+  const isAdmin = roleRows && roleRows.length > 0;
 
   if (!isAdmin) {
     throw new AdminAuthError("Forbidden — admin role required", 403);

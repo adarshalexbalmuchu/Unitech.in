@@ -156,7 +156,7 @@ const AdminOrders = () => {
           status: o.paymentStatus || o.status || "",
           fulfillment_status: o.fulfillmentStatus || o.fulfillment_status || "pending",
           shipping_snapshot: o.shipping_snapshot || { name: o.customerName, phone: o.customerPhone },
-          amount_total_paise: o.amount_total_paise ?? (o.totalAmount != null ? Math.round(o.totalAmount * 100) : 0),
+          amount_total_paise: o.amount_total_paise ?? (o.totalAmount != null ? Math.round(Number(o.totalAmount) * 100) : 0),
           created_at: o.createdAt || o.created_at,
           shipment_id: firstShipment?.shipmentId || firstShipment?.id || undefined,
           awb_number: firstShipment?.awbNumber || firstShipment?.awb_number || undefined,
