@@ -12,31 +12,28 @@
 // @ts-expect-error: Deno runtime URL import
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { assertAdminUser, AdminAuthError } from "../_shared/admin-auth.ts";
+import { buildCorsHeaders, handleCorsPreflightOrReject } from "../_shared/cors.ts";
 
 declare const Deno: {
   env: { get: (key: string) => string | undefined };
-};
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 // ShipRocket auto-RTO typically triggers at ~48h.
 // Flag at 36h to give admin a 12-hour buffer.
 const AUTO_RTO_RISK_HOURS = 36;
 
-function json(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
+  const corsResp = handleCorsPreflightOrReject(req);
+  if (corsResp) return corsResp;
+  const corsHeaders = buildCorsHeaders(req, "GET, POST, OPTIONS");
+
+  function json(body: unknown, status: number): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   if (req.method !== "GET" && req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;

@@ -12,6 +12,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { assertAdminUser, AdminAuthError } from "../_shared/admin-auth.ts";
 import { shipRocketFetch, ShipRocketAPIError } from "../_shared/shiprocket-auth.ts";
+import { buildCorsHeaders, handleCorsPreflightOrReject } from "../_shared/cors.ts";
 
 declare const Deno: {
   env: { get: (key: string) => string | undefined };
@@ -19,21 +20,18 @@ declare const Deno: {
 
 const TERMINAL_STATUSES = new Set(["delivered", "returned", "cancelled"]);
 
-const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-function json(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-  });
-}
-
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS_HEADERS });
+  const corsResp = handleCorsPreflightOrReject(req);
+  if (corsResp) return corsResp;
+  const corsHeaders = buildCorsHeaders(req, "POST, OPTIONS");
+
+  function json(body: unknown, status: number): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
