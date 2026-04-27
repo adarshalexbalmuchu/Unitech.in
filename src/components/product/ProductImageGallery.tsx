@@ -263,14 +263,17 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
       {/* ── Fullscreen overlay ── */}
       {isFullscreen && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image preview"
           onClick={closeFullscreen}
         >
           {/* Close */}
           <button
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white"
-            onClick={closeFullscreen}
-            aria-label="Close"
+            className="absolute top-4 right-4 z-10 p-3 rounded-full bg-white/15 hover:bg-white/25 vm-transition text-white shadow-lg shadow-black/20"
+            onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}
+            aria-label="Close product image preview"
           >
             <X className="w-6 h-6" />
           </button>
