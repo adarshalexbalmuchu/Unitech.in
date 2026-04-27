@@ -7,8 +7,8 @@ const DealOfTheDayBanner = () => (
   <section className="relative w-full overflow-hidden">
     <Link to="/products" className="block">
       <img
-        src="/banners/1.png"
-        alt="Upgrade Your Everyday Essentials – With Powerful Performance"
+        src="/banners/banner1.jpeg"
+        alt="Unitech Fan – Yeh Fan Nahi, Toofan Hai"
         className="w-full h-auto object-cover"
         loading="lazy"
       />
