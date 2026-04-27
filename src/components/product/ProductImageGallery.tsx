@@ -16,8 +16,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
   const [zooming, setZooming] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
 
-  // Fullscreen scroll zoom
-  const [fsZoom, setFsZoom] = useState(1);
+  // Remove fullscreen scroll zoom
 
   // Mobile touch tracking
   const touchStartX = useRef(0);
@@ -126,11 +125,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
     pinchStartDist.current = null;
   }, [prev, next]);
 
-  // Fullscreen scroll-to-zoom
-  const handleFsWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    setFsZoom((z) => Math.min(4, Math.max(1, z - e.deltaY * 0.005)));
-  };
+  // No scroll-to-zoom in fullscreen
 
   const handleImageLoad = (idx: number) => {
     setLoadedImages((prev) => new Set(prev).add(idx));
@@ -263,16 +258,16 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
       {/* ── Fullscreen overlay ── */}
       {isFullscreen && (
         <div
-          className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
           aria-label="Product image preview"
-          style={{ overscrollBehavior: 'none' }}
+          style={{ overscrollBehavior: 'none', touchAction: 'none' }}
           onClick={closeFullscreen}
         >
           {/* Fixed close button, always visible */}
           <button
-            className="fixed top-4 right-4 z-[1001] p-3 rounded-full bg-white/15 hover:bg-white/25 vm-transition text-white shadow-lg shadow-black/20 focus:outline-none focus:ring-2 focus:ring-white"
+            className="fixed top-4 right-4 z-[10001] p-3 rounded-full bg-white/15 hover:bg-white/25 vm-transition text-white shadow-lg shadow-black/20 focus:outline-none focus:ring-2 focus:ring-white"
             onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}
             aria-label="Close product image preview"
             tabIndex={0}
@@ -281,15 +276,15 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
           </button>
 
           {/* Fixed image counter */}
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[1001] text-white/70 text-sm font-medium tabular-nums pointer-events-none">
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[10001] text-white/70 text-sm font-medium tabular-nums pointer-events-none">
             {activeIdx + 1} / {safeImages.length}
           </div>
 
           {/* Fixed prev/next arrows */}
           {safeImages.length > 1 && (
             <button
-              className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[1001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
-              onClick={(e) => { e.stopPropagation(); prev(); setFsZoom(1); }}
+              className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[10001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              onClick={(e) => { e.stopPropagation(); setActiveIdx((i) => (i > 0 ? i - 1 : safeImages.length - 1)); }}
               aria-label="Previous image"
               tabIndex={0}
             >
@@ -298,8 +293,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
           )}
           {safeImages.length > 1 && (
             <button
-              className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[1001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
-              onClick={(e) => { e.stopPropagation(); next(); setFsZoom(1); }}
+              className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[10001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              onClick={(e) => { e.stopPropagation(); setActiveIdx((i) => (i < safeImages.length - 1 ? i + 1 : 0)); }}
               aria-label="Next image"
               tabIndex={0}
             >
@@ -307,12 +302,11 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
             </button>
           )}
 
-          {/* Centered zoomable image, never scrolls out of view */}
+          {/* Centered image, never scrolls out of view, no zoom */}
           <div
             className="relative flex items-center justify-center w-full h-full"
             style={{ maxHeight: '100vh', maxWidth: '100vw' }}
             onClick={(e) => e.stopPropagation()}
-            onWheel={handleFsWheel}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onTouchMove={handleTouchMove}
@@ -324,9 +318,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               sizes="90vw"
               className="max-w-[90vw] max-h-[85vh] object-contain select-none"
               style={{
-                transform: `scale(${fsZoom})`,
                 transition: "transform 0.2s ease",
-                cursor: fsZoom > 1 ? "grab" : "default",
+                cursor: "default",
               }}
               draggable={false}
               onError={handleImageError}
@@ -335,11 +328,11 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
 
           {/* Fixed fullscreen thumbnail strip */}
           {safeImages.length > 1 && (
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[1001] flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur-sm max-w-[90vw] overflow-x-auto scrollbar-none">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[10001] flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur-sm max-w-[90vw] overflow-x-auto scrollbar-none">
               {safeImages.map((img, i) => (
                 <button
                   key={i}
-                  onClick={(e) => { e.stopPropagation(); setActiveIdx(i); setFsZoom(1); }}
+                  onClick={(e) => { e.stopPropagation(); setActiveIdx(i); }}
                   className={`w-12 h-12 rounded-md overflow-hidden border-2 flex-shrink-0 vm-transition ${
                     i === activeIdx ? "border-white" : "border-white/20 hover:border-white/50"
                   }`}
@@ -348,13 +341,6 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
                   <img src={img} alt="" loading="lazy" decoding="async" sizes="48px" className="w-full h-full object-contain p-0.5" onError={handleImageError} />
                 </button>
               ))}
-            </div>
-          )}
-
-          {/* Fixed scroll-to-zoom hint */}
-          {fsZoom === 1 && (
-            <div className="fixed bottom-4 right-4 z-[1001] text-white/40 text-xs pointer-events-none hidden md:block">
-              Scroll to zoom
             </div>
           )}
         </div>
