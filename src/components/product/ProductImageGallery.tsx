@@ -17,13 +17,10 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
   const [zooming, setZooming] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
 
-  // Remove fullscreen scroll zoom
-
   // Mobile touch tracking
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const pinchStartDist = useRef<number | null>(null);
-  const pinchStartZoom = useRef(1);
   const lastTapTime = useRef(0);
 
   const safeImages = images.length > 0 ? images : [];
@@ -46,12 +43,10 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
 
   const openFullscreen = () => {
     setIsFullscreen(true);
-    setFsZoom(1);
   };
 
   const closeFullscreen = useCallback(() => {
     setIsFullscreen(false);
-    setFsZoom(1);
   }, []);
 
   // Keyboard navigation in fullscreen
@@ -59,8 +54,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
     if (!isFullscreen) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeFullscreen();
-      if (e.key === "ArrowLeft") { prev(); setFsZoom(1); }
-      if (e.key === "ArrowRight") { next(); setFsZoom(1); }
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -95,23 +90,11 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
         openFullscreen();
       }
       lastTapTime.current = now;
-    } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      pinchStartDist.current = Math.sqrt(dx * dx + dy * dy);
-      pinchStartZoom.current = fsZoom;
     }
-  }, [fsZoom]);
+  }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2 && pinchStartDist.current !== null) {
-      e.preventDefault();
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const newZoom = Math.min(4, Math.max(1, pinchStartZoom.current * (dist / pinchStartDist.current)));
-      setFsZoom(newZoom);
-    }
+    if (e.touches.length === 2) e.preventDefault();
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
@@ -125,8 +108,6 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
     }
     pinchStartDist.current = null;
   }, [prev, next]);
-
-  // No scroll-to-zoom in fullscreen
 
   const handleImageLoad = (idx: number) => {
     setLoadedImages((prev) => new Set(prev).add(idx));
