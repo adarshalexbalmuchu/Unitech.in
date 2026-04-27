@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 
 export type ProductImageGalleryProps = {
@@ -255,19 +256,20 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
         </div>
       </div>
 
-      {/* ── Fullscreen overlay ── */}
-      {isFullscreen && (
+      {/* ── Fullscreen overlay — rendered at body root via portal to escape stacking contexts ── */}
+      {isFullscreen && createPortal(
         <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
+          className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
           aria-label="Product image preview"
           style={{ overscrollBehavior: 'none', touchAction: 'none' }}
           onClick={closeFullscreen}
         >
-          {/* Fixed close button, always visible */}
+          {/* Close button — positioned inside the overlay so it always stays above it */}
           <button
-            className="fixed top-4 right-4 z-[10001] p-3 rounded-full bg-white/15 hover:bg-white/25 vm-transition text-white shadow-lg shadow-black/20 focus:outline-none focus:ring-2 focus:ring-white"
+            className="absolute top-4 right-4 p-3 rounded-full bg-white/15 hover:bg-white/25 vm-transition text-white shadow-lg shadow-black/20 focus:outline-none focus:ring-2 focus:ring-white"
+            style={{ zIndex: 1 }}
             onClick={(e) => { e.stopPropagation(); closeFullscreen(); }}
             aria-label="Close product image preview"
             tabIndex={0}
@@ -275,15 +277,16 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
             <X className="w-6 h-6" />
           </button>
 
-          {/* Fixed image counter */}
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[10001] text-white/70 text-sm font-medium tabular-nums pointer-events-none">
+          {/* Image counter */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium tabular-nums pointer-events-none" style={{ zIndex: 1 }}>
             {activeIdx + 1} / {safeImages.length}
           </div>
 
-          {/* Fixed prev/next arrows */}
+          {/* Prev/next arrows */}
           {safeImages.length > 1 && (
             <button
-              className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[10001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              style={{ zIndex: 1 }}
               onClick={(e) => { e.stopPropagation(); setActiveIdx((i) => (i > 0 ? i - 1 : safeImages.length - 1)); }}
               aria-label="Previous image"
               tabIndex={0}
@@ -293,7 +296,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
           )}
           {safeImages.length > 1 && (
             <button
-              className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[10001] p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/10 hover:bg-white/20 vm-transition text-white focus:outline-none focus:ring-2 focus:ring-white"
+              style={{ zIndex: 1 }}
               onClick={(e) => { e.stopPropagation(); setActiveIdx((i) => (i < safeImages.length - 1 ? i + 1 : 0)); }}
               aria-label="Next image"
               tabIndex={0}
@@ -302,7 +306,7 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
             </button>
           )}
 
-          {/* Centered image, never scrolls out of view, no zoom */}
+          {/* Centered image */}
           <div
             className="relative flex items-center justify-center w-full h-full"
             style={{ maxHeight: '100vh', maxWidth: '100vw' }}
@@ -317,18 +321,15 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               decoding="async"
               sizes="90vw"
               className="max-w-[90vw] max-h-[85vh] object-contain select-none"
-              style={{
-                transition: "transform 0.2s ease",
-                cursor: "default",
-              }}
+              style={{ transition: "transform 0.2s ease", cursor: "default" }}
               draggable={false}
               onError={handleImageError}
             />
           </div>
 
-          {/* Fixed fullscreen thumbnail strip */}
+          {/* Thumbnail strip */}
           {safeImages.length > 1 && (
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[10001] flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur-sm max-w-[90vw] overflow-x-auto scrollbar-none">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur-sm max-w-[90vw] overflow-x-auto scrollbar-none" style={{ zIndex: 1 }}>
               {safeImages.map((img, i) => (
                 <button
                   key={i}
@@ -343,7 +344,8 @@ const ProductImageGallery = ({ images, alt, fallbackImage }: ProductImageGallery
               ))}
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
